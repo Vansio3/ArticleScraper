@@ -4,7 +4,7 @@
 <title>Dark Article Extractor</title>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="color-scheme" content="dark"> <!-- Hint OS about dark theme preference -->
+<meta name="color-scheme" content="dark">
 
 <style>
   /* --- Modern Dark Theme & Mobile First Base --- */
@@ -320,11 +320,9 @@
 </div> <!-- End .container -->
 
 
-<!--
-    **IMPORTANT: Include Readability.js here**
-    (Instructions remain the same)
--->
-<!-- <script src="readability.js"></script> -->
+<!-- ***** INCLUDE Readability.js SCRIPT HERE ***** -->
+<script src="readability.js"></script>
+<!-- Make sure readability.js file is in the same directory -->
 
 
 <script>
@@ -390,27 +388,34 @@
         }
 
         let article = null;
+        // Check if Readability is loaded *before* trying to use it
         if (typeof Readability === 'undefined') {
+            // THIS MESSAGE SHOULD NOT APPEAR IF THE SCRIPT TAG IS CORRECTLY INCLUDED AND THE FILE EXISTS
             console.warn("Readability.js not loaded. Falling back.");
-            // Don't display error here yet, let fallback try first
+            // Fallback logic will run below
         } else {
+            // Readability is loaded, try to use it
             try {
                  const documentClone = doc.cloneNode(true);
                  let reader = new Readability(documentClone);
                  article = reader.parse();
             } catch (readabilityError) {
                 console.error("Readability Error:", readabilityError);
-                 // Don't display error here yet, let fallback try first
+                 // Fallback logic will run below
             }
         }
 
         let extractionSource = ''; // To track how text was extracted
 
+        // Use Readability result if it's valid and substantial
         if (article && article.textContent && article.textContent.trim().length > 100) {
             extractedText.value = article.textContent.trim();
             extractionSource = 'Readability';
         } else {
-            console.log("Readability failed/insufficient, attempting fallback...");
+            // Otherwise, attempt fallback (whether Readability failed or wasn't loaded)
+            if (extractionSource === '') { // Avoid logging if Readability worked but was short
+                console.log("Readability failed or content insufficient, attempting fallback...");
+            }
             const mainElement = doc.querySelector('main') || doc.querySelector('article') || doc.querySelector('.post-content') || doc.querySelector('.entry-content') || doc.body;
 
             if (mainElement) {
@@ -421,8 +426,13 @@
                  extractedText.value = doc.body ? doc.body.textContent.trim().replace(/\s\s+/g, ' ') : '';
             }
 
+            // Check if fallback produced meaningful text
             if (extractedText.value.trim().length > 50) {
-                extractionSource = 'basic fallback';
+                 if (!article && typeof Readability !== 'undefined') {
+                      extractionSource = 'basic fallback (Readability failed)';
+                 } else {
+                      extractionSource = 'basic fallback';
+                 }
             } else {
                  // Both methods failed significantly
                  extractedText.value = ''; // Clear out any tiny remnants
@@ -435,11 +445,13 @@
             enableCopyButton(); // Enable button and potentially open details
             detailsElement.open = true; // Automatically open details on successful extraction
         } else {
-            if (typeof Readability === 'undefined'){
-                 displayError("Extraction failed. Readability.js missing & fallback found no content.");
-            } else {
-                displayError("Extraction failed: Could not get meaningful content.");
-            }
+             // Provide specific error if Readability was expected but failed AND fallback failed
+             if (typeof Readability !== 'undefined'){
+                  displayError("Extraction failed: Readability & fallback found no content.");
+             } else {
+                 // Error if Readability was missing AND fallback failed
+                  displayError("Extraction failed: Readability script missing & fallback found no content.");
+             }
             copyButton.disabled = true;
             detailsElement.open = false; // Keep closed if failed
         }
@@ -462,7 +474,6 @@
         return;
     }
 
-    // Ensure the details section is open before trying to copy (though it should be if button is enabled)
     if (!detailsElement.open) {
         detailsElement.open = true;
     }
@@ -470,14 +481,12 @@
     navigator.clipboard.writeText(extractedText.value)
       .then(() => {
         displaySuccess("Content copied to clipboard!");
-        // Maybe briefly change button text?
         copyButton.textContent = 'Copied!';
         setTimeout(() => { copyButton.textContent = 'Copy Extracted Text'; }, 1500);
       })
       .catch(err => {
         console.error('Failed to copy text: ', err);
         try {
-            // Need the textarea to be visible for execCommand
             detailsElement.open = true;
             extractedText.select();
             document.execCommand('copy');
@@ -495,7 +504,6 @@
     extractButton.disabled = false;
     copyButton.disabled = true; // Start disabled
     copyButton.textContent = 'Copy Extracted Text'; // Reset button text
-    // Don't clear text on reset, only on new extraction start (handleExtraction clears implicitly)
     detailsElement.open = false; // Close details section on reset
   }
 
