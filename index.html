@@ -1,71 +1,120 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <title>Article Text Extractor</title>
 <meta charset="UTF-8">
+<!-- Crucial for responsiveness: sets viewport width and initial scale -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <style>
+  /* --- Global Styles & Mobile First Base --- */
+  :root {
+    --primary-color: #007bff;
+    --primary-hover-color: #0056b3;
+    --error-color: #dc3545;
+    --success-color: #28a745;
+    --text-color: #333;
+    --light-gray: #f4f4f4;
+    --medium-gray: #ccc;
+    --white: #fff;
+    --border-radius: 4px;
+    --spacing-unit: 15px; /* Base spacing */
+  }
+
+  * {
+    box-sizing: border-box; /* Include padding and border in element's total width/height */
+    margin: 0;
+    padding: 0;
+  }
+
   body {
-    font-family: sans-serif;
-    margin: 20px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+    margin: 0; /* Remove default body margin */
+    padding: var(--spacing-unit); /* Add padding around the content */
     line-height: 1.6;
-    background-color: #f4f4f4;
-    color: #333;
+    background-color: var(--light-gray);
+    color: var(--text-color);
+    display: flex; /* Use flexbox for centering container */
+    flex-direction: column;
+    align-items: center; /* Center content horizontally */
+    min-height: 100vh; /* Ensure body takes at least full viewport height */
+  }
+
+  .container {
+     width: 100%; /* Full width on mobile */
+     max-width: 700px; /* Max width for larger screens, defined later */
+     background-color: var(--white);
+     padding: var(--spacing-unit);
+     border-radius: calc(var(--border-radius) * 2);
+     box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+     margin-bottom: var(--spacing-unit);
   }
 
   h1 {
-    color: #0056b3;
+    color: var(--primary-hover-color);
     text-align: center;
-  }
-
-  #input-container,
-  #output-container {
-    background-color: #fff;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    margin-bottom: 20px;
+    font-size: 1.8em; /* Relative font size */
+    margin-bottom: calc(var(--spacing-unit) * 1.5);
   }
 
   label {
     display: block;
-    margin-bottom: 5px;
+    margin-bottom: calc(var(--spacing-unit) / 3);
     font-weight: bold;
+    font-size: 0.95em;
+  }
+
+  #input-area {
+      display: flex;
+      flex-direction: column; /* Stack input and button on mobile */
+      gap: calc(var(--spacing-unit) / 2); /* Space between input and button */
   }
 
   #url-input {
-    width: calc(100% - 120px); /* Adjust width considering button */
-    padding: 10px;
-    margin-right: 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    box-sizing: border-box; /* Include padding in width */
+    width: 100%; /* Full width */
+    padding: calc(var(--spacing-unit) * 0.7);
+    border: 1px solid var(--medium-gray);
+    border-radius: var(--border-radius);
+    font-size: 1em;
   }
 
   #extract-button,
   #copy-button {
-    padding: 10px 18px;
+    width: 100%; /* Full width button on mobile */
+    padding: calc(var(--spacing-unit) * 0.75) var(--spacing-unit);
     cursor: pointer;
-    background-color: #007bff;
-    color: white;
+    background-color: var(--primary-color);
+    color: var(--white);
     border: none;
-    border-radius: 4px;
+    border-radius: var(--border-radius);
     font-size: 1em;
-    transition: background-color 0.2s ease;
+    font-weight: bold;
+    text-align: center;
+    transition: background-color 0.2s ease, transform 0.1s ease;
   }
 
   #extract-button:hover,
   #copy-button:hover:not(:disabled) {
-    background-color: #0056b3;
+    background-color: var(--primary-hover-color);
+  }
+
+  #extract-button:active,
+  #copy-button:active:not(:disabled) {
+      transform: scale(0.98); /* Subtle press effect */
+  }
+
+  #copy-button {
+    margin-top: calc(var(--spacing-unit) / 2); /* Space above copy button */
   }
 
   #copy-button:disabled {
-    background-color: #cccccc;
+    background-color: var(--medium-gray);
     cursor: not-allowed;
   }
 
   #loading-indicator {
     display: none; /* Hidden by default */
-    margin: 15px 0;
+    margin: var(--spacing-unit) 0;
     text-align: center;
     font-style: italic;
     color: #555;
@@ -73,60 +122,121 @@
 
   #extracted-text {
     width: 100%;
-    height: 300px; /* Increased height */
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    box-sizing: border-box;
-    margin-bottom: 10px; /* Space before copy button */
-    font-family: monospace; /* Good for plain text */
-    white-space: pre-wrap; /* Preserve whitespace and wrap */
+    height: 250px; /* Slightly smaller default height for mobile */
+    padding: calc(var(--spacing-unit) * 0.7);
+    border: 1px solid var(--medium-gray);
+    border-radius: var(--border-radius);
+    margin-bottom: 0; /* Remove margin, space handled by copy button */
+    font-family: monospace;
+    white-space: pre-wrap;
+    font-size: 0.9em;
+    resize: vertical; /* Allow vertical resize only */
   }
 
   #status-messages {
-      margin-top: 15px;
-      min-height: 1.5em; /* Reserve space */
+      margin-top: var(--spacing-unit);
+      min-height: 1.5em;
+      text-align: center;
+      font-weight: bold;
+      font-size: 0.9em;
   }
 
   #error-message {
-    color: #dc3545; /* Red */
-    font-weight: bold;
+    color: var(--error-color);
   }
 
   #success-message {
-    color: #28a745; /* Green */
-    font-weight: bold;
+    color: var(--success-color);
+  }
+
+  /* --- Tablet & Larger Screens (min-width media queries) --- */
+
+  /* Small tablets and up */
+  @media (min-width: 600px) {
+    h1 {
+        font-size: 2.2em;
+    }
+
+    .container {
+        padding: calc(var(--spacing-unit) * 1.5);
+    }
+
+    #input-area {
+        flex-direction: row; /* Input and button side-by-side */
+        align-items: center; /* Align items vertically */
+    }
+
+    #url-input {
+        flex-grow: 1; /* Allow input to take available space */
+        /* Width is now controlled by flexbox, remove explicit width */
+    }
+
+    #extract-button {
+        width: auto; /* Button takes its natural width */
+        flex-shrink: 0; /* Prevent button from shrinking */
+    }
+
+    #extracted-text {
+        height: 300px; /* Increase height a bit */
+        font-size: 0.95em;
+    }
+
+    #copy-button {
+        width: auto; /* Auto width for copy button too */
+        display: inline-block; /* Allow text-align center on parent to work */
+    }
+
+     #output-container {
+        text-align: center; /* Center the inline-block copy button */
+    }
+  }
+
+  /* Desktops and up */
+  @media (min-width: 992px) {
+    /* Optional: Slightly larger fonts or spacing for very large screens */
+     body {
+        padding: calc(var(--spacing-unit) * 1.5);
+     }
+     .container {
+        padding: calc(var(--spacing-unit) * 2);
+     }
+     #extracted-text {
+        height: 350px; /* Even more height */
+     }
   }
 
 </style>
 </head>
 <body>
 
-<h1>Article Text Extractor</h1>
+<!-- Wrap main content in a container for centering and max-width -->
+<div class="container">
+    <h1>Article Text Extractor</h1>
 
-<div id="input-container">
-  <label for="url-input">Enter URL or text containing a URL:</label>
-  <div>
-      <input type="text" id="url-input" placeholder="e.g., https://example.com/article or just paste text with a link">
-      <button id="extract-button">Extract Main Text</button>
-  </div>
-</div>
+    <div id="input-container">
+      <label for="url-input">Enter URL or text containing a URL:</label>
+      <!-- New div for input+button flex layout -->
+      <div id="input-area">
+          <input type="text" id="url-input" placeholder="e.g., https://example.com/article">
+          <button id="extract-button">Extract Text</button>
+      </div>
+    </div>
 
-<div id="loading-indicator">
-    <!-- You could replace this text with a spinner SVG or GIF -->
-    Fetching and processing content...
-</div>
+    <div id="loading-indicator">
+        Fetching and processing content...
+    </div>
 
-<div id="output-container">
-  <label for="extracted-text">Extracted Text:</label>
-  <textarea id="extracted-text" readonly placeholder="Extracted text will appear here"></textarea>
-  <button id="copy-button" disabled>Copy Text</button>
-</div>
+    <div id="output-container">
+      <label for="extracted-text">Extracted Text:</label>
+      <textarea id="extracted-text" readonly placeholder="Extracted text will appear here"></textarea>
+      <button id="copy-button" disabled>Copy Text</button>
+    </div>
 
-<div id="status-messages">
-    <div id="error-message"></div>
-    <div id="success-message"></div>
-</div>
+    <div id="status-messages">
+        <div id="error-message"></div>
+        <div id="success-message"></div>
+    </div>
+</div> <!-- End .container -->
 
 
 <!--
@@ -139,6 +249,7 @@
 
 
 <script>
+  // JavaScript remains the same as the previous version
   const urlInput = document.getElementById('url-input');
   const extractButton = document.getElementById('extract-button');
   const loadingIndicator = document.getElementById('loading-indicator');
@@ -151,7 +262,7 @@
   copyButton.addEventListener('click', copyTextToClipboard);
 
   function handleExtraction() {
-    resetUI(); // Clear previous results and messages
+    resetUI();
 
     const inputText = urlInput.value.trim();
     if (!inputText) {
@@ -159,8 +270,6 @@
         return;
     }
 
-    // Regular expression to find the first valid HTTP/HTTPS URL in the input text
-    // Handles URLs that might be surrounded by other characters.
     const urlRegex = /https?:\/\/[^\s/$.?#].[^\s]*/i;
     const match = inputText.match(urlRegex);
 
@@ -170,39 +279,26 @@
     }
 
     const targetUrl = match[0];
-    console.log("Extracted URL:", targetUrl); // Log the found URL for debugging
+    console.log("Extracted URL:", targetUrl);
 
-    // **Crucially:** Use a CORS proxy to bypass CORS restrictions in the browser.
-    // **Important:** Public CORS proxies are unreliable and have rate limits.
-    // They might be slow, go down, or block certain sites.
-    // Consider running your own proxy for stability.
-    // Example proxies (choose one or make configurable):
-    // const corsProxyUrl = 'https://cors-anywhere.herokuapp.com/'; // Often requires activation
-    const corsProxyUrl = 'https://api.allorigins.win/raw?url='; // A popular choice
-    // const corsProxyUrl = 'https://corsproxy.io/?'; // Another option
-    const proxiedUrl = corsProxyUrl + encodeURIComponent(targetUrl); // Encode the target URL
+    const corsProxyUrl = 'https://api.allorigins.win/raw?url=';
+    const proxiedUrl = corsProxyUrl + encodeURIComponent(targetUrl);
 
     loadingIndicator.style.display = 'block';
-    extractButton.disabled = true; // Disable button during processing
+    extractButton.disabled = true;
 
     fetch(proxiedUrl)
       .then(response => {
         if (!response.ok) {
-          // Provide more specific feedback if possible
           let errorMsg = `Proxy fetch failed: ${response.status} ${response.statusText}`;
-          if (response.status === 404) {
-            errorMsg += ". The URL might be incorrect or the content not found via the proxy.";
-          } else if (response.status === 403) {
-             errorMsg += ". Access denied. The target site might be blocking the proxy.";
-          } else if (response.status >= 500) {
-             errorMsg += ". The CORS proxy server might be down or having issues.";
-          }
+          if (response.status === 404) errorMsg += ". URL not found via proxy.";
+          else if (response.status === 403) errorMsg += ". Access denied (proxy blocked?).";
+          else if (response.status >= 500) errorMsg += ". Proxy server error.";
           throw new Error(errorMsg);
         }
         return response.text();
       })
       .then(html => {
-        // Attempt to parse the HTML content
         let doc;
         try {
             const parser = new DOMParser();
@@ -212,70 +308,54 @@
             throw new Error("Failed to parse the HTML content.");
         }
 
-        // **Main Content Extraction using Readability.js (recommended)**
         let article = null;
         if (typeof Readability === 'undefined') {
-            console.warn("Readability.js is not loaded. Falling back to basic extraction.");
-            displayError("Readability.js script not loaded. Using basic fallback (results may vary)."); // Inform user
-            // Proceed with fallback without throwing an error immediately
+            console.warn("Readability.js not loaded. Falling back.");
+            displayError("Readability.js script not loaded. Using basic fallback.");
         } else {
             try {
-                // Clone the document context for Readability to avoid modifying the original
                  const documentClone = doc.cloneNode(true);
                  let reader = new Readability(documentClone);
                  article = reader.parse();
             } catch (readabilityError) {
                 console.error("Readability Error:", readabilityError);
-                // Don't throw yet, let fallback attempt it
-                displayError("Readability.js failed to parse. Trying basic fallback.");
+                displayError("Readability.js failed. Trying basic fallback.");
             }
         }
 
-
-        if (article && article.textContent && article.textContent.trim().length > 100) { // Check if Readability gave substantial content
+        if (article && article.textContent && article.textContent.trim().length > 100) {
             extractedText.value = article.textContent.trim();
-            displaySuccess("Article text extracted successfully using Readability.");
+            displaySuccess("Extracted using Readability.");
             enableCopyButton();
         } else {
-            // Fallback: Simple heuristic if Readability is missing, failed, or gave poor results
-            console.log("Readability failed or content insufficient, attempting fallback...");
-            const mainElement = doc.querySelector('main') || doc.querySelector('article') || doc.querySelector('.post-content') || doc.querySelector('.entry-content') || doc.body; // Added common class selectors and body fallback
+            console.log("Readability failed/insufficient, attempting fallback...");
+            const mainElement = doc.querySelector('main') || doc.querySelector('article') || doc.querySelector('.post-content') || doc.querySelector('.entry-content') || doc.body;
 
             if (mainElement) {
-                // Basic cleaning: remove script/style tags if present within the fallback element
-                const scripts = mainElement.querySelectorAll('script, style, nav, header, footer, aside, .sidebar, .ads');
+                const scripts = mainElement.querySelectorAll('script, style, nav, header, footer, aside, .sidebar, .ads, [aria-hidden="true"]'); // Added more elements to remove
                 scripts.forEach(el => el.remove());
                 extractedText.value = mainElement.textContent.trim();
             } else {
-                 // Should be rare if doc.body exists, but handle it.
                  extractedText.value = doc.body ? doc.body.textContent.trim() : '';
             }
 
-            // Check if fallback actually got something meaningful
-            if (extractedText.value.trim().length > 50) { // Use a smaller threshold for fallback success
-                 if (!article) { // Only show fallback success if Readability wasn't even attempted or failed completely
-                     displaySuccess("Article text extracted using basic fallback.");
-                 } else {
-                     displaySuccess("Used basic fallback as Readability result was short.");
-                 }
+            if (extractedText.value.trim().length > 50) {
+                 displaySuccess("Extracted using basic fallback.");
                  enableCopyButton();
             } else {
-                 // If both Readability and fallback failed or produced very little text
-                 displayError("Extraction failed: Could not extract meaningful content from the page.");
-                 extractedText.value = ''; // Clear any minimal text found
-                 copyButton.disabled = true; // Ensure copy is disabled
+                 displayError("Extraction failed: Could not get meaningful content.");
+                 extractedText.value = '';
+                 copyButton.disabled = true;
             }
         }
       })
       .catch(error => {
-        // Catch errors from fetch, parsing, or explicitly thrown errors
         console.error("Error during fetch or extraction:", error);
         displayError(`Error: ${error.message}`);
       })
       .finally(() => {
-        // This block always runs, whether fetch succeeded or failed
         loadingIndicator.style.display = 'none';
-        extractButton.disabled = false; // Re-enable button
+        extractButton.disabled = false;
       });
   }
 
@@ -291,13 +371,12 @@
       })
       .catch(err => {
         console.error('Failed to copy text: ', err);
-        // Fallback for older browsers or insecure contexts (rare now)
         try {
-            extractedText.select(); // Select the text
-            document.execCommand('copy'); // Try the deprecated method
-            displaySuccess("Content copied to clipboard! (using fallback)");
+            extractedText.select();
+            document.execCommand('copy');
+            displaySuccess("Copied (using fallback)!");
         } catch (execErr) {
-             displayError("Failed to copy text automatically. Please copy manually.");
+             displayError("Failed to copy automatically.");
         }
       });
   }
@@ -305,24 +384,25 @@
   function resetUI() {
     errorMessage.textContent = '';
     successMessage.textContent = '';
-    // extractedText.value = ''; // Keep text until next successful extraction? Optional.
-    // copyButton.disabled = true; // Keep enabled if there's text? Optional.
     loadingIndicator.style.display = 'none';
-    extractButton.disabled = false; // Ensure button is enabled initially
+    extractButton.disabled = false;
+    // Decide if you want to clear text/disable copy on new attempt
+    // extractedText.value = '';
+    // copyButton.disabled = true;
   }
 
   function displayError(message) {
     errorMessage.textContent = message;
-    successMessage.textContent = ''; // Clear success message
+    successMessage.textContent = '';
   }
 
   function displaySuccess(message) {
     successMessage.textContent = message;
-    errorMessage.textContent = ''; // Clear error message
+    errorMessage.textContent = '';
   }
 
   function enableCopyButton() {
-    if(extractedText.value.trim()){ // Only enable if there's actual text
+    if(extractedText.value.trim()){
         copyButton.disabled = false;
     } else {
         copyButton.disabled = true;
