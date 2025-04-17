@@ -1,0 +1,23 @@
+{
+    "name": "Article Extractor",
+    "short_name": "Extractor",
+    "description": "Extracts the main text content from web articles.",
+    "start_url": "/ArticleScraper/", 
+    "display": "standalone", 
+    "background_color": "#1a1a1a", 
+    "theme_color": "#00aeff", 
+    "icons": [
+      {
+        "src": "icons/android-chrome-192x192.png", 
+        "sizes": "192x192",
+        "type": "image/png",
+        "purpose": "any maskable" 
+      },
+      {
+        "src": "icons/android-chrome-512x512.png", 
+        "sizes": "512x512",
+        "type": "image/png",
+        "purpose": "any maskable"
+      }
+    ]
+  }

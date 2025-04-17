@@ -9,12 +9,20 @@
 <!-- Pico.css - Include BEFORE custom styles -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@latest/css/pico.min.css">
 
-<!-- Favicon Links (Remember to replace paths/files) -->
+<!-- === PWA / Installability === -->
+<!-- Favicon Links (Adjust paths if icons are not in 'icons/' folder) -->
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32x32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16x16.png">
 <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/android-chrome-192x192.png">
-<!-- <link rel="shortcut icon" href="favicon.ico"> -->
+<!-- <link rel="shortcut icon" href="favicon.ico"> --> <!-- Optional: If favicon.ico is in root -->
+
+<!-- Link to Web App Manifest (Assumes manifest.json is in the root) -->
+<link rel="manifest" href="manifest.json">
+
+<!-- Theme color for browser UI -->
+<meta name="theme-color" content="#00aeff"> <!-- Match manifest theme_color -->
+<!-- === END PWA / Installability === -->
 
 <style>
   /* --- Custom Styles & Overrides (Mobile First) --- */
@@ -30,7 +38,6 @@
       background-color: var(--pico-color-dark-background); color: var(--pico-color);
       display: flex; flex-direction: column; align-items: center; /* Centers container horizontally */
       min-height: 100vh; overflow-x: hidden;
-      /* Removed justify-content */
   }
 
   /* Container Styles */
@@ -43,8 +50,7 @@
       /* Transition for Transform and Margin */
       transition: transform 0.6s cubic-bezier(0.25, 0.8, 0.25, 1),
                   margin-top 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
-      /* Ensure initial transform doesn't cause jump */
-      transform: translateY(0);
+      transform: translateY(0); /* Default state */
   }
 
   /* Initial state: push container down */
@@ -57,14 +63,11 @@
   #copy-button-wrapper,
   #extracted-content-details,
   #status-messages {
-      display: block;
-      opacity: 0;
-      max-height: 0; /* Use max-height for collapse effect */
-      overflow: hidden;
-      transform: translateY(15px); /* Start slightly lower */
+      display: block; opacity: 0; max-height: 0;
+      overflow: hidden; transform: translateY(15px);
       /* Transition with delay - starts DURING container move */
-      transition: opacity 0.5s ease-out 0.25s, /* Start after 0.25s */
-                  max-height 0.5s ease-out 0.25s, /* Animate height */
+      transition: opacity 0.5s ease-out 0.25s,
+                  max-height 0.5s ease-out 0.25s,
                   transform 0.5s ease-out 0.25s;
   }
 
@@ -72,16 +75,13 @@
   main.container:not(.state-initial) #copy-button-wrapper,
   main.container:not(.state-initial) #extracted-content-details,
   main.container:not(.state-initial) #status-messages {
-      opacity: 1;
-      max-height: 1000px; /* Large enough value */
-      transform: translateY(0);
+      opacity: 1; max-height: 1000px; transform: translateY(0);
   }
   /* --- End Animation / State Styles --- */
 
 
   h1 {
-     font-size: 1.75em;
-     margin-bottom: var(--pico-block-spacing-vertical);
+     font-size: 1.75em; margin-bottom: var(--pico-block-spacing-vertical);
      text-align: center; /* Keep centered */
   }
 
@@ -140,11 +140,20 @@
   #success-message { color: var(--pico-color-green-500); }
   #retry-message { color: var(--pico-color-amber-500); }
 
+  /* Hide output sections initially via CSS class on parent */
+  main.container.state-initial #copy-button-wrapper,
+  main.container.state-initial #extracted-content-details,
+  main.container.state-initial #status-messages {
+      opacity: 0;
+      max-height: 0;
+      /* Keep display block or similar so they occupy space for layout calculations if needed,
+         but opacity/max-height handle the visual hiding */
+  }
+
   /* Media Queries */
   @media (min-width: 768px) {
     h1 { font-size: 2em; }
     #extracted-text { height: 300px; }
-    /* Optional: Adjust initial centering push down for larger screens */
     /* main.container.state-initial { transform: translateY(25vh); } */
   }
   @media (min-width: 992px) {
@@ -160,7 +169,6 @@
 <main class="container state-initial">
     <h1>Article Extractor</h1>
 
-    <!-- Label removed -->
     <div id="input-group">
         <input type="text" id="url-input" name="url-input" placeholder="Paste URL or text here...">
         <button id="extract-button" title="Extract Text">
@@ -168,7 +176,7 @@
         </button>
     </div>
 
-    <!-- Output sections hidden via CSS by default, animated via container state -->
+    <!-- Output sections hidden via CSS class on parent & animation -->
     <div id="copy-button-wrapper">
        <button id="copy-button" disabled>
             <span class="icon-wrapper"></span>
@@ -428,6 +436,23 @@
   function displayRetryMessage(message) { retryMessage.textContent = message; errorMessage.textContent = ''; successMessage.textContent = ''; }
   function clearRetryMessage() { retryMessage.textContent = ''; }
   function enableCopyButton() { if(extractedText.value.trim().length >= TEXT_PREFIX.length){ copyButton.disabled = false; } else { copyButton.disabled = true; } }
+
+
+  // --- PWA Service Worker Registration ---
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      // IMPORTANT: Path must be relative to the ORIGIN
+      // Use '/RepositoryName/sw.js' for GitHub Pages repo sites
+      navigator.serviceWorker.register('/ArticleScraper/sw.js') // ADJUST PATH based on your repo name
+        .then(registration => {
+          console.log('ServiceWorker registration successful with scope: ', registration.scope);
+        })
+        .catch(err => {
+          console.error('ServiceWorker registration failed: ', err);
+        });
+    });
+  }
+  // --- END PWA Service Worker Registration ---
 
 </script>
 
