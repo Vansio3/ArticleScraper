@@ -229,6 +229,20 @@
   if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('/ArticleScraper/sw.js') .then(registration => { console.log('ServiceWorker registration successful with scope: ', registration.scope); }) .catch(err => { console.error('ServiceWorker registration failed: ', err); }); }); }
   // --- END PWA Service Worker Registration ---
 
+  // --- HANDLE INCOMING SHARE TARGET ---
+  function handleIncomingShare() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const sharedUrl = urlParams.get('url');
+      const sharedText = urlParams.get('text');
+      let textToInput = '';
+      if (sharedUrl) { console.log("Received shared URL:", sharedUrl); textToInput = sharedUrl; }
+      else if (sharedText) { console.log("Received shared text:", sharedText); const urlRegex = /https?:\/\/[^\s/$.?#].[^\s]*/i; const match = sharedText.match(urlRegex); if (match) { textToInput = match[0]; console.log("Extracted URL from shared text:", textToInput); } else { textToInput = sharedText; } }
+      if (textToInput && urlInput) { urlInput.value = textToInput; console.log("Populated input field with shared data."); console.log("Auto-triggering extraction from share..."); triggerExtractionDebounced(); } // Auto-trigger
+  }
+  // Run the share handler on load
+  window.addEventListener('load', handleIncomingShare);
+  // --- END INCOMING SHARE TARGET ---
+
 </script>
 
 </body>
