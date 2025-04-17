@@ -9,20 +9,18 @@
 <!-- Pico.css - Include BEFORE custom styles -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@latest/css/pico.min.css">
 
-<!-- === PWA / Installability === -->
-<!-- Favicon Links (Adjust paths if icons are not in 'icons/' folder) -->
+<!-- Favicon Links (Remember to replace paths/files) -->
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32x32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16x16.png">
 <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/android-chrome-192x192.png">
-<!-- <link rel="shortcut icon" href="favicon.ico"> --> <!-- Optional: If favicon.ico is in root -->
+<!-- <link rel="shortcut icon" href="favicon.ico"> -->
 
 <!-- Link to Web App Manifest (Assumes manifest.json is in the root) -->
 <link rel="manifest" href="manifest.json">
 
 <!-- Theme color for browser UI -->
 <meta name="theme-color" content="#00aeff"> <!-- Match manifest theme_color -->
-<!-- === END PWA / Installability === -->
 
 <style>
   /* --- Custom Styles & Overrides (Mobile First) --- */
@@ -36,42 +34,36 @@
       font-family: var(--font-family);
       margin: 0; padding: var(--pico-spacing); line-height: 1.6;
       background-color: var(--pico-color-dark-background); color: var(--pico-color);
-      display: flex; flex-direction: column; align-items: center; /* Centers container horizontally */
+      display: flex; flex-direction: column; align-items: center;
       min-height: 100vh; overflow-x: hidden;
   }
 
-  /* Container Styles */
   main.container {
+      position: relative; /* For settings button positioning */
       padding: calc(var(--pico-spacing) * 1.5);
-      margin-top: calc(var(--pico-spacing) * 2); /* Final top spacing */
+      margin-top: calc(var(--pico-spacing) * 2);
       margin-bottom: var(--pico-spacing);
       max-width: 700px; width: 90%;
-
-      /* Transition for Transform and Margin */
       transition: transform 0.6s cubic-bezier(0.25, 0.8, 0.25, 1),
                   margin-top 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
-      transform: translateY(0); /* Default state */
+      transform: translateY(0);
   }
-
-  /* Initial state: push container down */
   main.container.state-initial {
-      transform: translateY(20vh); /* Adjust vh for centering preference */
-      margin-top: var(--pico-spacing); /* Less margin when centered */
+      transform: translateY(20vh);
+      margin-top: var(--pico-spacing);
   }
 
-  /* Default state for output elements (hidden) */
+  /* Default state for output elements */
   #copy-button-wrapper,
   #extracted-content-details,
   #status-messages {
       display: block; opacity: 0; max-height: 0;
       overflow: hidden; transform: translateY(15px);
-      /* Transition with delay - starts DURING container move */
       transition: opacity 0.5s ease-out 0.25s,
                   max-height 0.5s ease-out 0.25s,
                   transform 0.5s ease-out 0.25s;
   }
-
-  /* Styles for output elements when visible (triggered by parent container state) */
+  /* Styles for output elements when visible */
   main.container:not(.state-initial) #copy-button-wrapper,
   main.container:not(.state-initial) #extracted-content-details,
   main.container:not(.state-initial) #status-messages {
@@ -80,12 +72,52 @@
   /* --- End Animation / State Styles --- */
 
 
+  /* --- Settings Button Positioning --- */
+  #settings-button {
+      position: absolute;
+      top: var(--pico-spacing);
+      right: var(--pico-spacing);
+      padding: calc(var(--pico-spacing) * 0.3);
+      width: auto; height: auto;
+      border-radius: 50%; line-height: 0;
+      /* Use outline contrast for visibility */
+      /* Pico applies base button styles, use specificity if needed */
+  }
+   #settings-button svg {
+       width: 1.1em; height: 1.1em;
+       vertical-align: middle;
+   }
+  /* --- End Settings Button Positioning --- */
+
+
+  /* --- Settings Dialog Adjustments --- */
+  dialog#settings-dialog {
+      max-width: 500px;
+      border: 1px solid var(--pico-contrast-border); /* Optional border */
+  }
+  dialog#settings-dialog textarea {
+      margin-bottom: var(--pico-spacing);
+      min-height: 80px; /* Ensure decent height */
+  }
+   dialog#settings-dialog footer {
+       text-align: right;
+   }
+    /* Style close button like Pico's modal example */
+   dialog header > button[aria-label="Close"] {
+      margin-left: auto; /* Push to right */
+      margin-bottom: 0; /* Override potential bottom margin */
+   }
+  /* --- End Dialog Adjustments --- */
+
+
   h1 {
      font-size: 1.75em; margin-bottom: var(--pico-block-spacing-vertical);
      text-align: center; /* Keep centered */
+     /* Make space for settings button if needed */
+     /* padding-right: calc(var(--pico-spacing) * 3); */
   }
 
-  /* --- Input Group Styling (Search Bar Look) --- */
+  /* --- Input Group Styling --- */
   #input-group {
       display: flex; align-items: center; background-color: var(--pico-form-element-background-color);
       border-radius: var(--pico-border-radius-pill); border: var(--pico-border-width) solid var(--pico-form-element-border-color);
@@ -101,7 +133,7 @@
   }
   #url-input::placeholder { color: var(--pico-secondary); }
 
-  /* --- Extract Button Style (Circle) --- */
+  /* --- Extract Button Style --- */
   #extract-button {
       flex-shrink: 0; border: none; background-color: var(--pico-primary); color: var(--pico-primary-inverse);
       margin: 4px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center;
@@ -140,16 +172,6 @@
   #success-message { color: var(--pico-color-green-500); }
   #retry-message { color: var(--pico-color-amber-500); }
 
-  /* Hide output sections initially via CSS class on parent */
-  main.container.state-initial #copy-button-wrapper,
-  main.container.state-initial #extracted-content-details,
-  main.container.state-initial #status-messages {
-      opacity: 0;
-      max-height: 0;
-      /* Keep display block or similar so they occupy space for layout calculations if needed,
-         but opacity/max-height handle the visual hiding */
-  }
-
   /* Media Queries */
   @media (min-width: 768px) {
     h1 { font-size: 2em; }
@@ -162,11 +184,15 @@
 
 </style>
 </head>
-<!-- Body no longer needs initial-view class -->
+<!-- Start with container centered -->
 <body data-theme="dark">
 
-<!-- Container starts with state-initial class -->
 <main class="container state-initial">
+    <!-- Settings Button -->
+    <button id="settings-button" class="outline contrast" title="Settings" aria-label="Settings">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+    </button>
+
     <h1>Article Extractor</h1>
 
     <div id="input-group">
@@ -198,6 +224,26 @@
     </div>
 </main>
 
+<!-- Settings Dialog -->
+<dialog id="settings-dialog">
+    <article>
+        <header>
+            <button aria-label="Close" rel="prev" id="settings-close-button"></button>
+            <strong>Settings</strong>
+        </header>
+        <form id="settings-form">
+             <label for="prefix-textarea">
+                Prefix Text (prepended to extracted content):
+                <textarea id="prefix-textarea" name="prefix" rows="4" placeholder="Enter text to prepend..."></textarea>
+            </label>
+            <footer>
+                <button type="submit" id="settings-save-button">Save Prefix</button>
+            </footer>
+        </form>
+    </article>
+</dialog>
+<!-- End Settings Dialog -->
+
 <!-- ***** INCLUDE Readability.js SCRIPT HERE ***** -->
 <script src="readability.js"></script>
 
@@ -207,15 +253,20 @@
   const MAX_RETRIES = 3;
   const RETRY_DELAY_MS = 1500;
   const DEBOUNCE_DELAY_MS = 500;
-  const TEXT_PREFIX = "Summarise the key points from the following article:\n\n";
+  const DEFAULT_TEXT_PREFIX = "Summarise the key points from the following article:\n\n"; // Default
+  const PREFIX_STORAGE_KEY = 'articleExtractorPrefix'; // localStorage key
 
   // --- SVG Icons ---
   const ICON_COPY_SVG = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-copy"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>`;
   const ICON_CHECK_SVG = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-check"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
 
 
+  // --- State Variable ---
+  let currentTextPrefix = DEFAULT_TEXT_PREFIX; // Holds the active prefix
+
+
   // --- Element References ---
-  const mainContainer = document.querySelector('main.container'); // Reference to main container
+  const mainContainer = document.querySelector('main.container');
   const urlInput = document.getElementById('url-input');
   const extractButton = document.getElementById('extract-button');
   const extractedText = document.getElementById('extracted-text');
@@ -227,20 +278,75 @@
   const retryMessage = document.getElementById('retry-message');
   const detailsElement = document.getElementById('extracted-content-details');
   const copyButtonWrapper = document.getElementById('copy-button-wrapper');
+  // Settings Dialog Elements
+  const settingsButton = document.getElementById('settings-button');
+  const settingsDialog = document.getElementById('settings-dialog');
+  const settingsCloseButton = document.getElementById('settings-close-button');
+  const settingsForm = document.getElementById('settings-form');
+  const prefixTextarea = document.getElementById('prefix-textarea');
+  const settingsSaveButton = document.getElementById('settings-save-button');
 
   // --- Debounce Timer ---
   let debounceTimer;
 
-  // --- Initial Setup ---
-  function setInitialCopyIcon() {
-      if (copyButtonIconWrapper) {
-          copyButtonIconWrapper.innerHTML = ICON_COPY_SVG;
+  // --- Load Prefix from Storage ---
+  function loadPrefix() {
+      try {
+          const storedPrefix = localStorage.getItem(PREFIX_STORAGE_KEY);
+          if (storedPrefix !== null) {
+              currentTextPrefix = storedPrefix;
+              console.log("Loaded prefix from localStorage");
+          } else {
+              currentTextPrefix = DEFAULT_TEXT_PREFIX;
+          }
+      } catch (e) {
+          console.error("Could not access localStorage. Using default prefix.", e);
+          currentTextPrefix = DEFAULT_TEXT_PREFIX;
+      }
+      if (prefixTextarea) { // Ensure textarea exists before setting value
+          prefixTextarea.value = currentTextPrefix;
       }
   }
+
+  // --- Initial Setup ---
+  function setInitialCopyIcon() {
+      if (copyButtonIconWrapper) copyButtonIconWrapper.innerHTML = ICON_COPY_SVG;
+  }
+  loadPrefix(); // Load prefix when script runs
   setInitialCopyIcon();
 
+  // --- Settings Dialog Logic ---
+  function openSettings() {
+      if (!settingsDialog) return;
+      prefixTextarea.value = currentTextPrefix; // Ensure textarea shows current prefix on open
+      settingsDialog.showModal();
+  }
+  function closeSettings() {
+      if (!settingsDialog) return;
+      settingsDialog.close();
+  }
+  function saveSettings(event) {
+      event.preventDefault();
+      if (!prefixTextarea) return;
+      const newPrefix = prefixTextarea.value;
+      currentTextPrefix = newPrefix;
+      try {
+          localStorage.setItem(PREFIX_STORAGE_KEY, newPrefix);
+          console.log("Saved prefix to localStorage");
+          displaySuccess("Prefix saved!");
+          setTimeout(clearRetryMessage, 2000); // Clear message after delay
+      } catch (e) {
+          console.error("Could not save prefix to localStorage.", e);
+          displayError("Could not save prefix.");
+      }
+      closeSettings();
+  }
 
   // --- Event Listeners ---
+  settingsButton?.addEventListener('click', openSettings);
+  settingsCloseButton?.addEventListener('click', closeSettings);
+  settingsForm?.addEventListener('submit', saveSettings);
+
   extractButton.addEventListener('click', () => {
       if (extractButton.getAttribute('aria-busy') === 'true') return;
       clearTimeout(debounceTimer);
@@ -290,7 +396,7 @@
   }
 
   async function handleExtraction() {
-    resetUI(); // Adds state-initial class back to container
+    resetUI();
     const inputText = urlInput.value.trim();
     if (!inputText) { displayError("Please enter text containing a URL."); return; }
     const urlRegex = /https?:\/\/[^\s/$.?#].[^\s]*/i;
@@ -336,12 +442,10 @@
 
         // Update UI based on extraction outcome
         if (extractionSource) {
-            extractedText.value = TEXT_PREFIX + rawExtractedText; // Prepend prefix
+            extractedText.value = currentTextPrefix + rawExtractedText; // Use current prefix
             displaySuccess(`Extracted using ${extractionSource}.`);
             enableCopyButton();
-
             mainContainer.classList.remove('state-initial'); // Trigger animation
-
             detailsElement.open = true; // Open details
         } else {
              // Handle failure
@@ -371,7 +475,6 @@
   }
 
    function setLoadingState(isLoading) {
-        // Only manage the button's busy state now
         if (isLoading) { extractButton.setAttribute('aria-busy', 'true'); }
         else { extractButton.removeAttribute('aria-busy'); }
     }
@@ -384,28 +487,15 @@
     navigator.clipboard.writeText(extractedText.value)
       .then(() => {
         displaySuccess("Content copied to clipboard!");
-
         if (copyButtonIconWrapper) copyButtonIconWrapper.innerHTML = ICON_CHECK_SVG;
         if (copyButtonTextWrapper) copyButtonTextWrapper.textContent = 'Copied!';
         copyButton.classList.add('secondary');
-
-        setTimeout(() => {
-            setInitialCopyIcon();
-             if (copyButtonTextWrapper) copyButtonTextWrapper.textContent = 'Copy Extracted Text';
-            copyButton.classList.remove('secondary');
-        }, 2000);
-
+        setTimeout(() => { setInitialCopyIcon(); if (copyButtonTextWrapper) copyButtonTextWrapper.textContent = 'Copy Extracted Text'; copyButton.classList.remove('secondary'); }, 2000);
       })
       .catch(err => {
           console.error('Failed to copy text: ', err);
-          try {
-              detailsElement.open = true;
-              extractedText.select();
-              document.execCommand('copy');
-              displaySuccess("Copied (using fallback)!");
-          } catch (execErr) {
-               displayError("Failed to copy automatically.");
-          }
+          try { detailsElement.open = true; extractedText.select(); document.execCommand('copy'); displaySuccess("Copied (using fallback)!"); }
+          catch (execErr) { displayError("Failed to copy automatically."); }
       });
   }
 
@@ -435,15 +525,15 @@
   function displaySuccess(message) { successMessage.textContent = message; errorMessage.textContent = ''; retryMessage.textContent = ''; }
   function displayRetryMessage(message) { retryMessage.textContent = message; errorMessage.textContent = ''; successMessage.textContent = ''; }
   function clearRetryMessage() { retryMessage.textContent = ''; }
-  function enableCopyButton() { if(extractedText.value.trim().length >= TEXT_PREFIX.length){ copyButton.disabled = false; } else { copyButton.disabled = true; } }
+  function enableCopyButton() { if(extractedText.value.trim().length >= currentTextPrefix.length){ copyButton.disabled = false; } else { copyButton.disabled = true; } } // Use current prefix
 
 
   // --- PWA Service Worker Registration ---
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-      // IMPORTANT: Path must be relative to the ORIGIN
-      // Use '/RepositoryName/sw.js' for GitHub Pages repo sites
-      navigator.serviceWorker.register('/ArticleScraper/sw.js') // ADJUST PATH based on your repo name
+      // IMPORTANT: Adjust path based on your GitHub Pages setup
+      // e.g., '/YourRepositoryName/sw.js'
+      navigator.serviceWorker.register('/ArticleScraper/sw.js') // ADJUST PATH HERE
         .then(registration => {
           console.log('ServiceWorker registration successful with scope: ', registration.scope);
         })
