@@ -48,8 +48,6 @@
   #extract-button.reset-mode { background-color: var(--pico-color-red-550); color: #fff; transform: rotate(180deg); }
   #extract-button.reset-mode:hover:not([aria-busy=true]) { background-color: var(--pico-color-red-600); }
   #extract-button.reset-mode:active:not([aria-busy=true]) { transform: rotate(180deg) scale(0.95); }
-
-  /* Copy/Share Button Styles */
   #copy-button-wrapper { margin-bottom: calc(var(--pico-spacing) / 2); display: flex; justify-content: center; gap: var(--pico-spacing); flex-wrap: wrap; }
   #copy-button, #share-button { background-color: var(--pico-card-background-color); color: var(--pico-contrast-foreground); border: 1px solid var(--pico-contrast-border); padding: calc(var(--pico-spacing) * 0.6) calc(var(--pico-spacing) * 1.0); border-radius: var(--pico-border-radius); display: inline-flex; align-items: center; justify-content: center; gap: calc(var(--pico-spacing) * 0.5); transition: background-color var(--pico-transition), border-color var(--pico-transition), transform 0.1s ease, box-shadow var(--pico-transition), opacity 0.2s ease; cursor: pointer; font-weight: var(--pico-font-weight-medium); width: auto; display: none; /* Hide initially */ }
   #copy-button.enabled, #share-button.enabled { display: inline-flex; } /* Show if enabled by JS */
@@ -59,8 +57,6 @@
   #copy-button:not(:disabled):active, #share-button:not(:disabled):active { transform: translateY(0px); box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1); }
   #copy-button:disabled, #share-button:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none; transform: none; background-color: var(--pico-card-background-color); color: var(--pico-contrast-foreground); border-color: var(--pico-contrast-border); }
   #copy-button.secondary { background-color: var(--pico-secondary-background); border-color: var(--pico-secondary-border); color: var(--pico-secondary-foreground); }
-
-  /* Other Styles */
   #extracted-text { font-family: var(--pico-font-monospace); height: 250px; resize: vertical; margin-bottom: 0; }
   details summary { font-weight: var(--pico-font-weight-semibold); margin-top: var(--pico-spacing); }
   details > div { padding-top: var(--pico-form-element-spacing-vertical); }
@@ -68,8 +64,6 @@
   #error-message { color: var(--pico-color-red-500); }
   #success-message { color: var(--pico-color-green-500); }
   #retry-message { color: var(--pico-color-amber-500); }
-
-  /* Media Queries */
   @media (min-width: 768px) { h1 { font-size: 2em; } #extracted-text { height: 300px; } }
   @media (min-width: 992px) { #extracted-text { height: 350px; } }
 </style>
@@ -148,10 +142,9 @@
   const ICON_RESET_SVG = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>`;
   const ICON_SHARE_SVG = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg>`;
 
-
   // --- State Variable ---
   let currentTextPrefix = DEFAULT_TEXT_PREFIX; let isInResetMode = false;
-  const isShareSupported = typeof navigator.share === 'function'; // Check share support
+  const isShareSupported = typeof navigator.share === 'function';
 
   // --- Element References ---
   const mainContainer = document.querySelector('main.container'); const urlInput = document.getElementById('url-input'); const extractButton = document.getElementById('extract-button'); const extractedText = document.getElementById('extracted-text'); const copyButton = document.getElementById('copy-button'); const copyButtonIconWrapper = copyButton.querySelector('.icon-wrapper'); const copyButtonTextWrapper = copyButton.querySelector('.text-wrapper'); const shareButton = document.getElementById('share-button'); const shareButtonIconWrapper = shareButton?.querySelector('.icon-wrapper'); const shareButtonTextWrapper = shareButton?.querySelector('.text-wrapper'); const errorMessage = document.getElementById('error-message'); const successMessage = document.getElementById('success-message'); const retryMessage = document.getElementById('retry-message'); const detailsElement = document.getElementById('extracted-content-details'); const copyButtonWrapper = document.getElementById('copy-button-wrapper'); const settingsButton = document.getElementById('settings-button'); const settingsDialog = document.getElementById('settings-dialog'); const settingsCloseButton = document.getElementById('settings-close-button'); const settingsForm = document.getElementById('settings-form'); const prefixTextarea = document.getElementById('prefix-textarea'); const settingsSaveButton = document.getElementById('settings-save-button'); const prefixSummariseBtn = document.getElementById('prefix-summarise-btn'); const prefixFactcheckBtn = document.getElementById('prefix-factcheck-btn'); const prefixExplainBtn = document.getElementById('prefix-explain-btn');
@@ -167,15 +160,37 @@
   function setInitialCopyIcon() { if (copyButtonIconWrapper) copyButtonIconWrapper.innerHTML = ICON_COPY_SVG; }
   function setInitialShareIcon() { if (isShareSupported && shareButtonIconWrapper) shareButtonIconWrapper.innerHTML = ICON_SHARE_SVG; }
   loadPrefix(); setInitialCopyIcon(); setInitialShareIcon(); setInitialButtonState();
-  // Show action buttons based on support
-  copyButton.classList.add('enabled');
-  if (isShareSupported && shareButton) { shareButton.classList.add('enabled'); }
-
+  copyButton.classList.add('enabled'); if (isShareSupported && shareButton) { shareButton.classList.add('enabled'); }
 
   // --- Settings Dialog Logic ---
   function openSettings() { if (!settingsDialog) return; prefixTextarea.value = currentTextPrefix; settingsDialog.showModal(); }
   function closeSettings() { if (!settingsDialog) return; settingsDialog.close(); }
-  function saveSettings(event) { event.preventDefault(); if (!prefixTextarea) return; const newPrefix = prefixTextarea.value; currentTextPrefix = newPrefix; try { localStorage.setItem(PREFIX_STORAGE_KEY, newPrefix); console.log("Saved prefix to localStorage"); displaySuccess("Prefix saved!"); setTimeout(clearMessages, 2000); } catch (e) { console.error("Could not save prefix to localStorage.", e); displayError("Could not save prefix."); } closeSettings(); }
+  function saveSettings(event) {
+      event.preventDefault(); if (!prefixTextarea) return;
+      const newPrefix = prefixTextarea.value;
+      const oldPrefix = currentTextPrefix; // Store old prefix
+      currentTextPrefix = newPrefix; // Update runtime variable
+      try {
+          localStorage.setItem(PREFIX_STORAGE_KEY, newPrefix);
+          console.log("Saved prefix to localStorage");
+          displaySuccess("Prefix saved!");
+          setTimeout(clearMessages, 2000);
+
+          // Dynamically update displayed text if necessary
+          const currentOutput = extractedText.value;
+          if (currentOutput && currentOutput.startsWith(oldPrefix) && currentOutput.substring(oldPrefix.length).trim().length > 0) {
+              const rawTextPart = currentOutput.substring(oldPrefix.length);
+              const formattedNewPrefix = currentTextPrefix.trimEnd() + "\n\n";
+              extractedText.value = formattedNewPrefix + rawTextPart;
+              console.log("Dynamically updated displayed text with new prefix.");
+          }
+      } catch (e) {
+          console.error("Could not save prefix to localStorage.", e);
+          displayError("Could not save prefix.");
+          currentTextPrefix = oldPrefix; // Revert on failure
+      }
+      closeSettings();
+  }
   function setPrefixFromPreset(presetValue) { if (prefixTextarea) { prefixTextarea.value = presetValue; } }
 
   // --- NAMED EVENT HANDLERS ---
@@ -183,18 +198,7 @@
   function triggerReset() { resetUI(); }
 
   // --- Share Handler ---
-  async function handleShare() {
-       if (!isShareSupported || shareButton.disabled) return;
-       const textToShare = extractedText.value;
-       if (!textToShare || !textToShare.trim()) { displayError("Nothing to share."); return; }
-       try {
-           await navigator.share({ text: textToShare });
-           console.log('Content shared successfully');
-       } catch (err) {
-           if (err.name === 'AbortError') { console.log('Share dialog dismissed by user.'); }
-           else { console.error('Error sharing:', err); displayError(`Share failed: ${err.message}`); }
-       }
-  }
+  async function handleShare() { if (!isShareSupported || shareButton.disabled) return; const textToShare = extractedText.value; if (!textToShare || !textToShare.trim()) { displayError("Nothing to share."); return; } try { await navigator.share({ text: textToShare }); console.log('Content shared successfully'); } catch (err) { if (err.name === 'AbortError') { console.log('Share dialog dismissed by user.'); } else { console.error('Error sharing:', err); displayError(`Share failed: ${err.message}`); } } }
 
   // --- Event Listeners ---
   settingsButton?.addEventListener('click', openSettings); settingsCloseButton?.addEventListener('click', closeSettings); settingsForm?.addEventListener('submit', saveSettings);
@@ -202,14 +206,14 @@
   extractButton.addEventListener('click', triggerExtractionDebounced); // Initial listener
   urlInput.addEventListener('keypress', (event) => { if (event.key === 'Enter') { event.preventDefault(); if (extractButton.getAttribute('aria-busy') === 'true' || isInResetMode) return; triggerExtractionDebounced(); } });
   copyButton.addEventListener('click', copyTextToClipboard);
-  if (isShareSupported && shareButton) { shareButton.addEventListener('click', handleShare); } // Listener only if supported
+  if (isShareSupported && shareButton) { shareButton.addEventListener('click', handleShare); }
 
   // --- Core Logic ---
   function delay(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
   async function fetchWithRetries(url, options, retries = MAX_RETRIES) { for (let i = 0; i <= retries; i++) { try { if (i > 0) { displayRetryMessage(`Attempt ${i+1} of ${retries+1}...`); await delay(RETRY_DELAY_MS * i); } const response = await fetch(url, options); if (!response.ok) { if (response.status >= 500 && response.status < 600 && i < retries) { console.warn(`Attempt ${i+1} failed with status ${response.status}. Retrying...`); continue; } throw new Error(`Proxy fetch failed: ${response.status} ${response.statusText}`); } clearRetryMessage(); return response; } catch (error) { console.error(`Attempt ${i+1} caught error:`, error); if (i === retries) { clearRetryMessage(); throw error; } } } throw new Error("Fetch failed after all retries."); }
 
   async function handleExtraction() {
-    clearMessages(); updateActionButtonsState(''); // Disable buttons
+    clearMessages(); updateActionButtonsState('');
     const inputText = urlInput.value.trim(); if (!inputText) { displayError("Please enter text containing a URL."); return; }
     const urlRegex = /https?:\/\/[^\s/$.?#].[^\s]*/i; const match = inputText.match(urlRegex); if (!match) { displayError("No valid URL found in the input."); return; }
     const targetUrl = match[0]; console.log("Extracted URL:", targetUrl);
@@ -223,7 +227,7 @@
             const formattedPrefix = currentTextPrefix.trimEnd() + "\n\n"; // Ensure newlines
             extractedText.value = formattedPrefix + rawExtractedText;
             displaySuccess(`Extracted using ${extractionSource}.`);
-            updateActionButtonsState(rawExtractedText); // Enable buttons based on raw text
+            updateActionButtonsState(rawExtractedText); // Pass raw text
             mainContainer.classList.remove('state-initial'); // Trigger animation
             detailsElement.open = true;
             // TRANSFORM EXTRACT BUTTON
