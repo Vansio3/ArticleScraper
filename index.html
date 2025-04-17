@@ -20,7 +20,7 @@
 <link rel="manifest" href="manifest.json">
 
 <!-- Theme color for browser UI -->
-<meta name="theme-color" content="#00aeff"> <!-- Match manifest theme_color -->
+<meta name="theme-color" content="#00aeff">
 
 <style>
   /* --- Custom Styles & Overrides (Mobile First) --- */
@@ -38,8 +38,9 @@
       min-height: 100vh; overflow-x: hidden;
   }
 
+  /* Container Styles */
   main.container {
-      position: relative; /* For settings button positioning */
+      /* No position: relative needed anymore for settings button */
       padding: calc(var(--pico-spacing) * 1.5);
       margin-top: calc(var(--pico-spacing) * 2);
       margin-bottom: var(--pico-spacing);
@@ -48,6 +49,7 @@
                   margin-top 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
       transform: translateY(0);
   }
+  /* Initial state: push container down */
   main.container.state-initial {
       transform: translateY(20vh);
       margin-top: var(--pico-spacing);
@@ -74,14 +76,13 @@
 
   /* --- Settings Button Positioning --- */
   #settings-button {
-      position: absolute;
+      position: fixed; /* Position relative to viewport */
       top: var(--pico-spacing);
       right: var(--pico-spacing);
+      z-index: 100; /* Ensure it stays on top */
       padding: calc(var(--pico-spacing) * 0.3);
       width: auto; height: auto;
       border-radius: 50%; line-height: 0;
-      /* Use outline contrast for visibility */
-      /* Pico applies base button styles, use specificity if needed */
   }
    #settings-button svg {
        width: 1.1em; height: 1.1em;
@@ -93,31 +94,29 @@
   /* --- Settings Dialog Adjustments --- */
   dialog#settings-dialog {
       max-width: 500px;
-      border: 1px solid var(--pico-contrast-border); /* Optional border */
+      border: 1px solid var(--pico-contrast-border);
   }
   dialog#settings-dialog textarea {
       margin-bottom: var(--pico-spacing);
-      min-height: 80px; /* Ensure decent height */
+      min-height: 80px;
   }
    dialog#settings-dialog footer {
        text-align: right;
    }
-    /* Style close button like Pico's modal example */
    dialog header > button[aria-label="Close"] {
-      margin-left: auto; /* Push to right */
-      margin-bottom: 0; /* Override potential bottom margin */
+      margin-left: auto;
+      margin-bottom: 0;
    }
   /* --- End Dialog Adjustments --- */
 
 
   h1 {
      font-size: 1.75em; margin-bottom: var(--pico-block-spacing-vertical);
-     text-align: center; /* Keep centered */
-     /* Make space for settings button if needed */
-     /* padding-right: calc(var(--pico-spacing) * 3); */
+     text-align: center;
+     /* No padding needed for settings button now */
   }
 
-  /* --- Input Group Styling --- */
+  /* Input Group Styling */
   #input-group {
       display: flex; align-items: center; background-color: var(--pico-form-element-background-color);
       border-radius: var(--pico-border-radius-pill); border: var(--pico-border-width) solid var(--pico-form-element-border-color);
@@ -133,7 +132,7 @@
   }
   #url-input::placeholder { color: var(--pico-secondary); }
 
-  /* --- Extract Button Style --- */
+  /* Extract Button Style */
   #extract-button {
       flex-shrink: 0; border: none; background-color: var(--pico-primary); color: var(--pico-primary-inverse);
       margin: 4px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center;
@@ -144,9 +143,8 @@
   #extract-button:active:not([aria-busy=true]) { transform: scale(0.95); }
   #extract-button[aria-busy=true] { background-color: var(--pico-secondary); cursor: default; color: transparent; }
   #extract-button[aria-busy=true]::before { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); margin: 0 !important; }
-  /* --- END EXTRACT BUTTON STYLE --- */
 
-  /* --- MODERN COPY BUTTON STYLES --- */
+  /* Copy Button Styles */
    #copy-button-wrapper { margin-bottom: calc(var(--pico-spacing) / 2); display: block; text-align: center; }
   #copy-button {
       background-color: var(--pico-card-background-color); color: var(--pico-contrast-foreground); border: 1px solid var(--pico-contrast-border);
@@ -161,9 +159,8 @@
    #copy-button:not(:disabled):active { transform: translateY(0px); box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1); }
   #copy-button:disabled { background-color: var(--pico-card-background-color); color: var(--pico-contrast-foreground); border-color: var(--pico-contrast-border); opacity: 0.4; cursor: not-allowed; box-shadow: none; transform: none; }
   #copy-button.secondary { background-color: var(--pico-secondary-background); border-color: var(--pico-secondary-border); color: var(--pico-secondary-foreground); }
-  /* --- END COPY BUTTON STYLES --- */
 
-  /* --- Other Styles --- */
+  /* Other Styles */
   #extracted-text { font-family: var(--pico-font-monospace); height: 250px; resize: vertical; margin-bottom: 0; }
   details summary { font-weight: var(--pico-font-weight-semibold); margin-top: var(--pico-spacing); }
   details > div { padding-top: var(--pico-form-element-spacing-vertical); }
@@ -184,15 +181,11 @@
 
 </style>
 </head>
-<!-- Start with container centered -->
+<!-- Body no longer needs initial-view class -->
 <body data-theme="dark">
 
+<!-- Container starts with state-initial class -->
 <main class="container state-initial">
-    <!-- Settings Button -->
-    <button id="settings-button" class="outline contrast" title="Settings" aria-label="Settings">
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
-    </button>
-
     <h1>Article Extractor</h1>
 
     <div id="input-group">
@@ -224,7 +217,12 @@
     </div>
 </main>
 
-<!-- Settings Dialog -->
+<!-- Settings Button - Outside main container -->
+<button id="settings-button" class="outline contrast" title="Settings" aria-label="Settings">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+</button>
+
+<!-- Settings Dialog - Outside main container -->
 <dialog id="settings-dialog">
     <article>
         <header>
@@ -244,6 +242,7 @@
 </dialog>
 <!-- End Settings Dialog -->
 
+
 <!-- ***** INCLUDE Readability.js SCRIPT HERE ***** -->
 <script src="readability.js"></script>
 
@@ -253,17 +252,15 @@
   const MAX_RETRIES = 3;
   const RETRY_DELAY_MS = 1500;
   const DEBOUNCE_DELAY_MS = 500;
-  const DEFAULT_TEXT_PREFIX = "Summarise the key points from the following article:\n\n"; // Default
-  const PREFIX_STORAGE_KEY = 'articleExtractorPrefix'; // localStorage key
+  const DEFAULT_TEXT_PREFIX = "Summarise the key points from the following article:\n\n";
+  const PREFIX_STORAGE_KEY = 'articleExtractorPrefix';
 
   // --- SVG Icons ---
   const ICON_COPY_SVG = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-copy"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>`;
   const ICON_CHECK_SVG = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-check"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
 
-
   // --- State Variable ---
-  let currentTextPrefix = DEFAULT_TEXT_PREFIX; // Holds the active prefix
-
+  let currentTextPrefix = DEFAULT_TEXT_PREFIX;
 
   // --- Element References ---
   const mainContainer = document.querySelector('main.container');
@@ -278,7 +275,6 @@
   const retryMessage = document.getElementById('retry-message');
   const detailsElement = document.getElementById('extracted-content-details');
   const copyButtonWrapper = document.getElementById('copy-button-wrapper');
-  // Settings Dialog Elements
   const settingsButton = document.getElementById('settings-button');
   const settingsDialog = document.getElementById('settings-dialog');
   const settingsCloseButton = document.getElementById('settings-close-button');
@@ -293,52 +289,25 @@
   function loadPrefix() {
       try {
           const storedPrefix = localStorage.getItem(PREFIX_STORAGE_KEY);
-          if (storedPrefix !== null) {
-              currentTextPrefix = storedPrefix;
-              console.log("Loaded prefix from localStorage");
-          } else {
-              currentTextPrefix = DEFAULT_TEXT_PREFIX;
-          }
-      } catch (e) {
-          console.error("Could not access localStorage. Using default prefix.", e);
-          currentTextPrefix = DEFAULT_TEXT_PREFIX;
-      }
-      if (prefixTextarea) { // Ensure textarea exists before setting value
-          prefixTextarea.value = currentTextPrefix;
-      }
+          if (storedPrefix !== null) { currentTextPrefix = storedPrefix; console.log("Loaded prefix from localStorage"); }
+          else { currentTextPrefix = DEFAULT_TEXT_PREFIX; }
+      } catch (e) { console.error("Could not access localStorage. Using default prefix.", e); currentTextPrefix = DEFAULT_TEXT_PREFIX; }
+      if (prefixTextarea) prefixTextarea.value = currentTextPrefix;
   }
 
   // --- Initial Setup ---
-  function setInitialCopyIcon() {
-      if (copyButtonIconWrapper) copyButtonIconWrapper.innerHTML = ICON_COPY_SVG;
-  }
-  loadPrefix(); // Load prefix when script runs
+  function setInitialCopyIcon() { if (copyButtonIconWrapper) copyButtonIconWrapper.innerHTML = ICON_COPY_SVG; }
+  loadPrefix();
   setInitialCopyIcon();
 
   // --- Settings Dialog Logic ---
-  function openSettings() {
-      if (!settingsDialog) return;
-      prefixTextarea.value = currentTextPrefix; // Ensure textarea shows current prefix on open
-      settingsDialog.showModal();
-  }
-  function closeSettings() {
-      if (!settingsDialog) return;
-      settingsDialog.close();
-  }
+  function openSettings() { if (!settingsDialog) return; prefixTextarea.value = currentTextPrefix; settingsDialog.showModal(); }
+  function closeSettings() { if (!settingsDialog) return; settingsDialog.close(); }
   function saveSettings(event) {
-      event.preventDefault();
-      if (!prefixTextarea) return;
-      const newPrefix = prefixTextarea.value;
-      currentTextPrefix = newPrefix;
-      try {
-          localStorage.setItem(PREFIX_STORAGE_KEY, newPrefix);
-          console.log("Saved prefix to localStorage");
-          displaySuccess("Prefix saved!");
-          setTimeout(clearRetryMessage, 2000); // Clear message after delay
-      } catch (e) {
-          console.error("Could not save prefix to localStorage.", e);
-          displayError("Could not save prefix.");
-      }
+      event.preventDefault(); if (!prefixTextarea) return;
+      const newPrefix = prefixTextarea.value; currentTextPrefix = newPrefix;
+      try { localStorage.setItem(PREFIX_STORAGE_KEY, newPrefix); console.log("Saved prefix to localStorage"); displaySuccess("Prefix saved!"); setTimeout(clearMessages, 2000); } // Use clearMessages
+      catch (e) { console.error("Could not save prefix to localStorage.", e); displayError("Could not save prefix."); }
       closeSettings();
   }
 
@@ -346,202 +315,49 @@
   settingsButton?.addEventListener('click', openSettings);
   settingsCloseButton?.addEventListener('click', closeSettings);
   settingsForm?.addEventListener('submit', saveSettings);
-
-  extractButton.addEventListener('click', () => {
-      if (extractButton.getAttribute('aria-busy') === 'true') return;
-      clearTimeout(debounceTimer);
-      debounceTimer = setTimeout(handleExtraction, DEBOUNCE_DELAY_MS);
-  });
-  urlInput.addEventListener('keypress', (event) => {
-      if (event.key === 'Enter') {
-          event.preventDefault();
-          if (extractButton.getAttribute('aria-busy') === 'true') return;
-          clearTimeout(debounceTimer);
-          debounceTimer = setTimeout(handleExtraction, DEBOUNCE_DELAY_MS);
-      }
-  });
+  extractButton.addEventListener('click', () => { if (extractButton.getAttribute('aria-busy') === 'true') return; clearTimeout(debounceTimer); debounceTimer = setTimeout(handleExtraction, DEBOUNCE_DELAY_MS); });
+  urlInput.addEventListener('keypress', (event) => { if (event.key === 'Enter') { event.preventDefault(); if (extractButton.getAttribute('aria-busy') === 'true') return; clearTimeout(debounceTimer); debounceTimer = setTimeout(handleExtraction, DEBOUNCE_DELAY_MS); } });
   copyButton.addEventListener('click', copyTextToClipboard);
 
   // --- Core Logic ---
-  function delay(ms) {
-      return new Promise(resolve => setTimeout(resolve, ms));
-  }
-
-  async function fetchWithRetries(url, options, retries = MAX_RETRIES) {
-      for (let i = 0; i <= retries; i++) {
-          try {
-              if (i > 0) {
-                  displayRetryMessage(`Attempt ${i+1} of ${retries+1}...`);
-                  await delay(RETRY_DELAY_MS * i);
-              }
-              const response = await fetch(url, options);
-              if (!response.ok) {
-                  if (response.status >= 500 && response.status < 600 && i < retries) {
-                      console.warn(`Attempt ${i+1} failed with status ${response.status}. Retrying...`);
-                      continue;
-                  }
-                  throw new Error(`Proxy fetch failed: ${response.status} ${response.statusText}`);
-              }
-              clearRetryMessage();
-              return response;
-          } catch (error) {
-              console.error(`Attempt ${i+1} caught error:`, error);
-              if (i === retries) {
-                  clearRetryMessage();
-                  throw error;
-              }
-          }
-      }
-      throw new Error("Fetch failed after all retries.");
-  }
+  function delay(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
+  async function fetchWithRetries(url, options, retries = MAX_RETRIES) { /* ... (same as before) ... */ for (let i = 0; i <= retries; i++) { try { if (i > 0) { displayRetryMessage(`Attempt ${i+1} of ${retries+1}...`); await delay(RETRY_DELAY_MS * i); } const response = await fetch(url, options); if (!response.ok) { if (response.status >= 500 && response.status < 600 && i < retries) { console.warn(`Attempt ${i+1} failed with status ${response.status}. Retrying...`); continue; } throw new Error(`Proxy fetch failed: ${response.status} ${response.statusText}`); } clearRetryMessage(); return response; } catch (error) { console.error(`Attempt ${i+1} caught error:`, error); if (i === retries) { clearRetryMessage(); throw error; } } } throw new Error("Fetch failed after all retries."); }
 
   async function handleExtraction() {
-    resetUI();
-    const inputText = urlInput.value.trim();
+    resetUI(); const inputText = urlInput.value.trim();
     if (!inputText) { displayError("Please enter text containing a URL."); return; }
-    const urlRegex = /https?:\/\/[^\s/$.?#].[^\s]*/i;
-    const match = inputText.match(urlRegex);
+    const urlRegex = /https?:\/\/[^\s/$.?#].[^\s]*/i; const match = inputText.match(urlRegex);
     if (!match) { displayError("No valid URL found in the input."); return; }
-    const targetUrl = match[0];
-    console.log("Extracted URL:", targetUrl);
+    const targetUrl = match[0]; console.log("Extracted URL:", targetUrl);
     const proxiedUrl = PROXY_URL + encodeURIComponent(targetUrl);
-
     setLoadingState(true);
     try {
-        const response = await fetchWithRetries(proxiedUrl);
-        const html = await response.text();
-        let doc;
-        try { const parser = new DOMParser(); doc = parser.parseFromString(html, 'text/html'); }
-        catch (parseError) { console.error("DOM Parsing Error:", parseError); throw new Error("Failed to parse the HTML content."); }
-        let article = null;
-        if (typeof Readability === 'undefined') { console.warn("Readability.js not loaded. Falling back."); }
-        else { try { const documentClone = doc.cloneNode(true); let reader = new Readability(documentClone); article = reader.parse(); }
-               catch (readabilityError) { console.error("Readability Error:", readabilityError); } }
-
-        let extractionSource = '';
-        let rawExtractedText = '';
-
-        // Process Readability result (with title)
-        if (article && article.textContent && article.textContent.trim().length > 100) {
-            const title = article.title?.trim();
-            const bodyText = article.textContent.trim();
-            if (title) { rawExtractedText = `${title}\n\n${bodyText}`; }
-            else { rawExtractedText = bodyText; }
-            extractionSource = 'Readability';
-        } else { // Fallback logic
-            if (extractionSource === '') { if (!article && typeof Readability !== 'undefined') console.log("Readability failed/insufficient, attempting fallback..."); else if (typeof Readability === 'undefined') {} else console.log("Readability content insufficient, attempting fallback..."); }
-            const mainElement = doc.querySelector('main') || doc.querySelector('article') || doc.querySelector('.post-content') || doc.querySelector('.entry-content') || doc.body;
-            if (mainElement) {
-                const scripts = mainElement.querySelectorAll('script, style, nav, header, footer, aside, .sidebar, .ads, [aria-hidden="true"], noscript, form, button, input, figure, figcaption, .share-buttons, .comments-area');
-                scripts.forEach(el => el.remove());
-                rawExtractedText = mainElement.textContent.replace(/[\t\r\n]+/g, '\n').replace(/\n\s*\n/g, '\n\n').replace(/ {2,}/g, ' ').trim();
-            } else { rawExtractedText = doc.body ? doc.body.textContent.trim().replace(/\s\s+/g, ' ') : ''; }
-            if (rawExtractedText.trim().length > 50) { if (!article && typeof Readability !== 'undefined') extractionSource = 'basic fallback (Readability failed)'; else extractionSource = 'basic fallback'; }
-            else { rawExtractedText = ''; }
-        }
-
-        // Update UI based on extraction outcome
-        if (extractionSource) {
-            extractedText.value = currentTextPrefix + rawExtractedText; // Use current prefix
-            displaySuccess(`Extracted using ${extractionSource}.`);
-            enableCopyButton();
-            mainContainer.classList.remove('state-initial'); // Trigger animation
-            detailsElement.open = true; // Open details
-        } else {
-             // Handle failure
-             extractedText.value = '';
-             let finalError = "Extraction failed: Could not get meaningful content.";
-             if (typeof Readability === 'undefined'){ finalError = "Extraction failed: Readability script missing & fallback failed."; }
-            displayError(finalError);
-             // Ensure initial state class is present
-            if (!mainContainer.classList.contains('state-initial')) {
-                 mainContainer.classList.add('state-initial');
-            }
-            copyButton.disabled = true;
-            detailsElement.open = false;
-        }
-    } catch (error) { // Handle fetch/parse errors
-        console.error("Error during fetch or extraction:", error);
-        extractedText.value = '';
-        displayError(`Error: ${error.message}`);
-        // Ensure initial state on error
-        if (!mainContainer.classList.contains('state-initial')) {
-             mainContainer.classList.add('state-initial');
-        }
-        detailsElement.open = false;
-    } finally {
-        setLoadingState(false); // Set button back to normal
-    }
+        const response = await fetchWithRetries(proxiedUrl); const html = await response.text();
+        let doc; try { const parser = new DOMParser(); doc = parser.parseFromString(html, 'text/html'); } catch (parseError) { console.error("DOM Parsing Error:", parseError); throw new Error("Failed to parse the HTML content."); }
+        let article = null; if (typeof Readability === 'undefined') { console.warn("Readability.js not loaded. Falling back."); } else { try { const documentClone = doc.cloneNode(true); let reader = new Readability(documentClone); article = reader.parse(); } catch (readabilityError) { console.error("Readability Error:", readabilityError); } }
+        let extractionSource = ''; let rawExtractedText = '';
+        if (article && article.textContent && article.textContent.trim().length > 100) { const title = article.title?.trim(); const bodyText = article.textContent.trim(); if (title) { rawExtractedText = `${title}\n\n${bodyText}`; } else { rawExtractedText = bodyText; } extractionSource = 'Readability'; }
+        else { if (extractionSource === '') { if (!article && typeof Readability !== 'undefined') console.log("Readability failed/insufficient, attempting fallback..."); else if (typeof Readability === 'undefined') {} else console.log("Readability content insufficient, attempting fallback..."); } const mainElement = doc.querySelector('main') || doc.querySelector('article') || doc.querySelector('.post-content') || doc.querySelector('.entry-content') || doc.body; if (mainElement) { const scripts = mainElement.querySelectorAll('script, style, nav, header, footer, aside, .sidebar, .ads, [aria-hidden="true"], noscript, form, button, input, figure, figcaption, .share-buttons, .comments-area'); scripts.forEach(el => el.remove()); rawExtractedText = mainElement.textContent.replace(/[\t\r\n]+/g, '\n').replace(/\n\s*\n/g, '\n\n').replace(/ {2,}/g, ' ').trim(); } else { rawExtractedText = doc.body ? doc.body.textContent.trim().replace(/\s\s+/g, ' ') : ''; } if (rawExtractedText.trim().length > 50) { if (!article && typeof Readability !== 'undefined') extractionSource = 'basic fallback (Readability failed)'; else extractionSource = 'basic fallback'; } else { rawExtractedText = ''; } }
+        if (extractionSource) { extractedText.value = currentTextPrefix + rawExtractedText; displaySuccess(`Extracted using ${extractionSource}.`); enableCopyButton(); mainContainer.classList.remove('state-initial'); detailsElement.open = true; }
+        else { extractedText.value = ''; let finalError = "Extraction failed: Could not get meaningful content."; if (typeof Readability === 'undefined'){ finalError = "Extraction failed: Readability script missing & fallback failed."; } displayError(finalError); if (!mainContainer.classList.contains('state-initial')) mainContainer.classList.add('state-initial'); copyButton.disabled = true; detailsElement.open = false; }
+    } catch (error) { console.error("Error during fetch or extraction:", error); extractedText.value = ''; displayError(`Error: ${error.message}`); if (!mainContainer.classList.contains('state-initial')) mainContainer.classList.add('state-initial'); detailsElement.open = false; }
+    finally { setLoadingState(false); }
   }
 
-   function setLoadingState(isLoading) {
-        if (isLoading) { extractButton.setAttribute('aria-busy', 'true'); }
-        else { extractButton.removeAttribute('aria-busy'); }
-    }
+   function setLoadingState(isLoading) { if (isLoading) { extractButton.setAttribute('aria-busy', 'true'); } else { extractButton.removeAttribute('aria-busy'); } }
 
   // --- Clipboard and UI Functions ---
-  function copyTextToClipboard() {
-    if (!extractedText.value) { displayError("Nothing to copy."); return; }
-    if (!detailsElement.open) { detailsElement.open = true; }
-
-    navigator.clipboard.writeText(extractedText.value)
-      .then(() => {
-        displaySuccess("Content copied to clipboard!");
-        if (copyButtonIconWrapper) copyButtonIconWrapper.innerHTML = ICON_CHECK_SVG;
-        if (copyButtonTextWrapper) copyButtonTextWrapper.textContent = 'Copied!';
-        copyButton.classList.add('secondary');
-        setTimeout(() => { setInitialCopyIcon(); if (copyButtonTextWrapper) copyButtonTextWrapper.textContent = 'Copy Extracted Text'; copyButton.classList.remove('secondary'); }, 2000);
-      })
-      .catch(err => {
-          console.error('Failed to copy text: ', err);
-          try { detailsElement.open = true; extractedText.select(); document.execCommand('copy'); displaySuccess("Copied (using fallback)!"); }
-          catch (execErr) { displayError("Failed to copy automatically."); }
-      });
-  }
-
-
-  function resetUI() {
-    errorMessage.textContent = '';
-    successMessage.textContent = '';
-    retryMessage.textContent = '';
-    setLoadingState(false); // Ensure button is not busy
-
-    // Reset Copy Button state
-    copyButton.disabled = true;
-    setInitialCopyIcon();
-    if (copyButtonTextWrapper) copyButtonTextWrapper.textContent = 'Copy Extracted Text';
-    copyButton.classList.remove('secondary');
-
-    detailsElement.open = false; // Ensure details are closed
-    // copyButtonWrapper.style.display = 'none'; // CSS handles hiding now
-    // detailsElement.style.display = 'none'; // CSS handles hiding now
-    extractedText.value = '';
-
-    // Add state-initial class back to container
-    mainContainer.classList.add('state-initial');
-  }
-
+  function copyTextToClipboard() { if (!extractedText.value) { displayError("Nothing to copy."); return; } if (!detailsElement.open) { detailsElement.open = true; } navigator.clipboard.writeText(extractedText.value) .then(() => { displaySuccess("Content copied to clipboard!"); if (copyButtonIconWrapper) copyButtonIconWrapper.innerHTML = ICON_CHECK_SVG; if (copyButtonTextWrapper) copyButtonTextWrapper.textContent = 'Copied!'; copyButton.classList.add('secondary'); setTimeout(() => { setInitialCopyIcon(); if (copyButtonTextWrapper) copyButtonTextWrapper.textContent = 'Copy Extracted Text'; copyButton.classList.remove('secondary'); }, 2000); }) .catch(err => { console.error('Failed to copy text: ', err); try { detailsElement.open = true; extractedText.select(); document.execCommand('copy'); displaySuccess("Copied (using fallback)!"); } catch (execErr) { displayError("Failed to copy automatically."); } }); }
+  function resetUI() { clearMessages(); setLoadingState(false); copyButton.disabled = true; setInitialCopyIcon(); if (copyButtonTextWrapper) copyButtonTextWrapper.textContent = 'Copy Extracted Text'; copyButton.classList.remove('secondary'); detailsElement.open = false; extractedText.value = ''; mainContainer.classList.add('state-initial'); }
   function displayError(message) { errorMessage.textContent = message; successMessage.textContent = ''; retryMessage.textContent = ''; }
   function displaySuccess(message) { successMessage.textContent = message; errorMessage.textContent = ''; retryMessage.textContent = ''; }
   function displayRetryMessage(message) { retryMessage.textContent = message; errorMessage.textContent = ''; successMessage.textContent = ''; }
-  function clearRetryMessage() { retryMessage.textContent = ''; }
-  function enableCopyButton() { if(extractedText.value.trim().length >= currentTextPrefix.length){ copyButton.disabled = false; } else { copyButton.disabled = true; } } // Use current prefix
-
+  function clearRetryMessage() { retryMessage.textContent = ''; } // Keep separate in case needed elsewhere
+  function clearMessages() { errorMessage.textContent = ''; successMessage.textContent = ''; retryMessage.textContent = '';} // Clear all status messages
+  function enableCopyButton() { if(extractedText.value.trim().length >= currentTextPrefix.length){ copyButton.disabled = false; } else { copyButton.disabled = true; } }
 
   // --- PWA Service Worker Registration ---
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      // IMPORTANT: Adjust path based on your GitHub Pages setup
-      // e.g., '/YourRepositoryName/sw.js'
-      navigator.serviceWorker.register('/ArticleScraper/sw.js') // ADJUST PATH HERE
-        .then(registration => {
-          console.log('ServiceWorker registration successful with scope: ', registration.scope);
-        })
-        .catch(err => {
-          console.error('ServiceWorker registration failed: ', err);
-        });
-    });
-  }
+  if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('/ArticleScraper/sw.js') .then(registration => { console.log('ServiceWorker registration successful with scope: ', registration.scope); }) .catch(err => { console.error('ServiceWorker registration failed: ', err); }); }); }
   // --- END PWA Service Worker Registration ---
 
 </script>
