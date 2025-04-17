@@ -68,26 +68,26 @@
       color: var(--pico-secondary);
   }
 
-  /* --- CORRECTED BUTTON STYLE --- */
+  /* --- UPDATED BUTTON STYLE --- */
   #extract-button {
-      flex-shrink: 0; /* Prevent button from shrinking */
+      flex-shrink: 0;
       border: none;
       background-color: var(--pico-primary);
-      color: var(--pico-primary-inverse);
-      margin: 4px; /* Small fixed margin */
-      border-radius: 50%; /* Make it circular */
+      color: var(--pico-primary-inverse); /* Default icon color */
+      margin: 4px;
+      border-radius: 50%;
       cursor: pointer;
-      display: flex; /* Center icon */
+      display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.4em; /* Arrow size */
+      font-size: 1.4em;
       font-weight: bold;
-      line-height: 1; /* Prevent extra height from line */
-      /* FIXED SIZE */
-      width: 2.4em;  /* Same width and height */
+      line-height: 1;
+      width: 2.4em;
       height: 2.4em;
-      padding: 0; /* No padding needed with fixed size */
-      transition: background-color var(--pico-transition), transform 0.1s ease;
+      padding: 0;
+      /* Added color to transition */
+      transition: background-color var(--pico-transition), transform 0.1s ease, color 0.1s ease;
   }
   #extract-button:hover:not([aria-busy=true]) {
       background-color: var(--pico-primary-hover);
@@ -95,11 +95,14 @@
   #extract-button:active:not([aria-busy=true]) {
       transform: scale(0.95);
   }
+  /* Style for loading state */
   #extract-button[aria-busy=true] {
       background-color: var(--pico-secondary);
       cursor: default;
+      /* Make icon invisible during loading */
+      color: transparent;
   }
-  /* --- END CORRECTED BUTTON STYLE --- */
+  /* --- END UPDATED BUTTON STYLE --- */
 
 
   /* --- Other Styles (Mostly Unchanged) --- */
@@ -201,7 +204,7 @@
 <script src="readability.js"></script>
 
 <script>
-  // --- Constants ---
+    // --- Constants ---
   const PROXY_URL = 'https://api.allorigins.win/raw?url=';
   const MAX_RETRIES = 3;
   const RETRY_DELAY_MS = 1500;
@@ -329,7 +332,7 @@
     navigator.clipboard.writeText(extractedText.value)
       .then(() => {
         displaySuccess("Content copied to clipboard!");
-        const originalIcon = '→'; // Store the icon
+        const originalIcon = '→'; // Store the icon? Not needed if resetting to text
         copyButton.textContent = '✓'; // Use checkmark for feedback
         copyButton.classList.add('secondary'); // Pico class for visual feedback
         setTimeout(() => {
@@ -347,7 +350,7 @@
     retryMessage.textContent = '';
     setLoadingState(false);
     copyButton.disabled = true;
-    copyButton.textContent = 'Copy Extracted Text'; // Reset copy button text
+    copyButton.textContent = 'Copy Extracted Text';
     copyButton.classList.remove('secondary');
     detailsElement.open = false;
   }
