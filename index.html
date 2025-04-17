@@ -36,31 +36,10 @@
   dialog#settings-dialog footer { text-align: right; }
   dialog header > button[aria-label="Close"] { margin-left: auto; margin-bottom: 0; }
   h1 { font-size: 1.75em; margin-bottom: var(--pico-block-spacing-vertical); text-align: center; }
-
-  /* Input Group - No focus styles on group */
-  #input-group {
-      display: flex; align-items: center; background-color: var(--pico-form-element-background-color);
-      border-radius: var(--pico-border-radius-pill); border: var(--pico-border-width) solid var(--pico-form-element-border-color);
-      padding: 0; overflow: hidden;
-      /* Removed transition/focus from group */
-      margin-bottom: var(--pico-block-spacing-vertical);
-  }
-  /* Removed #input-group:focus-within rule */
-
-  /* URL Input Field - Remove focus outline */
-  #url-input {
-      flex-grow: 1; border: none; background-color: transparent;
-      padding: var(--pico-form-element-spacing-vertical) var(--pico-form-element-spacing-horizontal);
-      padding-right: calc(var(--pico-form-element-spacing-horizontal) / 2);
-      font-size: 1em; color: var(--pico-form-element-color);
-      margin: 0; min-width: 0;
-      /* Remove focus outline and shadow */
-      outline: none !important;
-      box-shadow: none !important;
-  }
+  #input-group { display: flex; align-items: center; background-color: var(--pico-form-element-background-color); border-radius: var(--pico-border-radius-pill); border: var(--pico-border-width) solid var(--pico-form-element-border-color); padding: 0; overflow: hidden; margin-bottom: var(--pico-block-spacing-vertical); }
+  #input-group:focus-within { border-color: var(--pico-primary); box-shadow: 0 0 0 var(--pico-outline-width) var(--pico-primary-focus); }
+  #url-input { flex-grow: 1; border: none; background-color: transparent; padding: var(--pico-form-element-spacing-vertical) var(--pico-form-element-spacing-horizontal); padding-right: calc(var(--pico-form-element-spacing-horizontal) / 2); font-size: 1em; color: var(--pico-form-element-color); outline: none !important; box-shadow: none !important; margin: 0; min-width: 0; }
   #url-input::placeholder { color: var(--pico-secondary); }
-
-  /* Extract/Reset Button Style */
   #extract-button { flex-shrink: 0; border: none; background-color: var(--pico-primary); color: var(--pico-primary-inverse); margin: 4px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.4em; font-weight: bold; line-height: 1; width: 2.4em; height: 2.4em; padding: 0; transition: background-color var(--pico-transition), transform 0.2s ease-in-out, color 0.1s ease; position: relative; overflow: hidden; transform: rotate(0deg); }
   #extract-button:hover:not([aria-busy=true]):not(.reset-mode) { background-color: var(--pico-primary-hover); }
   #extract-button:active:not([aria-busy=true]):not(.reset-mode) { transform: scale(0.95); }
@@ -69,8 +48,6 @@
   #extract-button.reset-mode { background-color: var(--pico-color-red-550); color: #fff; transform: rotate(180deg); }
   #extract-button.reset-mode:hover:not([aria-busy=true]) { background-color: var(--pico-color-red-600); }
   #extract-button.reset-mode:active:not([aria-busy=true]) { transform: rotate(180deg) scale(0.95); }
-
-  /* Copy Button */
   #copy-button-wrapper { margin-bottom: calc(var(--pico-spacing) / 2); display: block; text-align: center; }
   #copy-button { background-color: var(--pico-card-background-color); color: var(--pico-contrast-foreground); border: 1px solid var(--pico-contrast-border); padding: calc(var(--pico-spacing) * 0.6) calc(var(--pico-spacing) * 1.2); border-radius: var(--pico-border-radius); display: inline-flex; align-items: center; justify-content: center; gap: calc(var(--pico-spacing) * 0.5); transition: background-color var(--pico-transition), border-color var(--pico-transition), transform 0.1s ease, box-shadow var(--pico-transition); cursor: pointer; font-weight: var(--pico-font-weight-medium); width: auto; }
   #copy-button .icon-wrapper { display: inline-flex; align-items: center; line-height: 0; }
@@ -79,8 +56,6 @@
   #copy-button:not(:disabled):active { transform: translateY(0px); box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1); }
   #copy-button:disabled { background-color: var(--pico-card-background-color); color: var(--pico-contrast-foreground); border-color: var(--pico-contrast-border); opacity: 0.4; cursor: not-allowed; box-shadow: none; transform: none; }
   #copy-button.secondary { background-color: var(--pico-secondary-background); border-color: var(--pico-secondary-border); color: var(--pico-secondary-foreground); }
-
-  /* Other */
   #extracted-text { font-family: var(--pico-font-monospace); height: 250px; resize: vertical; margin-bottom: 0; }
   details summary { font-weight: var(--pico-font-weight-semibold); margin-top: var(--pico-spacing); }
   details > div { padding-top: var(--pico-form-element-spacing-vertical); }
@@ -88,11 +63,8 @@
   #error-message { color: var(--pico-color-red-500); }
   #success-message { color: var(--pico-color-green-500); }
   #retry-message { color: var(--pico-color-amber-500); }
-
-  /* Media Queries */
   @media (min-width: 768px) { h1 { font-size: 2em; } #extracted-text { height: 300px; } }
   @media (min-width: 992px) { #extracted-text { height: 350px; } }
-
 </style>
 </head>
 <body data-theme="dark">
@@ -155,13 +127,9 @@
 
 <script>
     // --- Constants ---
-  const PROXY_URL = 'https://api.allorigins.win/raw?url=';
-  const MAX_RETRIES = 3; const RETRY_DELAY_MS = 1500; const DEBOUNCE_DELAY_MS = 500;
-  const DEFAULT_TEXT_PREFIX = "Summarise the key points from the following article:\n\n";
-  const PREFIX_STORAGE_KEY = 'articleExtractorPrefix';
-  const PRESET_SUMMARISE = "Summarise the key points from the following article:\n\n";
-  const PRESET_FACTCHECK = "Fact-check the following article:\n\n";
-  const PRESET_EXPLAIN = "Explain the following article:\n\n";
+  const PROXY_URL = 'https://api.allorigins.win/raw?url='; const MAX_RETRIES = 3; const RETRY_DELAY_MS = 1500; const DEBOUNCE_DELAY_MS = 500;
+  const DEFAULT_TEXT_PREFIX = "Summarise the key points from the following article:\n\n"; const PREFIX_STORAGE_KEY = 'articleExtractorPrefix';
+  const PRESET_SUMMARISE = "Summarise the key points from the following article:\n\n"; const PRESET_FACTCHECK = "Fact-check the following article:\n\n"; const PRESET_EXPLAIN = "Explain the following article:\n\n";
 
   // --- SVG Icons ---
   const ICON_COPY_SVG = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-copy"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>`;
@@ -172,27 +140,7 @@
   let currentTextPrefix = DEFAULT_TEXT_PREFIX; let isInResetMode = false;
 
   // --- Element References ---
-  const mainContainer = document.querySelector('main.container');
-  const urlInput = document.getElementById('url-input');
-  const extractButton = document.getElementById('extract-button');
-  const extractedText = document.getElementById('extracted-text');
-  const copyButton = document.getElementById('copy-button');
-  const copyButtonIconWrapper = copyButton.querySelector('.icon-wrapper');
-  const copyButtonTextWrapper = copyButton.querySelector('.text-wrapper');
-  const errorMessage = document.getElementById('error-message');
-  const successMessage = document.getElementById('success-message');
-  const retryMessage = document.getElementById('retry-message');
-  const detailsElement = document.getElementById('extracted-content-details');
-  const copyButtonWrapper = document.getElementById('copy-button-wrapper');
-  const settingsButton = document.getElementById('settings-button');
-  const settingsDialog = document.getElementById('settings-dialog');
-  const settingsCloseButton = document.getElementById('settings-close-button');
-  const settingsForm = document.getElementById('settings-form');
-  const prefixTextarea = document.getElementById('prefix-textarea');
-  const settingsSaveButton = document.getElementById('settings-save-button');
-  const prefixSummariseBtn = document.getElementById('prefix-summarise-btn');
-  const prefixFactcheckBtn = document.getElementById('prefix-factcheck-btn');
-  const prefixExplainBtn = document.getElementById('prefix-explain-btn');
+  const mainContainer = document.querySelector('main.container'); const urlInput = document.getElementById('url-input'); const extractButton = document.getElementById('extract-button'); const extractedText = document.getElementById('extracted-text'); const copyButton = document.getElementById('copy-button'); const copyButtonIconWrapper = copyButton.querySelector('.icon-wrapper'); const copyButtonTextWrapper = copyButton.querySelector('.text-wrapper'); const errorMessage = document.getElementById('error-message'); const successMessage = document.getElementById('success-message'); const retryMessage = document.getElementById('retry-message'); const detailsElement = document.getElementById('extracted-content-details'); const copyButtonWrapper = document.getElementById('copy-button-wrapper'); const settingsButton = document.getElementById('settings-button'); const settingsDialog = document.getElementById('settings-dialog'); const settingsCloseButton = document.getElementById('settings-close-button'); const settingsForm = document.getElementById('settings-form'); const prefixTextarea = document.getElementById('prefix-textarea'); const settingsSaveButton = document.getElementById('settings-save-button'); const prefixSummariseBtn = document.getElementById('prefix-summarise-btn'); const prefixFactcheckBtn = document.getElementById('prefix-factcheck-btn'); const prefixExplainBtn = document.getElementById('prefix-explain-btn');
 
   // --- Debounce Timer ---
   let debounceTimer;
@@ -216,12 +164,8 @@
   function triggerReset() { resetUI(); }
 
   // --- Event Listeners ---
-  settingsButton?.addEventListener('click', openSettings);
-  settingsCloseButton?.addEventListener('click', closeSettings);
-  settingsForm?.addEventListener('submit', saveSettings);
-  prefixSummariseBtn?.addEventListener('click', () => setPrefixFromPreset(PRESET_SUMMARISE));
-  prefixFactcheckBtn?.addEventListener('click', () => setPrefixFromPreset(PRESET_FACTCHECK));
-  prefixExplainBtn?.addEventListener('click', () => setPrefixFromPreset(PRESET_EXPLAIN));
+  settingsButton?.addEventListener('click', openSettings); settingsCloseButton?.addEventListener('click', closeSettings); settingsForm?.addEventListener('submit', saveSettings);
+  prefixSummariseBtn?.addEventListener('click', () => setPrefixFromPreset(PRESET_SUMMARISE)); prefixFactcheckBtn?.addEventListener('click', () => setPrefixFromPreset(PRESET_FACTCHECK)); prefixExplainBtn?.addEventListener('click', () => setPrefixFromPreset(PRESET_EXPLAIN));
   extractButton.addEventListener('click', triggerExtractionDebounced); // Initial listener
   urlInput.addEventListener('keypress', (event) => { if (event.key === 'Enter') { event.preventDefault(); if (extractButton.getAttribute('aria-busy') === 'true' || isInResetMode) return; triggerExtractionDebounced(); } });
   copyButton.addEventListener('click', copyTextToClipboard);
@@ -283,7 +227,7 @@
 
   // --- PWA Service Worker Registration ---
   if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('/ArticleScraper/sw.js') .then(registration => { console.log('ServiceWorker registration successful with scope: ', registration.scope); }) .catch(err => { console.error('ServiceWorker registration failed: ', err); }); }); }
-  // --- END PWA Service Worker Registration --- 
+  // --- END PWA Service Worker Registration ---
 
 </script>
 
