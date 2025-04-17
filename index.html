@@ -27,13 +27,11 @@
   h1 {
      font-size: 1.75em;
      margin-bottom: var(--pico-block-spacing-vertical);
+     text-align: center; /* Center the heading */
   }
 
   /* --- Input Group Styling (Search Bar Look) --- */
-  #input-label {
-      margin-bottom: var(--pico-form-element-spacing-vertical);
-      display: block;
-  }
+  /* Remove #input-label style as label is removed */
 
   #input-group {
       display: flex;
@@ -45,6 +43,8 @@
       overflow: hidden;
       transition: border-color var(--pico-transition), box-shadow var(--pico-transition);
       margin-bottom: var(--pico-block-spacing-vertical);
+      /* Add margin top if needed now that label is gone */
+      /* margin-top: var(--pico-block-spacing-vertical); */
   }
 
   #input-group:focus-within {
@@ -73,7 +73,7 @@
       flex-shrink: 0;
       border: none;
       background-color: var(--pico-primary);
-      color: var(--pico-primary-inverse); /* Default icon color */
+      color: var(--pico-primary-inverse);
       margin: 4px;
       border-radius: 50%;
       cursor: pointer;
@@ -96,19 +96,17 @@
   #extract-button:active:not([aria-busy=true]) {
       transform: scale(0.95);
   }
-  /* Style for loading state */
   #extract-button[aria-busy=true] {
       background-color: var(--pico-secondary);
       cursor: default;
-      color: transparent; /* Make icon invisible during loading */
+      color: transparent;
   }
-  /* Rule to center Pico's spinner */
   #extract-button[aria-busy=true]::before {
       position: absolute;
       left: 50%;
       top: 50%;
       transform: translate(-50%, -50%);
-      margin: 0 !important; /* Override Pico margins if necessary */
+      margin: 0 !important;
   }
   /* --- END EXTRACT BUTTON STYLE --- */
 
@@ -116,68 +114,54 @@
   /* --- MODERN COPY BUTTON STYLES --- */
    #copy-button-wrapper {
        margin-bottom: calc(var(--pico-spacing) / 2);
-       display: block; /* Takes block space for centering */
-       text-align: center; /* Centers the inline-flex button */
+       display: block;
+       text-align: center;
    }
-
   #copy-button {
-      /* Base style - slightly less prominent */
-      background-color: var(--pico-card-background-color); /* Use card bg or contrast */
-      color: var(--pico-contrast-foreground); /* Use contrast text color */
-      border: 1px solid var(--pico-contrast-border); /* Subtle contrast border */
+      background-color: var(--pico-card-background-color);
+      color: var(--pico-contrast-foreground);
+      border: 1px solid var(--pico-contrast-border);
       padding: calc(var(--pico-spacing) * 0.6) calc(var(--pico-spacing) * 1.2);
       border-radius: var(--pico-border-radius);
-      /* Flex for icon + text alignment */
-      display: inline-flex; /* Use inline-flex for centering */
+      display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: calc(var(--pico-spacing) * 0.5); /* Space between icon and text */
+      gap: calc(var(--pico-spacing) * 0.5);
       transition: background-color var(--pico-transition), border-color var(--pico-transition), transform 0.1s ease, box-shadow var(--pico-transition);
       cursor: pointer;
       font-weight: var(--pico-font-weight-medium);
-      width: auto; /* Allow button to size naturally */
+      width: auto;
   }
-
-  /* Icon styling inside copy button */
   #copy-button .icon-wrapper {
       display: inline-flex;
       align-items: center;
-      /* Adjust line-height if needed for perfect vertical alignment */
       line-height: 0;
   }
   #copy-button svg {
       width: 1.1em;
       height: 1.1em;
-      vertical-align: middle; /* May not be needed with flex */
-      fill: currentColor; /* Use button's text color */
+      vertical-align: middle;
+      fill: currentColor;
   }
-
-  /* Hover effect for enabled button */
   #copy-button:not(:disabled):hover {
       background-color: var(--pico-contrast-hover-background);
       border-color: var(--pico-contrast-hover-border);
       transform: translateY(-1px);
       box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
   }
-
-  /* Active (pressed) effect */
    #copy-button:not(:disabled):active {
       transform: translateY(0px);
       box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
   }
-
-  /* Disabled state */
   #copy-button:disabled {
-      background-color: var(--pico-card-background-color); /* Keep background */
+      background-color: var(--pico-card-background-color);
       color: var(--pico-contrast-foreground);
       border-color: var(--pico-contrast-border);
-      opacity: 0.4; /* Fade it out */
+      opacity: 0.4;
       cursor: not-allowed;
-      box-shadow: none; /* Remove shadow when disabled */
-      transform: none; /* Remove hover/active transform */
+      box-shadow: none;
+      transform: none;
   }
-
-  /* Feedback class (optional, uses Pico secondary style) */
   #copy-button.secondary {
       background-color: var(--pico-secondary-background);
       border-color: var(--pico-secondary-border);
@@ -193,16 +177,13 @@
     resize: vertical;
     margin-bottom: 0;
   }
-
   details summary {
       font-weight: var(--pico-font-weight-semibold);
       margin-top: var(--pico-spacing);
   }
-
   details > div {
       padding-top: var(--pico-form-element-spacing-vertical);
   }
-
   #status-messages {
       margin-top: var(--pico-block-spacing-vertical);
       min-height: 1.5em;
@@ -210,7 +191,6 @@
       font-weight: var(--pico-font-weight-medium);
       font-size: 0.9em;
   }
-
   #error-message { color: var(--pico-color-red-500); }
   #success-message { color: var(--pico-color-green-500); }
   #retry-message { color: var(--pico-color-amber-500); }
@@ -237,7 +217,7 @@
 <main class="container">
     <h1>Article Extractor</h1>
 
-    <label for="url-input" id="input-label">Enter URL or text containing a URL:</label>
+    <!-- Label has been removed -->
     <div id="input-group">
         <input type="text" id="url-input" name="url-input" placeholder="Paste URL or text here...">
         <button id="extract-button" title="Extract Text">
@@ -247,9 +227,7 @@
 
     <div id="copy-button-wrapper"> <!-- Initially hidden -->
        <button id="copy-button" disabled>
-            <span class="icon-wrapper">
-                <!-- SVG icon injected by JS -->
-            </span>
+            <span class="icon-wrapper"></span>
             <span class="text-wrapper">Copy Extracted Text</span>
        </button>
     </div>
@@ -289,8 +267,8 @@
   const extractButton = document.getElementById('extract-button');
   const extractedText = document.getElementById('extracted-text');
   const copyButton = document.getElementById('copy-button');
-  const copyButtonIconWrapper = copyButton.querySelector('.icon-wrapper'); // Get icon span
-  const copyButtonTextWrapper = copyButton.querySelector('.text-wrapper'); // Get text span
+  const copyButtonIconWrapper = copyButton.querySelector('.icon-wrapper');
+  const copyButtonTextWrapper = copyButton.querySelector('.text-wrapper');
   const errorMessage = document.getElementById('error-message');
   const successMessage = document.getElementById('success-message');
   const retryMessage = document.getElementById('retry-message');
@@ -306,7 +284,7 @@
           copyButtonIconWrapper.innerHTML = ICON_COPY_SVG;
       }
   }
-  setInitialCopyIcon(); // Set the icon when the script loads
+  setInitialCopyIcon();
 
 
   // --- Event Listeners ---
@@ -359,7 +337,7 @@
   }
 
   async function handleExtraction() {
-    resetUI(); // Also resets copy button icon/text
+    resetUI();
     const inputText = urlInput.value.trim();
     if (!inputText) { displayError("Please enter text containing a URL."); return; }
     const urlRegex = /https?:\/\/[^\s/$.?#].[^\s]*/i;
@@ -382,23 +360,15 @@
                catch (readabilityError) { console.error("Readability Error:", readabilityError); } }
 
         let extractionSource = '';
-        let rawExtractedText = ''; // Holds final text *before* prefix
+        let rawExtractedText = '';
 
-        // --- PROCESS READABILITY RESULT (with Title handling) ---
         if (article && article.textContent && article.textContent.trim().length > 100) {
-            const title = article.title?.trim(); // Get title safely
-            const bodyText = article.textContent.trim(); // Get body text
-
-            if (title) {
-                rawExtractedText = `${title}\n\n${bodyText}`; // Combine title and body
-            } else {
-                rawExtractedText = bodyText; // Just body
-            }
+            const title = article.title?.trim();
+            const bodyText = article.textContent.trim();
+            if (title) { rawExtractedText = `${title}\n\n${bodyText}`; }
+            else { rawExtractedText = bodyText; }
             extractionSource = 'Readability';
-        // --- END READABILITY PROCESSING ---
-
         } else {
-             // --- FALLBACK LOGIC (No title available here) ---
             if (extractionSource === '') { if (!article && typeof Readability !== 'undefined') console.log("Readability failed/insufficient, attempting fallback..."); else if (typeof Readability === 'undefined') {} else console.log("Readability content insufficient, attempting fallback..."); }
             const mainElement = doc.querySelector('main') || doc.querySelector('article') || doc.querySelector('.post-content') || doc.querySelector('.entry-content') || doc.body;
             if (mainElement) {
@@ -408,35 +378,30 @@
             } else { rawExtractedText = doc.body ? doc.body.textContent.trim().replace(/\s\s+/g, ' ') : ''; }
             if (rawExtractedText.trim().length > 50) { if (!article && typeof Readability !== 'undefined') extractionSource = 'basic fallback (Readability failed)'; else extractionSource = 'basic fallback'; }
             else { rawExtractedText = ''; }
-             // --- END FALLBACK LOGIC ---
         }
 
-        // --- Update UI based on combined result ---
         if (extractionSource) {
-            // Prepend the fixed prefix to the raw text (which might include the title)
             extractedText.value = TEXT_PREFIX + rawExtractedText;
-
             displaySuccess(`Extracted using ${extractionSource}.`);
             enableCopyButton();
-            copyButtonWrapper.style.display = 'block'; // Show output
+            copyButtonWrapper.style.display = 'block';
             detailsElement.style.display = 'block';
             detailsElement.open = true;
         } else {
-             // Handle failure (ensure text area is empty)
              extractedText.value = '';
              let finalError = "Extraction failed: Could not get meaningful content.";
              if (typeof Readability === 'undefined'){ finalError = "Extraction failed: Readability script missing & fallback failed."; }
             displayError(finalError);
-            copyButtonWrapper.style.display = 'none'; // Hide output
+            copyButtonWrapper.style.display = 'none';
             detailsElement.style.display = 'none';
             copyButton.disabled = true;
             detailsElement.open = false;
         }
     } catch (error) {
         console.error("Error during fetch or extraction:", error);
-        extractedText.value = ''; // Clear textarea on error
+        extractedText.value = '';
         displayError(`Error: ${error.message}`);
-        copyButtonWrapper.style.display = 'none'; // Hide output
+        copyButtonWrapper.style.display = 'none';
         detailsElement.style.display = 'none';
         detailsElement.open = false;
     } finally {
@@ -445,7 +410,6 @@
   }
 
    function setLoadingState(isLoading) {
-        // Only manage the button's busy state now
         if (isLoading) { extractButton.setAttribute('aria-busy', 'true'); }
         else { extractButton.removeAttribute('aria-busy'); }
     }
@@ -457,16 +421,14 @@
 
     navigator.clipboard.writeText(extractedText.value)
       .then(() => {
-        displaySuccess("Content copied to clipboard!"); // Keep overall success message
+        displaySuccess("Content copied to clipboard!");
 
-        // Update Copy Button for Feedback
         if (copyButtonIconWrapper) copyButtonIconWrapper.innerHTML = ICON_CHECK_SVG;
         if (copyButtonTextWrapper) copyButtonTextWrapper.textContent = 'Copied!';
-        copyButton.classList.add('secondary'); // Optional visual cue
+        copyButton.classList.add('secondary');
 
-        // Reset after a delay
         setTimeout(() => {
-            setInitialCopyIcon(); // Restore copy icon
+            setInitialCopyIcon();
              if (copyButtonTextWrapper) copyButtonTextWrapper.textContent = 'Copy Extracted Text';
             copyButton.classList.remove('secondary');
         }, 2000);
@@ -492,16 +454,15 @@
     retryMessage.textContent = '';
     setLoadingState(false);
 
-    // Reset Copy Button state
     copyButton.disabled = true;
-    setInitialCopyIcon(); // Ensure correct icon
+    setInitialCopyIcon();
     if (copyButtonTextWrapper) copyButtonTextWrapper.textContent = 'Copy Extracted Text';
-    copyButton.classList.remove('secondary'); // Remove feedback class
+    copyButton.classList.remove('secondary');
 
     detailsElement.open = false;
-    copyButtonWrapper.style.display = 'none'; // Hide section
-    detailsElement.style.display = 'none'; // Hide section
-    extractedText.value = ''; // Clear text area
+    copyButtonWrapper.style.display = 'none';
+    detailsElement.style.display = 'none';
+    extractedText.value = '';
   }
 
   function displayError(message) { errorMessage.textContent = message; successMessage.textContent = ''; retryMessage.textContent = ''; }
