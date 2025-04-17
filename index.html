@@ -9,20 +9,12 @@
 <!-- Pico.css - Include BEFORE custom styles -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@latest/css/pico.min.css">
 
-<!-- === PWA / Installability === -->
-<!-- Favicon Links (Adjust paths if icons are not in 'icons/' folder) -->
+<!-- Favicon Links (Remember to replace paths/files) -->
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32x32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16x16.png">
 <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/android-chrome-192x192.png">
-<!-- <link rel="shortcut icon" href="favicon.ico"> --> <!-- Optional: If favicon.ico is in root -->
-
-<!-- Link to Web App Manifest (Assumes manifest.json is in the root) -->
-<link rel="manifest" href="manifest.json">
-
-<!-- Theme color for browser UI -->
-<meta name="theme-color" content="#00aeff"> <!-- Match manifest theme_color -->
-<!-- === END PWA / Installability === -->
+<!-- <link rel="shortcut icon" href="favicon.ico"> -->
 
 <style>
   /* --- Custom Styles & Overrides (Mobile First) --- */
@@ -43,20 +35,23 @@
   /* Container Styles */
   main.container {
       padding: calc(var(--pico-spacing) * 1.5);
-      margin-top: calc(var(--pico-spacing) * 2); /* Final top spacing */
+      /* Define FINAL margins when not centered */
+      margin-top: calc(var(--pico-spacing) * 2);
       margin-bottom: var(--pico-spacing);
       max-width: 700px; width: 90%;
 
-      /* Transition for Transform and Margin */
-      transition: transform 0.6s cubic-bezier(0.25, 0.8, 0.25, 1),
-                  margin-top 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
-      transform: translateY(0); /* Default state */
+      /* --- Transition for MARGINS --- */
+      transition: margin-top 0.6s cubic-bezier(0.25, 0.8, 0.25, 1),
+                  margin-bottom 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
+      /* Remove transform */
   }
 
-  /* Initial state: push container down */
+  /* Initial state: Use auto margins for perfect vertical centering */
   main.container.state-initial {
-      transform: translateY(20vh); /* Adjust vh for centering preference */
-      margin-top: var(--pico-spacing); /* Less margin when centered */
+      /* --- Use auto margins for centering --- */
+      margin-top: auto;
+      margin-bottom: auto;
+      /* Remove transform */
   }
 
   /* Default state for output elements (hidden) */
@@ -81,7 +76,8 @@
 
 
   h1 {
-     font-size: 1.75em; margin-bottom: var(--pico-block-spacing-vertical);
+     font-size: 1.75em;
+     margin-bottom: var(--pico-block-spacing-vertical);
      text-align: center; /* Keep centered */
   }
 
@@ -146,15 +142,12 @@
   main.container.state-initial #status-messages {
       opacity: 0;
       max-height: 0;
-      /* Keep display block or similar so they occupy space for layout calculations if needed,
-         but opacity/max-height handle the visual hiding */
   }
 
   /* Media Queries */
   @media (min-width: 768px) {
     h1 { font-size: 2em; }
     #extracted-text { height: 300px; }
-    /* main.container.state-initial { transform: translateY(25vh); } */
   }
   @media (min-width: 992px) {
      #extracted-text { height: 350px; }
@@ -162,8 +155,7 @@
 
 </style>
 </head>
-<!-- Body no longer needs initial-view class -->
-<body data-theme="dark">
+<body data-theme="dark"> <!-- No initial-view class needed on body -->
 
 <!-- Container starts with state-initial class -->
 <main class="container state-initial">
@@ -176,7 +168,7 @@
         </button>
     </div>
 
-    <!-- Output sections hidden via CSS class on parent & animation -->
+    <!-- Output sections hidden/animated via CSS class on parent -->
     <div id="copy-button-wrapper">
        <button id="copy-button" disabled>
             <span class="icon-wrapper"></span>
