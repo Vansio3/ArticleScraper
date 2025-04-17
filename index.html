@@ -1,143 +1,220 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<title>Article Text Extractor</title>
+<title>Dark Article Extractor</title>
 <meta charset="UTF-8">
-<!-- Crucial for responsiveness: sets viewport width and initial scale -->
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="dark"> <!-- Hint OS about dark theme preference -->
 
 <style>
-  /* --- Global Styles & Mobile First Base --- */
+  /* --- Modern Dark Theme & Mobile First Base --- */
   :root {
-    --primary-color: #007bff;
-    --primary-hover-color: #0056b3;
-    --error-color: #dc3545;
-    --success-color: #28a745;
-    --text-color: #333;
-    --light-gray: #f4f4f4;
-    --medium-gray: #ccc;
-    --white: #fff;
-    --border-radius: 4px;
-    --spacing-unit: 15px; /* Base spacing */
+    --bg-color: #1a1a1a; /* Dark background */
+    --surface-color: #2c2c2c; /* Slightly lighter surface for cards/inputs */
+    --surface-hover: #383838;
+    --primary-color: #00aeff; /* Vibrant blue accent */
+    --primary-hover-color: #0095cc;
+    --text-color: #e0e0e0; /* Light text */
+    --text-secondary-color: #a0a0a0; /* Dimmer text */
+    --border-color: #444444;
+    --error-color: #ff5555;
+    --success-color: #44dd88;
+    --disabled-color: #555555;
+    --border-radius: 6px;
+    --spacing-unit: 16px;
+    --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
   }
 
   * {
-    box-sizing: border-box; /* Include padding and border in element's total width/height */
+    box-sizing: border-box;
     margin: 0;
     padding: 0;
   }
 
+  html {
+      color-scheme: dark; /* Apply dark theme preference */
+  }
+
   body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
-    margin: 0; /* Remove default body margin */
-    padding: var(--spacing-unit); /* Add padding around the content */
+    font-family: var(--font-family);
+    margin: 0;
+    padding: var(--spacing-unit);
     line-height: 1.6;
-    background-color: var(--light-gray);
+    background-color: var(--bg-color);
     color: var(--text-color);
-    display: flex; /* Use flexbox for centering container */
+    display: flex;
     flex-direction: column;
-    align-items: center; /* Center content horizontally */
-    min-height: 100vh; /* Ensure body takes at least full viewport height */
+    align-items: center;
+    min-height: 100vh;
   }
 
   .container {
-     width: 100%; /* Full width on mobile */
-     max-width: 700px; /* Max width for larger screens, defined later */
-     background-color: var(--white);
-     padding: var(--spacing-unit);
-     border-radius: calc(var(--border-radius) * 2);
-     box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+     width: 100%;
+     max-width: 650px; /* Slightly narrower for modern feel */
+     background-color: var(--surface-color);
+     padding: calc(var(--spacing-unit) * 1.5);
+     border-radius: calc(var(--border-radius) * 1.5);
+     border: 1px solid var(--border-color);
      margin-bottom: var(--spacing-unit);
+     /* Subtle shadow for depth */
+     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
   }
 
   h1 {
-    color: var(--primary-hover-color);
+    color: var(--text-color); /* Lighter heading */
     text-align: center;
-    font-size: 1.8em; /* Relative font size */
+    font-size: 1.8em;
     margin-bottom: calc(var(--spacing-unit) * 1.5);
+    font-weight: 600; /* Slightly bolder */
   }
 
   label {
     display: block;
-    margin-bottom: calc(var(--spacing-unit) / 3);
-    font-weight: bold;
-    font-size: 0.95em;
+    margin-bottom: calc(var(--spacing-unit) / 2.5);
+    font-weight: 500; /* Medium weight */
+    font-size: 0.9em;
+    color: var(--text-secondary-color); /* Dimmer label text */
   }
 
   #input-area {
       display: flex;
-      flex-direction: column; /* Stack input and button on mobile */
-      gap: calc(var(--spacing-unit) / 2); /* Space between input and button */
+      flex-direction: column;
+      gap: calc(var(--spacing-unit) / 1.5);
+      margin-bottom: var(--spacing-unit); /* Space before next section */
   }
 
   #url-input {
-    width: 100%; /* Full width */
+    width: 100%;
     padding: calc(var(--spacing-unit) * 0.7);
-    border: 1px solid var(--medium-gray);
+    border: 1px solid var(--border-color);
     border-radius: var(--border-radius);
     font-size: 1em;
+    background-color: var(--bg-color); /* Match body background */
+    color: var(--text-color);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+  #url-input::placeholder {
+      color: var(--text-secondary-color);
+      opacity: 0.7;
+  }
+  #url-input:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 2px rgba(0, 174, 255, 0.3); /* Focus ring */
   }
 
-  #extract-button,
-  #copy-button {
-    width: 100%; /* Full width button on mobile */
+  /* Base Button Styles */
+  .button {
+    width: 100%;
     padding: calc(var(--spacing-unit) * 0.75) var(--spacing-unit);
     cursor: pointer;
     background-color: var(--primary-color);
-    color: var(--white);
+    color: #ffffff; /* Pure white on accent */
     border: none;
     border-radius: var(--border-radius);
     font-size: 1em;
-    font-weight: bold;
+    font-weight: 600;
     text-align: center;
-    transition: background-color 0.2s ease, transform 0.1s ease;
+    transition: background-color 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
   }
 
-  #extract-button:hover,
-  #copy-button:hover:not(:disabled) {
+  .button:hover:not(:disabled) {
     background-color: var(--primary-hover-color);
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
   }
 
-  #extract-button:active,
-  #copy-button:active:not(:disabled) {
-      transform: scale(0.98); /* Subtle press effect */
+  .button:active:not(:disabled) {
+      transform: scale(0.98);
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
   }
 
-  #copy-button {
-    margin-top: calc(var(--spacing-unit) / 2); /* Space above copy button */
-  }
-
-  #copy-button:disabled {
-    background-color: var(--medium-gray);
+  .button:disabled {
+    background-color: var(--disabled-color);
+    color: var(--text-secondary-color);
     cursor: not-allowed;
+    box-shadow: none;
   }
 
   #loading-indicator {
-    display: none; /* Hidden by default */
+    display: none;
     margin: var(--spacing-unit) 0;
     text-align: center;
     font-style: italic;
-    color: #555;
+    color: var(--text-secondary-color);
+  }
+
+  /* --- Output Area Styling --- */
+  #output-container {
+    margin-top: var(--spacing-unit); /* Space above the output section */
+  }
+
+  /* Style the <summary> element like a clickable header/button */
+  #extracted-content-details summary {
+      cursor: pointer;
+      padding: calc(var(--spacing-unit) * 0.6) calc(var(--spacing-unit) * 0.8);
+      background-color: var(--surface-hover); /* Slightly different bg */
+      border-radius: var(--border-radius);
+      border: 1px solid var(--border-color);
+      margin-top: calc(var(--spacing-unit) / 1.5); /* Space below copy button */
+      list-style: none; /* Remove default marker */
+      display: flex; /* Use flex to align text and custom marker */
+      justify-content: space-between;
+      align-items: center;
+      transition: background-color 0.2s ease;
+      font-weight: 500;
+  }
+
+  #extracted-content-details summary::-webkit-details-marker {
+      display: none; /* Hide marker for Webkit */
+  }
+
+  #extracted-content-details summary:hover {
+      background-color: #4a4a4a;
+  }
+
+  /* Custom dropdown arrow */
+  #extracted-content-details summary::after {
+      content: '▼'; /* Down arrow when closed */
+      font-size: 0.8em;
+      margin-left: calc(var(--spacing-unit) / 2);
+      color: var(--text-secondary-color);
+      transition: transform 0.2s ease-in-out;
+  }
+
+  #extracted-content-details[open] summary::after {
+      transform: rotate(180deg); /* Up arrow when open */
+  }
+
+  /* Content inside the details (textarea) */
+  #extracted-content-details > div {
+      padding-top: calc(var(--spacing-unit) / 1.5); /* Space between summary and textarea */
   }
 
   #extracted-text {
     width: 100%;
-    height: 250px; /* Slightly smaller default height for mobile */
+    height: 250px;
     padding: calc(var(--spacing-unit) * 0.7);
-    border: 1px solid var(--medium-gray);
+    border: 1px solid var(--border-color);
     border-radius: var(--border-radius);
-    margin-bottom: 0; /* Remove margin, space handled by copy button */
     font-family: monospace;
     white-space: pre-wrap;
     font-size: 0.9em;
-    resize: vertical; /* Allow vertical resize only */
+    background-color: var(--bg-color); /* Match body */
+    color: var(--text-color);
+    resize: vertical;
+  }
+  #extracted-text:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 2px rgba(0, 174, 255, 0.3);
   }
 
   #status-messages {
       margin-top: var(--spacing-unit);
       min-height: 1.5em;
       text-align: center;
-      font-weight: bold;
+      font-weight: 500;
       font-size: 0.9em;
   }
 
@@ -149,59 +226,53 @@
     color: var(--success-color);
   }
 
-  /* --- Tablet & Larger Screens (min-width media queries) --- */
-
-  /* Small tablets and up */
+  /* --- Tablet & Larger Screens --- */
   @media (min-width: 600px) {
     h1 {
-        font-size: 2.2em;
+        font-size: 2em;
     }
 
     .container {
-        padding: calc(var(--spacing-unit) * 1.5);
+        padding: calc(var(--spacing-unit) * 1.8);
     }
 
     #input-area {
-        flex-direction: row; /* Input and button side-by-side */
-        align-items: center; /* Align items vertically */
+        flex-direction: row;
+        align-items: center;
     }
 
     #url-input {
-        flex-grow: 1; /* Allow input to take available space */
-        /* Width is now controlled by flexbox, remove explicit width */
+        flex-grow: 1;
     }
 
     #extract-button {
         width: auto; /* Button takes its natural width */
-        flex-shrink: 0; /* Prevent button from shrinking */
+        flex-shrink: 0;
     }
 
     #extracted-text {
-        height: 300px; /* Increase height a bit */
+        height: 300px;
         font-size: 0.95em;
     }
 
+    /* Make copy button auto-width on larger screens too */
     #copy-button {
-        width: auto; /* Auto width for copy button too */
-        display: inline-block; /* Allow text-align center on parent to work */
+        width: auto;
+        display: inline-block; /* Allows centering via text-align on parent */
     }
-
-     #output-container {
-        text-align: center; /* Center the inline-block copy button */
+     /* Center the copy button */
+    #output-container > div:first-of-type { /* Target the div holding the copy button */
+       text-align: center;
     }
   }
 
   /* Desktops and up */
   @media (min-width: 992px) {
-    /* Optional: Slightly larger fonts or spacing for very large screens */
-     body {
-        padding: calc(var(--spacing-unit) * 1.5);
-     }
      .container {
-        padding: calc(var(--spacing-unit) * 2);
+        padding: calc(var(--spacing-unit) * 2.2);
      }
      #extracted-text {
-        height: 350px; /* Even more height */
+        height: 350px;
      }
   }
 
@@ -209,16 +280,15 @@
 </head>
 <body>
 
-<!-- Wrap main content in a container for centering and max-width -->
 <div class="container">
-    <h1>Article Text Extractor</h1>
+    <h1>Dark Article Extractor</h1>
 
     <div id="input-container">
       <label for="url-input">Enter URL or text containing a URL:</label>
-      <!-- New div for input+button flex layout -->
       <div id="input-area">
           <input type="text" id="url-input" placeholder="e.g., https://example.com/article">
-          <button id="extract-button">Extract Text</button>
+          <!-- Added 'button' class -->
+          <button id="extract-button" class="button">Extract Text</button>
       </div>
     </div>
 
@@ -227,9 +297,20 @@
     </div>
 
     <div id="output-container">
-      <label for="extracted-text">Extracted Text:</label>
-      <textarea id="extracted-text" readonly placeholder="Extracted text will appear here"></textarea>
-      <button id="copy-button" disabled>Copy Text</button>
+      <!-- Div to help center button on wider screens -->
+      <div>
+         <!-- Copy button moved here, added 'button' class -->
+         <button id="copy-button" class="button" disabled>Copy Extracted Text</button>
+      </div>
+
+      <!-- Collapsible section for the text area -->
+      <details id="extracted-content-details">
+          <summary>View Extracted Text</summary>
+          <!-- Div needed inside details for padding -->
+          <div>
+              <textarea id="extracted-text" readonly placeholder="Extracted text will appear here..."></textarea>
+          </div>
+      </details>
     </div>
 
     <div id="status-messages">
@@ -241,15 +322,13 @@
 
 <!--
     **IMPORTANT: Include Readability.js here**
-    1. Download `Readability.js` from: https://github.com/mozilla/readability
-    2. Save the `Readability.js` file in the SAME directory as this HTML file.
-    3. Uncomment the following line:
+    (Instructions remain the same)
 -->
 <!-- <script src="readability.js"></script> -->
 
 
 <script>
-  // JavaScript remains the same as the previous version
+  // Get reference to the new details element
   const urlInput = document.getElementById('url-input');
   const extractButton = document.getElementById('extract-button');
   const loadingIndicator = document.getElementById('loading-indicator');
@@ -257,12 +336,13 @@
   const copyButton = document.getElementById('copy-button');
   const errorMessage = document.getElementById('error-message');
   const successMessage = document.getElementById('success-message');
+  const detailsElement = document.getElementById('extracted-content-details'); // Added
 
   extractButton.addEventListener('click', handleExtraction);
   copyButton.addEventListener('click', copyTextToClipboard);
 
   function handleExtraction() {
-    resetUI();
+    resetUI(); // Reset UI including closing details
 
     const inputText = urlInput.value.trim();
     if (!inputText) {
@@ -281,6 +361,7 @@
     const targetUrl = match[0];
     console.log("Extracted URL:", targetUrl);
 
+    // Using the same reliable proxy for now
     const corsProxyUrl = 'https://api.allorigins.win/raw?url=';
     const proxiedUrl = corsProxyUrl + encodeURIComponent(targetUrl);
 
@@ -311,7 +392,7 @@
         let article = null;
         if (typeof Readability === 'undefined') {
             console.warn("Readability.js not loaded. Falling back.");
-            displayError("Readability.js script not loaded. Using basic fallback.");
+            // Don't display error here yet, let fallback try first
         } else {
             try {
                  const documentClone = doc.cloneNode(true);
@@ -319,39 +400,55 @@
                  article = reader.parse();
             } catch (readabilityError) {
                 console.error("Readability Error:", readabilityError);
-                displayError("Readability.js failed. Trying basic fallback.");
+                 // Don't display error here yet, let fallback try first
             }
         }
 
+        let extractionSource = ''; // To track how text was extracted
+
         if (article && article.textContent && article.textContent.trim().length > 100) {
             extractedText.value = article.textContent.trim();
-            displaySuccess("Extracted using Readability.");
-            enableCopyButton();
+            extractionSource = 'Readability';
         } else {
             console.log("Readability failed/insufficient, attempting fallback...");
             const mainElement = doc.querySelector('main') || doc.querySelector('article') || doc.querySelector('.post-content') || doc.querySelector('.entry-content') || doc.body;
 
             if (mainElement) {
-                const scripts = mainElement.querySelectorAll('script, style, nav, header, footer, aside, .sidebar, .ads, [aria-hidden="true"]'); // Added more elements to remove
+                const scripts = mainElement.querySelectorAll('script, style, nav, header, footer, aside, .sidebar, .ads, [aria-hidden="true"], noscript, form, button, input'); // More elements to remove
                 scripts.forEach(el => el.remove());
-                extractedText.value = mainElement.textContent.trim();
+                extractedText.value = mainElement.textContent.trim().replace(/\s\s+/g, ' '); // Basic whitespace cleanup
             } else {
-                 extractedText.value = doc.body ? doc.body.textContent.trim() : '';
+                 extractedText.value = doc.body ? doc.body.textContent.trim().replace(/\s\s+/g, ' ') : '';
             }
 
             if (extractedText.value.trim().length > 50) {
-                 displaySuccess("Extracted using basic fallback.");
-                 enableCopyButton();
+                extractionSource = 'basic fallback';
             } else {
-                 displayError("Extraction failed: Could not get meaningful content.");
-                 extractedText.value = '';
-                 copyButton.disabled = true;
+                 // Both methods failed significantly
+                 extractedText.value = ''; // Clear out any tiny remnants
             }
         }
+
+        // Display results based on extraction outcome
+        if (extractionSource) {
+            displaySuccess(`Extracted using ${extractionSource}.`);
+            enableCopyButton(); // Enable button and potentially open details
+            detailsElement.open = true; // Automatically open details on successful extraction
+        } else {
+            if (typeof Readability === 'undefined'){
+                 displayError("Extraction failed. Readability.js missing & fallback found no content.");
+            } else {
+                displayError("Extraction failed: Could not get meaningful content.");
+            }
+            copyButton.disabled = true;
+            detailsElement.open = false; // Keep closed if failed
+        }
+
       })
       .catch(error => {
         console.error("Error during fetch or extraction:", error);
         displayError(`Error: ${error.message}`);
+        detailsElement.open = false; // Ensure details are closed on error
       })
       .finally(() => {
         loadingIndicator.style.display = 'none';
@@ -365,13 +462,23 @@
         return;
     }
 
+    // Ensure the details section is open before trying to copy (though it should be if button is enabled)
+    if (!detailsElement.open) {
+        detailsElement.open = true;
+    }
+
     navigator.clipboard.writeText(extractedText.value)
       .then(() => {
         displaySuccess("Content copied to clipboard!");
+        // Maybe briefly change button text?
+        copyButton.textContent = 'Copied!';
+        setTimeout(() => { copyButton.textContent = 'Copy Extracted Text'; }, 1500);
       })
       .catch(err => {
         console.error('Failed to copy text: ', err);
         try {
+            // Need the textarea to be visible for execCommand
+            detailsElement.open = true;
             extractedText.select();
             document.execCommand('copy');
             displaySuccess("Copied (using fallback)!");
@@ -386,9 +493,10 @@
     successMessage.textContent = '';
     loadingIndicator.style.display = 'none';
     extractButton.disabled = false;
-    // Decide if you want to clear text/disable copy on new attempt
-    // extractedText.value = '';
-    // copyButton.disabled = true;
+    copyButton.disabled = true; // Start disabled
+    copyButton.textContent = 'Copy Extracted Text'; // Reset button text
+    // Don't clear text on reset, only on new extraction start (handleExtraction clears implicitly)
+    detailsElement.open = false; // Close details section on reset
   }
 
   function displayError(message) {
