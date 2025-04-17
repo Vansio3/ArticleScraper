@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Article Text Extractor</title>
+<meta charset="UTF-8">
+<style>
+  body {
+    font-family: sans-serif;
+    margin: 20px;
+    line-height: 1.6;
+    background-color: #f4f4f4;
+    color: #333;
+  }
+
+  h1 {
+    color: #0056b3;
+    text-align: center;
+  }
+
+  #input-container,
+  #output-container {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+  }
+
+  label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+  }
+
+  #url-input {
+    width: calc(100% - 120px); /* Adjust width considering button */
+    padding: 10px;
+    margin-right: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box; /* Include padding in width */
+  }
+
+  #extract-button,
+  #copy-button {
+    padding: 10px 18px;
+    cursor: pointer;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 1em;
+    transition: background-color 0.2s ease;
+  }
+
+  #extract-button:hover,
+  #copy-button:hover:not(:disabled) {
+    background-color: #0056b3;
+  }
+
+  #copy-button:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+  }
+
+  #loading-indicator {
+    display: none; /* Hidden by default */
+    margin: 15px 0;
+    text-align: center;
+    font-style: italic;
+    color: #555;
+  }
+
+  #extracted-text {
+    width: 100%;
+    height: 300px; /* Increased height */
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    margin-bottom: 10px; /* Space before copy button */
+    font-family: monospace; /* Good for plain text */
+    white-space: pre-wrap; /* Preserve whitespace and wrap */
+  }
+
+  #status-messages {
+      margin-top: 15px;
+      min-height: 1.5em; /* Reserve space */
+  }
+
+  #error-message {
+    color: #dc3545; /* Red */
+    font-weight: bold;
+  }
+
+  #success-message {
+    color: #28a745; /* Green */
+    font-weight: bold;
+  }
+
+</style>
+</head>
+<body>
+
+<h1>Article Text Extractor</h1>
+
+<div id="input-container">
+  <label for="url-input">Enter URL or text containing a URL:</label>
+  <div>
+      <input type="text" id="url-input" placeholder="e.g., https://example.com/article or just paste text with a link">
+      <button id="extract-button">Extract Main Text</button>
+  </div>
+</div>
+
+<div id="loading-indicator">
+    <!-- You could replace this text with a spinner SVG or GIF -->
+    Fetching and processing content...
+</div>
+
+<div id="output-container">
+  <label for="extracted-text">Extracted Text:</label>
+  <textarea id="extracted-text" readonly placeholder="Extracted text will appear here"></textarea>
+  <button id="copy-button" disabled>Copy Text</button>
+</div>
+
+<div id="status-messages">
+    <div id="error-message"></div>
+    <div id="success-message"></div>
+</div>
+
+
+<!--
+    **IMPORTANT: Include Readability.js here**
+    1. Download `Readability.js` from: https://github.com/mozilla/readability
+    2. Save the `Readability.js` file in the SAME directory as this HTML file.
+    3. Uncomment the following line:
+-->
+<!-- <script src="readability.js"></script> -->
+
+
+<script>
+  const urlInput = document.getElementById('url-input');
+  const extractButton = document.getElementById('extract-button');
+  const loadingIndicator = document.getElementById('loading-indicator');
+  const extractedText = document.getElementById('extracted-text');
+  const copyButton = document.getElementById('copy-button');
+  const errorMessage = document.getElementById('error-message');
+  const successMessage = document.getElementById('success-message');
+
+  extractButton.addEventListener('click', handleExtraction);
+  copyButton.addEventListener('click', copyTextToClipboard);
+
+  function handleExtraction() {
+    resetUI(); // Clear previous results and messages
+
+    const inputText = urlInput.value.trim();
+    if (!inputText) {
+        displayError("Please enter text containing a URL.");
+        return;
+    }
+
+    // Regular expression to find the first valid HTTP/HTTPS URL in the input text
+    // Handles URLs that might be surrounded by other characters.
+    const urlRegex = /https?:\/\/[^\s/$.?#].[^\s]*/i;
+    const match = inputText.match(urlRegex);
+
+    if (!match) {
+      displayError("No valid URL found in the input.");
+      return;
+    }
+
+    const targetUrl = match[0];
+    console.log("Extracted URL:", targetUrl); // Log the found URL for debugging
+
+    // **Crucially:** Use a CORS proxy to bypass CORS restrictions in the browser.
+    // **Important:** Public CORS proxies are unreliable and have rate limits.
+    // They might be slow, go down, or block certain sites.
+    // Consider running your own proxy for stability.
+    // Example proxies (choose one or make configurable):
+    // const corsProxyUrl = 'https://cors-anywhere.herokuapp.com/'; // Often requires activation
+    const corsProxyUrl = 'https://api.allorigins.win/raw?url='; // A popular choice
+    // const corsProxyUrl = 'https://corsproxy.io/?'; // Another option
+    const proxiedUrl = corsProxyUrl + encodeURIComponent(targetUrl); // Encode the target URL
+
+    loadingIndicator.style.display = 'block';
+    extractButton.disabled = true; // Disable button during processing
+
+    fetch(proxiedUrl)
+      .then(response => {
+        if (!response.ok) {
+          // Provide more specific feedback if possible
+          let errorMsg = `Proxy fetch failed: ${response.status} ${response.statusText}`;
+          if (response.status === 404) {
+            errorMsg += ". The URL might be incorrect or the content not found via the proxy.";
+          } else if (response.status === 403) {
+             errorMsg += ". Access denied. The target site might be blocking the proxy.";
+          } else if (response.status >= 500) {
+             errorMsg += ". The CORS proxy server might be down or having issues.";
+          }
+          throw new Error(errorMsg);
+        }
+        return response.text();
+      })
+      .then(html => {
+        // Attempt to parse the HTML content
+        let doc;
+        try {
+            const parser = new DOMParser();
+            doc = parser.parseFromString(html, 'text/html');
+        } catch (parseError) {
+            console.error("DOM Parsing Error:", parseError);
+            throw new Error("Failed to parse the HTML content.");
+        }
+
+        // **Main Content Extraction using Readability.js (recommended)**
+        let article = null;
+        if (typeof Readability === 'undefined') {
+            console.warn("Readability.js is not loaded. Falling back to basic extraction.");
+            displayError("Readability.js script not loaded. Using basic fallback (results may vary)."); // Inform user
+            // Proceed with fallback without throwing an error immediately
+        } else {
+            try {
+                // Clone the document context for Readability to avoid modifying the original
+                 const documentClone = doc.cloneNode(true);
+                 let reader = new Readability(documentClone);
+                 article = reader.parse();
+            } catch (readabilityError) {
+                console.error("Readability Error:", readabilityError);
+                // Don't throw yet, let fallback attempt it
+                displayError("Readability.js failed to parse. Trying basic fallback.");
+            }
+        }
+
+
+        if (article && article.textContent && article.textContent.trim().length > 100) { // Check if Readability gave substantial content
+            extractedText.value = article.textContent.trim();
+            displaySuccess("Article text extracted successfully using Readability.");
+            enableCopyButton();
+        } else {
+            // Fallback: Simple heuristic if Readability is missing, failed, or gave poor results
+            console.log("Readability failed or content insufficient, attempting fallback...");
+            const mainElement = doc.querySelector('main') || doc.querySelector('article') || doc.querySelector('.post-content') || doc.querySelector('.entry-content') || doc.body; // Added common class selectors and body fallback
+
+            if (mainElement) {
+                // Basic cleaning: remove script/style tags if present within the fallback element
+                const scripts = mainElement.querySelectorAll('script, style, nav, header, footer, aside, .sidebar, .ads');
+                scripts.forEach(el => el.remove());
+                extractedText.value = mainElement.textContent.trim();
+            } else {
+                 // Should be rare if doc.body exists, but handle it.
+                 extractedText.value = doc.body ? doc.body.textContent.trim() : '';
+            }
+
+            // Check if fallback actually got something meaningful
+            if (extractedText.value.trim().length > 50) { // Use a smaller threshold for fallback success
+                 if (!article) { // Only show fallback success if Readability wasn't even attempted or failed completely
+                     displaySuccess("Article text extracted using basic fallback.");
+                 } else {
+                     displaySuccess("Used basic fallback as Readability result was short.");
+                 }
+                 enableCopyButton();
+            } else {
+                 // If both Readability and fallback failed or produced very little text
+                 displayError("Extraction failed: Could not extract meaningful content from the page.");
+                 extractedText.value = ''; // Clear any minimal text found
+                 copyButton.disabled = true; // Ensure copy is disabled
+            }
+        }
+      })
+      .catch(error => {
+        // Catch errors from fetch, parsing, or explicitly thrown errors
+        console.error("Error during fetch or extraction:", error);
+        displayError(`Error: ${error.message}`);
+      })
+      .finally(() => {
+        // This block always runs, whether fetch succeeded or failed
+        loadingIndicator.style.display = 'none';
+        extractButton.disabled = false; // Re-enable button
+      });
+  }
+
+  function copyTextToClipboard() {
+    if (!extractedText.value) {
+        displayError("Nothing to copy.");
+        return;
+    }
+
+    navigator.clipboard.writeText(extractedText.value)
+      .then(() => {
+        displaySuccess("Content copied to clipboard!");
+      })
+      .catch(err => {
+        console.error('Failed to copy text: ', err);
+        // Fallback for older browsers or insecure contexts (rare now)
+        try {
+            extractedText.select(); // Select the text
+            document.execCommand('copy'); // Try the deprecated method
+            displaySuccess("Content copied to clipboard! (using fallback)");
+        } catch (execErr) {
+             displayError("Failed to copy text automatically. Please copy manually.");
+        }
+      });
+  }
+
+  function resetUI() {
+    errorMessage.textContent = '';
+    successMessage.textContent = '';
+    // extractedText.value = ''; // Keep text until next successful extraction? Optional.
+    // copyButton.disabled = true; // Keep enabled if there's text? Optional.
+    loadingIndicator.style.display = 'none';
+    extractButton.disabled = false; // Ensure button is enabled initially
+  }
+
+  function displayError(message) {
+    errorMessage.textContent = message;
+    successMessage.textContent = ''; // Clear success message
+  }
+
+  function displaySuccess(message) {
+    successMessage.textContent = message;
+    errorMessage.textContent = ''; // Clear error message
+  }
+
+  function enableCopyButton() {
+    if(extractedText.value.trim()){ // Only enable if there's actual text
+        copyButton.disabled = false;
+    } else {
+        copyButton.disabled = true;
+    }
+  }
+
+</script>
+
+</body>
+</html>
