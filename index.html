@@ -12,8 +12,7 @@
 <style>
   /* --- Custom Styles & Overrides (Mobile First) --- */
   :root {
-      --pico-color-amber-500: #ffa000; /* Example, adjust if needed */
-      /* Define pill border radius */
+      --pico-color-amber-500: #ffa000;
       --pico-border-radius-pill: 50px;
   }
 
@@ -22,7 +21,7 @@
     padding-bottom: calc(var(--pico-spacing) * 2);
     margin-top: var(--pico-spacing);
     margin-bottom: var(--pico-spacing);
-    max-width: 700px; /* Increase max-width slightly */
+    max-width: 700px;
   }
 
   h1 {
@@ -32,80 +31,75 @@
 
   /* --- Input Group Styling (Search Bar Look) --- */
   #input-label {
-      /* Use Pico's label styling, just ensure spacing */
       margin-bottom: var(--pico-form-element-spacing-vertical);
-      display: block; /* Make sure it takes its own line */
+      display: block;
   }
 
   #input-group {
       display: flex;
-      align-items: center; /* Vertically align input text and button */
+      align-items: center;
       background-color: var(--pico-form-element-background-color);
-      border-radius: var(--pico-border-radius-pill); /* Pill shape */
+      border-radius: var(--pico-border-radius-pill);
       border: var(--pico-border-width) solid var(--pico-form-element-border-color);
-      padding: 0; /* Remove padding from container */
-      overflow: hidden; /* Important: Clip button background */
+      padding: 0;
+      overflow: hidden;
       transition: border-color var(--pico-transition), box-shadow var(--pico-transition);
-      margin-bottom: var(--pico-block-spacing-vertical); /* Space below input group */
+      margin-bottom: var(--pico-block-spacing-vertical);
   }
 
-  /* Style container on input focus */
   #input-group:focus-within {
        border-color: var(--pico-primary);
        box-shadow: 0 0 0 var(--pico-outline-width) var(--pico-primary-focus);
   }
 
-
   #url-input {
-      flex-grow: 1; /* Take available space */
-      border: none; /* Remove input's own border */
-      background-color: transparent; /* Use container's background */
+      flex-grow: 1;
+      border: none;
+      background-color: transparent;
       padding: var(--pico-form-element-spacing-vertical) var(--pico-form-element-spacing-horizontal);
-      padding-right: calc(var(--pico-form-element-spacing-horizontal) / 2); /* Less padding on right */
+      padding-right: calc(var(--pico-form-element-spacing-horizontal) / 2);
       font-size: 1em;
       color: var(--pico-form-element-color);
-      outline: none; /* Remove default focus outline */
-      margin: 0; /* Remove default margins */
-      min-width: 0; /* Prevent flex overflow */
+      outline: none;
+      margin: 0;
+      min-width: 0;
   }
   #url-input::placeholder {
       color: var(--pico-secondary);
   }
 
+  /* --- CORRECTED BUTTON STYLE --- */
   #extract-button {
-      flex-shrink: 0; /* Don't shrink button */
-      border: none; /* Remove button's own border */
+      flex-shrink: 0; /* Prevent button from shrinking */
+      border: none;
       background-color: var(--pico-primary);
       color: var(--pico-primary-inverse);
-      margin: calc(var(--pico-border-width) * 2); /* Small margin to visually separate */
-      /* Adjust padding to make it squarish/circular */
-      padding: calc(var(--pico-form-element-spacing-vertical) * 0.7);
-      line-height: 1; /* Prevent extra height from line */
-      border-radius: 50%; /* Make button circular */
+      margin: 4px; /* Small fixed margin */
+      border-radius: 50%; /* Make it circular */
       cursor: pointer;
       display: flex; /* Center icon */
       align-items: center;
       justify-content: center;
-      font-size: 1.3em; /* Make arrow larger */
+      font-size: 1.4em; /* Arrow size */
       font-weight: bold;
-      width: calc(var(--pico-font-size) + (var(--pico-form-element-spacing-vertical) * 0.7 * 2) + 6px); /* Approximate width based on font-size and padding */
-      height: calc(var(--pico-font-size) + (var(--pico-form-element-spacing-vertical) * 0.7 * 2) + 6px); /* Approximate height */
+      line-height: 1; /* Prevent extra height from line */
+      /* FIXED SIZE */
+      width: 2.4em;  /* Same width and height */
+      height: 2.4em;
+      padding: 0; /* No padding needed with fixed size */
       transition: background-color var(--pico-transition), transform 0.1s ease;
   }
-
   #extract-button:hover:not([aria-busy=true]) {
       background-color: var(--pico-primary-hover);
   }
   #extract-button:active:not([aria-busy=true]) {
       transform: scale(0.95);
   }
-  /* Style for loading state */
   #extract-button[aria-busy=true] {
-      background-color: var(--pico-secondary); /* Use secondary color when busy */
+      background-color: var(--pico-secondary);
       cursor: default;
-      /* Optionally hide icon when busy, depends on preference */
-      /* color: transparent; */
   }
+  /* --- END CORRECTED BUTTON STYLE --- */
 
 
   /* --- Other Styles (Mostly Unchanged) --- */
@@ -157,7 +151,7 @@
   }
 
 
-  /* --- Media Queries (No major changes needed for input group) --- */
+  /* --- Media Queries --- */
   @media (min-width: 768px) {
     h1 { font-size: 2em; }
     #extracted-text { height: 300px; }
@@ -173,12 +167,9 @@
 <main class="container">
     <h1>Article Extractor</h1>
 
-    <!-- Label remains outside the group -->
     <label for="url-input" id="input-label">Enter URL or text containing a URL:</label>
-    <!-- New Input Group Container -->
     <div id="input-group">
         <input type="text" id="url-input" name="url-input" placeholder="Paste URL or text here...">
-        <!-- Button now contains only the arrow icon -->
         <button id="extract-button" title="Extract Text">
             →
         </button>
@@ -233,35 +224,26 @@
 
   // --- Event Listeners ---
   extractButton.addEventListener('click', () => {
-      // No debounce needed if button is already busy
-      if (extractButton.getAttribute('aria-busy') === 'true') {
-          return;
-      }
+      if (extractButton.getAttribute('aria-busy') === 'true') return;
       clearTimeout(debounceTimer);
       debounceTimer = setTimeout(handleExtraction, DEBOUNCE_DELAY_MS);
   });
-  // Allow pressing Enter in input field to trigger extraction
   urlInput.addEventListener('keypress', (event) => {
       if (event.key === 'Enter') {
-          event.preventDefault(); // Prevent form submission if it were in a form
-          // No debounce needed if button is already busy
-          if (extractButton.getAttribute('aria-busy') === 'true') {
-             return;
-          }
-          clearTimeout(debounceTimer); // Still debounce Enter presses
+          event.preventDefault();
+          if (extractButton.getAttribute('aria-busy') === 'true') return;
+          clearTimeout(debounceTimer);
           debounceTimer = setTimeout(handleExtraction, DEBOUNCE_DELAY_MS);
       }
   });
   copyButton.addEventListener('click', copyTextToClipboard);
 
   // --- Core Logic ---
-
   function delay(ms) {
       return new Promise(resolve => setTimeout(resolve, ms));
   }
 
   async function fetchWithRetries(url, options, retries = MAX_RETRIES) {
-    // ... (fetchWithRetries function remains the same as previous version) ...
       for (let i = 0; i <= retries; i++) {
           try {
               if (i > 0) {
@@ -289,9 +271,7 @@
       throw new Error("Fetch failed after all retries.");
   }
 
-
   async function handleExtraction() {
-    // ... (handleExtraction function remains the same logic, using fetchWithRetries) ...
     resetUI();
     const inputText = urlInput.value.trim();
     if (!inputText) { displayError("Please enter text containing a URL."); return; }
@@ -332,75 +312,69 @@
   }
 
    function setLoadingState(isLoading) {
-        // ... (setLoadingState function remains the same) ...
         if (isLoading) {
             loadingIndicator.style.display = 'block';
             if (progressIndicator) progressIndicator.removeAttribute('value');
             extractButton.setAttribute('aria-busy', 'true');
-            // extractButton.disabled = true; // aria-busy handles disabling interaction in Pico
         } else {
             loadingIndicator.style.display = 'none';
             extractButton.removeAttribute('aria-busy');
-            // extractButton.disabled = false;
         }
     }
 
   // --- Clipboard and UI Functions ---
   function copyTextToClipboard() {
-    // ... (copyTextToClipboard function remains the same) ...
     if (!extractedText.value) { displayError("Nothing to copy."); return; }
     if (!detailsElement.open) { detailsElement.open = true; }
     navigator.clipboard.writeText(extractedText.value)
       .then(() => {
         displaySuccess("Content copied to clipboard!");
-        const originalText = '→'; // Use arrow for reset text
-        copyButton.textContent = '✓'; // Checkmark feedback
-        copyButton.classList.add('secondary');
-        setTimeout(() => { copyButton.textContent = originalText; copyButton.classList.remove('secondary'); }, 1500);
+        const originalIcon = '→'; // Store the icon
+        copyButton.textContent = '✓'; // Use checkmark for feedback
+        copyButton.classList.add('secondary'); // Pico class for visual feedback
+        setTimeout(() => {
+             copyButton.textContent = 'Copy Extracted Text'; // Reset to original TEXT
+             copyButton.classList.remove('secondary');
+        }, 1500);
       })
       .catch(err => { console.error('Failed to copy text: ', err); try { detailsElement.open = true; extractedText.select(); document.execCommand('copy'); displaySuccess("Copied (using fallback)!"); } catch (execErr) { displayError("Failed to copy automatically."); } });
   }
 
+
   function resetUI() {
-    // ... (resetUI function remains the same) ...
     errorMessage.textContent = '';
     successMessage.textContent = '';
     retryMessage.textContent = '';
     setLoadingState(false);
     copyButton.disabled = true;
-    copyButton.textContent = 'Copy Extracted Text'; // Keep text for copy button
+    copyButton.textContent = 'Copy Extracted Text'; // Reset copy button text
     copyButton.classList.remove('secondary');
     detailsElement.open = false;
   }
 
   function displayError(message) {
-    // ... (displayError remains the same) ...
     errorMessage.textContent = message;
     successMessage.textContent = '';
     retryMessage.textContent = '';
   }
 
   function displaySuccess(message) {
-    // ... (displaySuccess remains the same) ...
     successMessage.textContent = message;
     errorMessage.textContent = '';
     retryMessage.textContent = '';
   }
 
   function displayRetryMessage(message) {
-      // ... (displayRetryMessage remains the same) ...
       retryMessage.textContent = message;
       errorMessage.textContent = '';
       successMessage.textContent = '';
   }
 
   function clearRetryMessage() {
-      // ... (clearRetryMessage remains the same) ...
        retryMessage.textContent = '';
   }
 
   function enableCopyButton() {
-    // ... (enableCopyButton remains the same) ...
     if(extractedText.value.trim()){ copyButton.disabled = false; } else { copyButton.disabled = true; }
   }
 
