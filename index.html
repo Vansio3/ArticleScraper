@@ -1,276 +1,122 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark"> <!-- Force dark theme with Pico -->
 <head>
-<title>Dark Article Extractor</title>
+<title>Modern Article Extractor</title>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="color-scheme" content="dark">
+<meta name="color-scheme" content="dark light"> <!-- Indicate theme support -->
+
+<!-- Pico.css - Include BEFORE custom styles -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@latest/css/pico.min.css">
 
 <style>
-  /* --- Modern Dark Theme & Mobile First Base --- */
-  :root {
-    --bg-color: #1a1a1a; /* Dark background */
-    --surface-color: #2c2c2c; /* Slightly lighter surface for cards/inputs */
-    --surface-hover: #383838;
-    --primary-color: #00aeff; /* Vibrant blue accent */
-    --primary-hover-color: #0095cc;
-    --text-color: #e0e0e0; /* Light text */
-    --text-secondary-color: #a0a0a0; /* Dimmer text */
-    --border-color: #444444;
-    --error-color: #ff5555;
-    --success-color: #44dd88;
-    --disabled-color: #555555;
-    --border-radius: 6px;
-    --spacing-unit: 16px;
-    --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
-  }
+  /* --- Custom Styles & Overrides (Mobile First) --- */
 
-  * {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-  }
-
-  html {
-      color-scheme: dark; /* Apply dark theme preference */
-  }
-
-  body {
-    font-family: var(--font-family);
-    margin: 0;
-    padding: var(--spacing-unit);
-    line-height: 1.6;
-    background-color: var(--bg-color);
-    color: var(--text-color);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    min-height: 100vh;
-  }
-
-  .container {
-     width: 100%;
-     max-width: 650px; /* Slightly narrower for modern feel */
-     background-color: var(--surface-color);
-     padding: calc(var(--spacing-unit) * 1.5);
-     border-radius: calc(var(--border-radius) * 1.5);
-     border: 1px solid var(--border-color);
-     margin-bottom: var(--spacing-unit);
-     /* Subtle shadow for depth */
-     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  /* Add some vertical spacing */
+  main.container {
+    padding-top: calc(var(--pico-spacing) * 2);
+    padding-bottom: calc(var(--pico-spacing) * 2);
+    margin-top: var(--pico-spacing);
+    margin-bottom: var(--pico-spacing);
   }
 
   h1 {
-    color: var(--text-color); /* Lighter heading */
-    text-align: center;
-    font-size: 1.8em;
-    margin-bottom: calc(var(--spacing-unit) * 1.5);
-    font-weight: 600; /* Slightly bolder */
+     font-size: 1.75em; /* Slightly adjust Pico's h1 */
+     margin-bottom: var(--pico-block-spacing-vertical);
   }
 
-  label {
-    display: block;
-    margin-bottom: calc(var(--spacing-unit) / 2.5);
-    font-weight: 500; /* Medium weight */
-    font-size: 0.9em;
-    color: var(--text-secondary-color); /* Dimmer label text */
-  }
-
+  /* Layout for Input + Button */
   #input-area {
-      display: flex;
-      flex-direction: column;
-      gap: calc(var(--spacing-unit) / 1.5);
-      margin-bottom: var(--spacing-unit); /* Space before next section */
+      display: grid; /* Use grid for potentially better alignment */
+      grid-template-columns: 1fr; /* Stack on mobile */
+      gap: var(--pico-form-element-spacing-vertical);
+      margin-bottom: var(--pico-block-spacing-vertical);
   }
 
-  #url-input {
-    width: 100%;
-    padding: calc(var(--spacing-unit) * 0.7);
-    border: 1px solid var(--border-color);
-    border-radius: var(--border-radius);
-    font-size: 1em;
-    background-color: var(--bg-color); /* Match body background */
-    color: var(--text-color);
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
-  }
-  #url-input::placeholder {
-      color: var(--text-secondary-color);
-      opacity: 0.7;
-  }
-  #url-input:focus {
-      outline: none;
-      border-color: var(--primary-color);
-      box-shadow: 0 0 0 2px rgba(0, 174, 255, 0.3); /* Focus ring */
-  }
-
-  /* Base Button Styles */
-  .button {
-    width: 100%;
-    padding: calc(var(--spacing-unit) * 0.75) var(--spacing-unit);
-    cursor: pointer;
-    background-color: var(--primary-color);
-    color: #ffffff; /* Pure white on accent */
-    border: none;
-    border-radius: var(--border-radius);
-    font-size: 1em;
-    font-weight: 600;
-    text-align: center;
-    transition: background-color 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
-  }
-
-  .button:hover:not(:disabled) {
-    background-color: var(--primary-hover-color);
-    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
-  }
-
-  .button:active:not(:disabled) {
-      transform: scale(0.98);
-      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-  }
-
-  .button:disabled {
-    background-color: var(--disabled-color);
-    color: var(--text-secondary-color);
-    cursor: not-allowed;
-    box-shadow: none;
-  }
-
-  #loading-indicator {
-    display: none;
-    margin: var(--spacing-unit) 0;
-    text-align: center;
-    font-style: italic;
-    color: var(--text-secondary-color);
-  }
-
-  /* --- Output Area Styling --- */
-  #output-container {
-    margin-top: var(--spacing-unit); /* Space above the output section */
-  }
-
-  /* Style the <summary> element like a clickable header/button */
-  #extracted-content-details summary {
-      cursor: pointer;
-      padding: calc(var(--spacing-unit) * 0.6) calc(var(--spacing-unit) * 0.8);
-      background-color: var(--surface-hover); /* Slightly different bg */
-      border-radius: var(--border-radius);
-      border: 1px solid var(--border-color);
-      margin-top: calc(var(--spacing-unit) / 1.5); /* Space below copy button */
-      list-style: none; /* Remove default marker */
-      display: flex; /* Use flex to align text and custom marker */
-      justify-content: space-between;
-      align-items: center;
-      transition: background-color 0.2s ease;
-      font-weight: 500;
-  }
-
-  #extracted-content-details summary::-webkit-details-marker {
-      display: none; /* Hide marker for Webkit */
-  }
-
-  #extracted-content-details summary:hover {
-      background-color: #4a4a4a;
-  }
-
-  /* Custom dropdown arrow */
-  #extracted-content-details summary::after {
-      content: '▼'; /* Down arrow when closed */
-      font-size: 0.8em;
-      margin-left: calc(var(--spacing-unit) / 2);
-      color: var(--text-secondary-color);
-      transition: transform 0.2s ease-in-out;
-  }
-
-  #extracted-content-details[open] summary::after {
-      transform: rotate(180deg); /* Up arrow when open */
-  }
-
-  /* Content inside the details (textarea) */
-  #extracted-content-details > div {
-      padding-top: calc(var(--spacing-unit) / 1.5); /* Space between summary and textarea */
-  }
-
+  /* Keep textarea monospace */
   #extracted-text {
-    width: 100%;
-    height: 250px;
-    padding: calc(var(--spacing-unit) * 0.7);
-    border: 1px solid var(--border-color);
-    border-radius: var(--border-radius);
-    font-family: monospace;
-    white-space: pre-wrap;
-    font-size: 0.9em;
-    background-color: var(--bg-color); /* Match body */
-    color: var(--text-color);
+    font-family: var(--pico-font-monospace);
+    height: 250px; /* Default mobile height */
     resize: vertical;
-  }
-  #extracted-text:focus {
-      outline: none;
-      border-color: var(--primary-color);
-      box-shadow: 0 0 0 2px rgba(0, 174, 255, 0.3);
+     /* Pico might add margin, ensure it's inside the details */
+     margin-bottom: 0;
   }
 
+  /* Center the copy button */
+   #copy-button-wrapper {
+       margin-bottom: calc(var(--pico-spacing) / 2);
+       display: block; /* Ensure it takes block space */
+       text-align: center; /* Center the inline-block button */
+   }
+   #copy-button {
+        display: inline-block; /* Allow text align to center it */
+        width: auto; /* Don't force full width unless needed */
+        padding-left: calc(var(--pico-spacing) * 1.5); /* More horizontal padding */
+        padding-right: calc(var(--pico-spacing) * 1.5);
+   }
+
+  /* Style the details/summary trigger */
+  details summary {
+      /* Pico styles this well, minor adjustments if needed */
+      font-weight: var(--pico-font-weight-semibold);
+      margin-top: var(--pico-spacing); /* Space below copy button */
+  }
+
+  /* Spacing inside the details */
+  details > div {
+      padding-top: var(--pico-form-element-spacing-vertical);
+  }
+
+  /* Status messages */
   #status-messages {
-      margin-top: var(--spacing-unit);
+      margin-top: var(--pico-block-spacing-vertical);
       min-height: 1.5em;
       text-align: center;
-      font-weight: 500;
+      font-weight: var(--pico-font-weight-medium);
       font-size: 0.9em;
   }
 
   #error-message {
-    color: var(--error-color);
+    color: var(--pico-color-red-500); /* Use Pico variable */
   }
 
   #success-message {
-    color: var(--success-color);
+    color: var(--pico-color-green-500); /* Use Pico variable */
   }
 
+  #loading-indicator {
+      display: none;
+      text-align: center;
+      margin: var(--pico-block-spacing-vertical) 0;
+      color: var(--pico-secondary);
+  }
+
+
   /* --- Tablet & Larger Screens --- */
-  @media (min-width: 600px) {
+  @media (min-width: 768px) { /* Pico's default breakpoint is often 768px */
     h1 {
         font-size: 2em;
     }
 
-    .container {
-        padding: calc(var(--spacing-unit) * 1.8);
-    }
-
     #input-area {
-        flex-direction: row;
-        align-items: center;
+        grid-template-columns: 1fr auto; /* Input takes space, button fits content */
+        gap: var(--pico-form-element-spacing-horizontal);
+        align-items: flex-end; /* Align items to bottom edge */
     }
 
-    #url-input {
-        flex-grow: 1;
+    /* Label specific alignment if needed when side-by-side */
+    #input-area label {
+        /* margin-bottom: 0; */ /* Optional: remove bottom margin if aligned */
     }
 
-    #extract-button {
-        width: auto; /* Button takes its natural width */
-        flex-shrink: 0;
-    }
 
     #extracted-text {
-        height: 300px;
-        font-size: 0.95em;
-    }
-
-    /* Make copy button auto-width on larger screens too */
-    #copy-button {
-        width: auto;
-        display: inline-block; /* Allows centering via text-align on parent */
-    }
-     /* Center the copy button */
-    #output-container > div:first-of-type { /* Target the div holding the copy button */
-       text-align: center;
+        height: 300px; /* More height on larger screens */
     }
   }
 
   /* Desktops and up */
   @media (min-width: 992px) {
-     .container {
-        padding: calc(var(--spacing-unit) * 2.2);
-     }
      #extracted-text {
         height: 350px;
      }
@@ -280,44 +126,42 @@
 </head>
 <body>
 
-<div class="container">
-    <h1>Dark Article Extractor</h1>
+<!-- Use main.container as recommended by Pico -->
+<main class="container">
+    <h1>Article Extractor</h1>
 
-    <div id="input-container">
-      <label for="url-input">Enter URL or text containing a URL:</label>
-      <div id="input-area">
-          <input type="text" id="url-input" placeholder="e.g., https://example.com/article">
-          <!-- Added 'button' class -->
-          <button id="extract-button" class="button">Extract Text</button>
-      </div>
+    <!-- Removed outer #input-container div -->
+    <label for="url-input">Enter URL or text containing a URL:</label>
+    <div id="input-area">
+        <input type="text" id="url-input" name="url-input" placeholder="e.g., https://example.com/article">
+        <!-- Pico styles buttons automatically -->
+        <button id="extract-button">Extract Text</button>
     </div>
 
     <div id="loading-indicator">
-        Fetching and processing content...
+        Fetching and processing content... <progress></progress> <!-- Pico styles progress -->
     </div>
 
-    <div id="output-container">
-      <!-- Div to help center button on wider screens -->
-      <div>
-         <!-- Copy button moved here, added 'button' class -->
-         <button id="copy-button" class="button" disabled>Copy Extracted Text</button>
-      </div>
-
-      <!-- Collapsible section for the text area -->
-      <details id="extracted-content-details">
-          <summary>View Extracted Text</summary>
-          <!-- Div needed inside details for padding -->
-          <div>
-              <textarea id="extracted-text" readonly placeholder="Extracted text will appear here..."></textarea>
-          </div>
-      </details>
+    <!-- Removed outer #output-container div -->
+    <!-- Wrapper for copy button centering -->
+    <div id="copy-button-wrapper">
+       <button id="copy-button" disabled>Copy Extracted Text</button>
     </div>
+
+    <!-- Pico styles details/summary nicely -->
+    <details id="extracted-content-details">
+        <summary>View Extracted Text</summary>
+        <!-- Div needed inside details for padding -->
+        <div>
+            <textarea id="extracted-text" name="extracted-text" readonly placeholder="Extracted text will appear here..."></textarea>
+        </div>
+    </details>
 
     <div id="status-messages">
         <div id="error-message"></div>
         <div id="success-message"></div>
     </div>
-</div> <!-- End .container -->
+</main> <!-- End .container -->
 
 
 <!-- ***** INCLUDE Readability.js SCRIPT HERE ***** -->
@@ -326,7 +170,7 @@
 
 
 <script>
-  // Get reference to the new details element
+  // Get reference to elements
   const urlInput = document.getElementById('url-input');
   const extractButton = document.getElementById('extract-button');
   const loadingIndicator = document.getElementById('loading-indicator');
@@ -334,13 +178,17 @@
   const copyButton = document.getElementById('copy-button');
   const errorMessage = document.getElementById('error-message');
   const successMessage = document.getElementById('success-message');
-  const detailsElement = document.getElementById('extracted-content-details'); // Added
+  const detailsElement = document.getElementById('extracted-content-details');
+
+  // References to the progress element inside the indicator
+  const progressIndicator = loadingIndicator.querySelector('progress');
+
 
   extractButton.addEventListener('click', handleExtraction);
   copyButton.addEventListener('click', copyTextToClipboard);
 
   function handleExtraction() {
-    resetUI(); // Reset UI including closing details
+    resetUI();
 
     const inputText = urlInput.value.trim();
     if (!inputText) {
@@ -359,12 +207,10 @@
     const targetUrl = match[0];
     console.log("Extracted URL:", targetUrl);
 
-    // Using the same reliable proxy for now
     const corsProxyUrl = 'https://api.allorigins.win/raw?url=';
     const proxiedUrl = corsProxyUrl + encodeURIComponent(targetUrl);
 
-    loadingIndicator.style.display = 'block';
-    extractButton.disabled = true;
+    setLoadingState(true); // Show loading indicator
 
     fetch(proxiedUrl)
       .then(response => {
@@ -388,45 +234,47 @@
         }
 
         let article = null;
-        // Check if Readability is loaded *before* trying to use it
         if (typeof Readability === 'undefined') {
-            // THIS MESSAGE SHOULD NOT APPEAR IF THE SCRIPT TAG IS CORRECTLY INCLUDED AND THE FILE EXISTS
             console.warn("Readability.js not loaded. Falling back.");
-            // Fallback logic will run below
         } else {
-            // Readability is loaded, try to use it
             try {
                  const documentClone = doc.cloneNode(true);
                  let reader = new Readability(documentClone);
                  article = reader.parse();
             } catch (readabilityError) {
                 console.error("Readability Error:", readabilityError);
-                 // Fallback logic will run below
             }
         }
 
-        let extractionSource = ''; // To track how text was extracted
+        let extractionSource = '';
 
-        // Use Readability result if it's valid and substantial
         if (article && article.textContent && article.textContent.trim().length > 100) {
             extractedText.value = article.textContent.trim();
             extractionSource = 'Readability';
         } else {
-            // Otherwise, attempt fallback (whether Readability failed or wasn't loaded)
-            if (extractionSource === '') { // Avoid logging if Readability worked but was short
-                console.log("Readability failed or content insufficient, attempting fallback...");
-            }
+             if (!article && typeof Readability !== 'undefined') {
+                 console.log("Readability failed or content insufficient, attempting fallback...");
+             } else if (typeof Readability === 'undefined') {
+                 // Already warned if undefined
+             } else {
+                  console.log("Readability content insufficient, attempting fallback...");
+             }
+
             const mainElement = doc.querySelector('main') || doc.querySelector('article') || doc.querySelector('.post-content') || doc.querySelector('.entry-content') || doc.body;
 
             if (mainElement) {
-                const scripts = mainElement.querySelectorAll('script, style, nav, header, footer, aside, .sidebar, .ads, [aria-hidden="true"], noscript, form, button, input'); // More elements to remove
+                const scripts = mainElement.querySelectorAll('script, style, nav, header, footer, aside, .sidebar, .ads, [aria-hidden="true"], noscript, form, button, input, figure, figcaption, .share-buttons, .comments-area'); // Even more cleanup targets
                 scripts.forEach(el => el.remove());
-                extractedText.value = mainElement.textContent.trim().replace(/\s\s+/g, ' '); // Basic whitespace cleanup
+                // More aggressive whitespace cleanup
+                extractedText.value = mainElement.textContent
+                                       .replace(/[\t\r\n]+/g, '\n') // Collapse multiple line breaks/tabs/returns to single newline
+                                       .replace(/\n\s*\n/g, '\n\n') // Ensure max one blank line
+                                       .replace(/ {2,}/g, ' ') // Collapse multiple spaces
+                                       .trim();
             } else {
                  extractedText.value = doc.body ? doc.body.textContent.trim().replace(/\s\s+/g, ' ') : '';
             }
 
-            // Check if fallback produced meaningful text
             if (extractedText.value.trim().length > 50) {
                  if (!article && typeof Readability !== 'undefined') {
                       extractionSource = 'basic fallback (Readability failed)';
@@ -434,39 +282,48 @@
                       extractionSource = 'basic fallback';
                  }
             } else {
-                 // Both methods failed significantly
-                 extractedText.value = ''; // Clear out any tiny remnants
+                 extractedText.value = '';
             }
         }
 
-        // Display results based on extraction outcome
         if (extractionSource) {
             displaySuccess(`Extracted using ${extractionSource}.`);
-            enableCopyButton(); // Enable button and potentially open details
-            detailsElement.open = true; // Automatically open details on successful extraction
+            enableCopyButton();
+            detailsElement.open = true;
         } else {
-             // Provide specific error if Readability was expected but failed AND fallback failed
-             if (typeof Readability !== 'undefined'){
-                  displayError("Extraction failed: Readability & fallback found no content.");
-             } else {
-                 // Error if Readability was missing AND fallback failed
-                  displayError("Extraction failed: Readability script missing & fallback found no content.");
+             let finalError = "Extraction failed: Could not get meaningful content.";
+             if (typeof Readability === 'undefined'){
+                  finalError = "Extraction failed: Readability script missing & fallback found no content.";
              }
+            displayError(finalError);
             copyButton.disabled = true;
-            detailsElement.open = false; // Keep closed if failed
+            detailsElement.open = false;
         }
 
       })
       .catch(error => {
         console.error("Error during fetch or extraction:", error);
         displayError(`Error: ${error.message}`);
-        detailsElement.open = false; // Ensure details are closed on error
+        detailsElement.open = false;
       })
       .finally(() => {
-        loadingIndicator.style.display = 'none';
-        extractButton.disabled = false;
+        setLoadingState(false); // Hide loading indicator
       });
   }
+
+   function setLoadingState(isLoading) {
+        if (isLoading) {
+            loadingIndicator.style.display = 'block';
+            if (progressIndicator) progressIndicator.removeAttribute('value'); // Indeterminate progress
+            extractButton.setAttribute('aria-busy', 'true'); // Pico uses aria-busy for buttons
+            extractButton.disabled = true;
+        } else {
+            loadingIndicator.style.display = 'none';
+            extractButton.removeAttribute('aria-busy');
+            extractButton.disabled = false;
+        }
+    }
+
 
   function copyTextToClipboard() {
     if (!extractedText.value) {
@@ -481,8 +338,13 @@
     navigator.clipboard.writeText(extractedText.value)
       .then(() => {
         displaySuccess("Content copied to clipboard!");
+        const originalText = 'Copy Extracted Text';
         copyButton.textContent = 'Copied!';
-        setTimeout(() => { copyButton.textContent = 'Copy Extracted Text'; }, 1500);
+        copyButton.classList.add('secondary'); // Pico class for visual feedback
+        setTimeout(() => {
+            copyButton.textContent = originalText;
+            copyButton.classList.remove('secondary');
+        }, 1500);
       })
       .catch(err => {
         console.error('Failed to copy text: ', err);
@@ -500,11 +362,13 @@
   function resetUI() {
     errorMessage.textContent = '';
     successMessage.textContent = '';
-    loadingIndicator.style.display = 'none';
-    extractButton.disabled = false;
-    copyButton.disabled = true; // Start disabled
-    copyButton.textContent = 'Copy Extracted Text'; // Reset button text
-    detailsElement.open = false; // Close details section on reset
+    setLoadingState(false); // Ensure loading state is off
+    copyButton.disabled = true;
+    copyButton.textContent = 'Copy Extracted Text';
+    copyButton.classList.remove('secondary'); // Ensure feedback class is removed
+    detailsElement.open = false;
+    // Optional: Clear text area on reset?
+    // extractedText.value = '';
   }
 
   function displayError(message) {
