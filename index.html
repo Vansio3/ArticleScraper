@@ -30,13 +30,37 @@
   #settings-button svg { width: 1.1em; height: 1.1em; vertical-align: middle; }
   dialog#settings-dialog { max-width: 500px; border: 1px solid var(--pico-contrast-border); }
   dialog#settings-dialog textarea { margin-bottom: var(--pico-spacing); min-height: 80px; }
+  .prefix-buttons-container { margin-bottom: calc(var(--pico-spacing) * 1.5); display: flex; flex-wrap: wrap; gap: calc(var(--pico-spacing) * 0.5); align-items: center; }
+  .prefix-buttons-container small { width: 100%; margin-bottom: calc(var(--pico-spacing) * 0.25); color: var(--pico-secondary); font-size: 0.85em; }
+  .prefix-buttons-container button { padding: calc(var(--pico-spacing) * 0.4) calc(var(--pico-spacing) * 0.8); font-size: 0.9em; margin: 0; }
   dialog#settings-dialog footer { text-align: right; }
   dialog header > button[aria-label="Close"] { margin-left: auto; margin-bottom: 0; }
   h1 { font-size: 1.75em; margin-bottom: var(--pico-block-spacing-vertical); text-align: center; }
-  #input-group { display: flex; align-items: center; background-color: var(--pico-form-element-background-color); border-radius: var(--pico-border-radius-pill); border: var(--pico-border-width) solid var(--pico-form-element-border-color); padding: 0; overflow: hidden; transition: border-color var(--pico-transition), box-shadow var(--pico-transition); margin-bottom: var(--pico-block-spacing-vertical); }
-  #input-group:focus-within { border-color: var(--pico-primary); box-shadow: 0 0 0 var(--pico-outline-width) var(--pico-primary-focus); }
-  #url-input { flex-grow: 1; border: none; background-color: transparent; padding: var(--pico-form-element-spacing-vertical) var(--pico-form-element-spacing-horizontal); padding-right: calc(var(--pico-form-element-spacing-horizontal) / 2); font-size: 1em; color: var(--pico-form-element-color); outline: none; margin: 0; min-width: 0; }
+
+  /* Input Group - No focus styles on group */
+  #input-group {
+      display: flex; align-items: center; background-color: var(--pico-form-element-background-color);
+      border-radius: var(--pico-border-radius-pill); border: var(--pico-border-width) solid var(--pico-form-element-border-color);
+      padding: 0; overflow: hidden;
+      /* Removed transition/focus from group */
+      margin-bottom: var(--pico-block-spacing-vertical);
+  }
+  /* Removed #input-group:focus-within rule */
+
+  /* URL Input Field - Remove focus outline */
+  #url-input {
+      flex-grow: 1; border: none; background-color: transparent;
+      padding: var(--pico-form-element-spacing-vertical) var(--pico-form-element-spacing-horizontal);
+      padding-right: calc(var(--pico-form-element-spacing-horizontal) / 2);
+      font-size: 1em; color: var(--pico-form-element-color);
+      margin: 0; min-width: 0;
+      /* Remove focus outline and shadow */
+      outline: none !important;
+      box-shadow: none !important;
+  }
   #url-input::placeholder { color: var(--pico-secondary); }
+
+  /* Extract/Reset Button Style */
   #extract-button { flex-shrink: 0; border: none; background-color: var(--pico-primary); color: var(--pico-primary-inverse); margin: 4px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.4em; font-weight: bold; line-height: 1; width: 2.4em; height: 2.4em; padding: 0; transition: background-color var(--pico-transition), transform 0.2s ease-in-out, color 0.1s ease; position: relative; overflow: hidden; transform: rotate(0deg); }
   #extract-button:hover:not([aria-busy=true]):not(.reset-mode) { background-color: var(--pico-primary-hover); }
   #extract-button:active:not([aria-busy=true]):not(.reset-mode) { transform: scale(0.95); }
@@ -45,6 +69,8 @@
   #extract-button.reset-mode { background-color: var(--pico-color-red-550); color: #fff; transform: rotate(180deg); }
   #extract-button.reset-mode:hover:not([aria-busy=true]) { background-color: var(--pico-color-red-600); }
   #extract-button.reset-mode:active:not([aria-busy=true]) { transform: rotate(180deg) scale(0.95); }
+
+  /* Copy Button */
   #copy-button-wrapper { margin-bottom: calc(var(--pico-spacing) / 2); display: block; text-align: center; }
   #copy-button { background-color: var(--pico-card-background-color); color: var(--pico-contrast-foreground); border: 1px solid var(--pico-contrast-border); padding: calc(var(--pico-spacing) * 0.6) calc(var(--pico-spacing) * 1.2); border-radius: var(--pico-border-radius); display: inline-flex; align-items: center; justify-content: center; gap: calc(var(--pico-spacing) * 0.5); transition: background-color var(--pico-transition), border-color var(--pico-transition), transform 0.1s ease, box-shadow var(--pico-transition); cursor: pointer; font-weight: var(--pico-font-weight-medium); width: auto; }
   #copy-button .icon-wrapper { display: inline-flex; align-items: center; line-height: 0; }
@@ -53,6 +79,8 @@
   #copy-button:not(:disabled):active { transform: translateY(0px); box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1); }
   #copy-button:disabled { background-color: var(--pico-card-background-color); color: var(--pico-contrast-foreground); border-color: var(--pico-contrast-border); opacity: 0.4; cursor: not-allowed; box-shadow: none; transform: none; }
   #copy-button.secondary { background-color: var(--pico-secondary-background); border-color: var(--pico-secondary-border); color: var(--pico-secondary-foreground); }
+
+  /* Other */
   #extracted-text { font-family: var(--pico-font-monospace); height: 250px; resize: vertical; margin-bottom: 0; }
   details summary { font-weight: var(--pico-font-weight-semibold); margin-top: var(--pico-spacing); }
   details > div { padding-top: var(--pico-form-element-spacing-vertical); }
@@ -60,8 +88,11 @@
   #error-message { color: var(--pico-color-red-500); }
   #success-message { color: var(--pico-color-green-500); }
   #retry-message { color: var(--pico-color-amber-500); }
+
+  /* Media Queries */
   @media (min-width: 768px) { h1 { font-size: 2em; } #extracted-text { height: 300px; } }
   @media (min-width: 992px) { #extracted-text { height: 350px; } }
+
 </style>
 </head>
 <body data-theme="dark">
@@ -106,6 +137,12 @@
                 Prefix Text (prepended to extracted content):
                 <textarea id="prefix-textarea" name="prefix" rows="4" placeholder="Enter text to prepend..."></textarea>
             </label>
+            <div class="prefix-buttons-container">
+                <small>Quick Presets:</small>
+                <button type="button" id="prefix-summarise-btn" class="outline secondary">Summarise</button>
+                <button type="button" id="prefix-factcheck-btn" class="outline secondary">Fact-check</button>
+                <button type="button" id="prefix-explain-btn" class="outline secondary">Explain</button>
+            </div>
             <footer>
                 <button type="submit" id="settings-save-button">Save Prefix</button>
             </footer>
@@ -119,11 +156,12 @@
 <script>
     // --- Constants ---
   const PROXY_URL = 'https://api.allorigins.win/raw?url=';
-  const MAX_RETRIES = 3;
-  const RETRY_DELAY_MS = 1500;
-  const DEBOUNCE_DELAY_MS = 500;
+  const MAX_RETRIES = 3; const RETRY_DELAY_MS = 1500; const DEBOUNCE_DELAY_MS = 500;
   const DEFAULT_TEXT_PREFIX = "Summarise the key points from the following article:\n\n";
   const PREFIX_STORAGE_KEY = 'articleExtractorPrefix';
+  const PRESET_SUMMARISE = "Summarise the key points from the following article:\n\n";
+  const PRESET_FACTCHECK = "Fact-check the following article:\n\n";
+  const PRESET_EXPLAIN = "Explain the following article:\n\n";
 
   // --- SVG Icons ---
   const ICON_COPY_SVG = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-copy"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>`;
@@ -131,8 +169,7 @@
   const ICON_RESET_SVG = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>`;
 
   // --- State Variable ---
-  let currentTextPrefix = DEFAULT_TEXT_PREFIX;
-  let isInResetMode = false;
+  let currentTextPrefix = DEFAULT_TEXT_PREFIX; let isInResetMode = false;
 
   // --- Element References ---
   const mainContainer = document.querySelector('main.container');
@@ -153,6 +190,9 @@
   const settingsForm = document.getElementById('settings-form');
   const prefixTextarea = document.getElementById('prefix-textarea');
   const settingsSaveButton = document.getElementById('settings-save-button');
+  const prefixSummariseBtn = document.getElementById('prefix-summarise-btn');
+  const prefixFactcheckBtn = document.getElementById('prefix-factcheck-btn');
+  const prefixExplainBtn = document.getElementById('prefix-explain-btn');
 
   // --- Debounce Timer ---
   let debounceTimer;
@@ -163,14 +203,13 @@
   // --- Initial Setup ---
   function setInitialButtonState() { extractButton.innerHTML = '→'; extractButton.title = 'Extract Text'; extractButton.setAttribute('aria-label', 'Extract Text'); extractButton.classList.remove('reset-mode'); isInResetMode = false; }
   function setInitialCopyIcon() { if (copyButtonIconWrapper) copyButtonIconWrapper.innerHTML = ICON_COPY_SVG; }
-  loadPrefix();
-  setInitialCopyIcon();
-  setInitialButtonState();
+  loadPrefix(); setInitialCopyIcon(); setInitialButtonState();
 
   // --- Settings Dialog Logic ---
   function openSettings() { if (!settingsDialog) return; prefixTextarea.value = currentTextPrefix; settingsDialog.showModal(); }
   function closeSettings() { if (!settingsDialog) return; settingsDialog.close(); }
   function saveSettings(event) { event.preventDefault(); if (!prefixTextarea) return; const newPrefix = prefixTextarea.value; currentTextPrefix = newPrefix; try { localStorage.setItem(PREFIX_STORAGE_KEY, newPrefix); console.log("Saved prefix to localStorage"); displaySuccess("Prefix saved!"); setTimeout(clearMessages, 2000); } catch (e) { console.error("Could not save prefix to localStorage.", e); displayError("Could not save prefix."); } closeSettings(); }
+  function setPrefixFromPreset(presetValue) { if (prefixTextarea) { prefixTextarea.value = presetValue; } }
 
   // --- NAMED EVENT HANDLERS ---
   function triggerExtractionDebounced() { if (extractButton.getAttribute('aria-busy') === 'true' || isInResetMode) return; clearTimeout(debounceTimer); debounceTimer = setTimeout(handleExtraction, DEBOUNCE_DELAY_MS); }
@@ -180,8 +219,10 @@
   settingsButton?.addEventListener('click', openSettings);
   settingsCloseButton?.addEventListener('click', closeSettings);
   settingsForm?.addEventListener('submit', saveSettings);
-  // Attach initial listener
-  extractButton.addEventListener('click', triggerExtractionDebounced);
+  prefixSummariseBtn?.addEventListener('click', () => setPrefixFromPreset(PRESET_SUMMARISE));
+  prefixFactcheckBtn?.addEventListener('click', () => setPrefixFromPreset(PRESET_FACTCHECK));
+  prefixExplainBtn?.addEventListener('click', () => setPrefixFromPreset(PRESET_EXPLAIN));
+  extractButton.addEventListener('click', triggerExtractionDebounced); // Initial listener
   urlInput.addEventListener('keypress', (event) => { if (event.key === 'Enter') { event.preventDefault(); if (extractButton.getAttribute('aria-busy') === 'true' || isInResetMode) return; triggerExtractionDebounced(); } });
   copyButton.addEventListener('click', copyTextToClipboard);
 
@@ -190,9 +231,7 @@
   async function fetchWithRetries(url, options, retries = MAX_RETRIES) { for (let i = 0; i <= retries; i++) { try { if (i > 0) { displayRetryMessage(`Attempt ${i+1} of ${retries+1}...`); await delay(RETRY_DELAY_MS * i); } const response = await fetch(url, options); if (!response.ok) { if (response.status >= 500 && response.status < 600 && i < retries) { console.warn(`Attempt ${i+1} failed with status ${response.status}. Retrying...`); continue; } throw new Error(`Proxy fetch failed: ${response.status} ${response.statusText}`); } clearRetryMessage(); return response; } catch (error) { console.error(`Attempt ${i+1} caught error:`, error); if (i === retries) { clearRetryMessage(); throw error; } } } throw new Error("Fetch failed after all retries."); }
 
   async function handleExtraction() {
-    clearMessages(); // Clear status messages first
-    copyButton.disabled = true; setInitialCopyIcon(); if (copyButtonTextWrapper) copyButtonTextWrapper.textContent = 'Copy Extracted Text'; copyButton.classList.remove('secondary'); // Reset copy button
-
+    clearMessages(); copyButton.disabled = true; setInitialCopyIcon(); if (copyButtonTextWrapper) copyButtonTextWrapper.textContent = 'Copy Extracted Text'; copyButton.classList.remove('secondary');
     const inputText = urlInput.value.trim(); if (!inputText) { displayError("Please enter text containing a URL."); return; }
     const urlRegex = /https?:\/\/[^\s/$.?#].[^\s]*/i; const match = inputText.match(urlRegex); if (!match) { displayError("No valid URL found in the input."); return; }
     const targetUrl = match[0]; console.log("Extracted URL:", targetUrl);
@@ -238,6 +277,7 @@
   function displayRetryMessage(message) { retryMessage.textContent = message; errorMessage.textContent = ''; successMessage.textContent = ''; }
   function clearRetryMessage() { retryMessage.textContent = ''; }
   function clearMessages() { errorMessage.textContent = ''; successMessage.textContent = ''; retryMessage.textContent = '';}
+  // Use raw text to check if copy should be enabled
   function enableCopyButton(rawText) { if (rawText && rawText.trim().length > 0) { copyButton.disabled = false; } else { copyButton.disabled = true; } }
 
 
