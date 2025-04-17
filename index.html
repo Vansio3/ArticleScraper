@@ -77,11 +77,9 @@
       margin: 4px;
       border-radius: 50%;
       cursor: pointer;
-      /* Flex properties for centering icon AND spinner */
-      display: flex;
+      display: flex; /* Still useful for original icon centering */
       align-items: center;
       justify-content: center;
-      /* --- */
       font-size: 1.4em;
       font-weight: bold;
       line-height: 1;
@@ -89,7 +87,8 @@
       height: 2.4em;
       padding: 0;
       transition: background-color var(--pico-transition), transform 0.1s ease, color 0.1s ease;
-      position: relative; /* Ensure positioning context for pseudo-elements if needed */
+      position: relative; /* Crucial for absolute positioning of pseudo-element */
+      overflow: hidden; /* Hide any spinner overflow */
   }
   #extract-button:hover:not([aria-busy=true]) {
       background-color: var(--pico-primary-hover);
@@ -97,13 +96,22 @@
   #extract-button:active:not([aria-busy=true]) {
       transform: scale(0.95);
   }
-  /* Style for loading state */
+  /* Style for loading state on the button itself */
   #extract-button[aria-busy=true] {
       background-color: var(--pico-secondary);
       cursor: default;
       /* Make icon invisible during loading */
       color: transparent;
   }
+  /* --- ADDED RULE TO CENTER PICO'S SPINNER --- */
+  #extract-button[aria-busy=true]::before {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      margin: 0 !important; /* Override Pico margins if necessary */
+  }
+  /* --- END SPINNER CENTERING RULE --- */
   /* --- END BUTTON STYLE --- */
 
 
@@ -155,12 +163,11 @@
       color: var(--pico-secondary);
   }
 
-  /* --- HIDE OUTPUT SECTIONS BY DEFAULT --- */
+  /* HIDE OUTPUT SECTIONS BY DEFAULT */
   #copy-button-wrapper,
   #extracted-content-details {
       display: none;
   }
-  /* --- END HIDE --- */
 
 
   /* --- Media Queries --- */
@@ -187,15 +194,18 @@
         </button>
     </div>
 
-    <div id="loading-indicator">
+    <!-- Keep this? Pico spinner is now IN the button, this might be redundant -->
+    <!-- <div id="loading-indicator">
         Fetching and processing content... <progress></progress>
-    </div>
+    </div> -->
+     <!-- Hide or remove the above #loading-indicator div if the button spinner is sufficient -->
 
-    <div id="copy-button-wrapper"> <!-- Initially hidden by CSS -->
+
+    <div id="copy-button-wrapper"> <!-- Initially hidden -->
        <button id="copy-button" disabled>Copy Extracted Text</button>
     </div>
 
-    <details id="extracted-content-details"> <!-- Initially hidden by CSS -->
+    <details id="extracted-content-details"> <!-- Initially hidden -->
         <summary>View Extracted Text</summary>
         <div>
             <textarea id="extracted-text" name="extracted-text" readonly placeholder="Extracted text will appear here..."></textarea>
@@ -222,15 +232,15 @@
   // --- Element References ---
   const urlInput = document.getElementById('url-input');
   const extractButton = document.getElementById('extract-button');
-  const loadingIndicator = document.getElementById('loading-indicator');
+  // const loadingIndicator = document.getElementById('loading-indicator'); // Maybe remove if not used
   const extractedText = document.getElementById('extracted-text');
   const copyButton = document.getElementById('copy-button');
   const errorMessage = document.getElementById('error-message');
   const successMessage = document.getElementById('success-message');
   const retryMessage = document.getElementById('retry-message');
   const detailsElement = document.getElementById('extracted-content-details');
-  const progressIndicator = loadingIndicator.querySelector('progress');
-  const copyButtonWrapper = document.getElementById('copy-button-wrapper'); // Added reference
+  // const progressIndicator = loadingIndicator?.querySelector('progress'); // Use optional chaining
+  const copyButtonWrapper = document.getElementById('copy-button-wrapper');
 
   // --- Debounce Timer ---
   let debounceTimer;
@@ -285,7 +295,7 @@
   }
 
   async function handleExtraction() {
-    resetUI(); // Now also hides output sections
+    resetUI();
     const inputText = urlInput.value.trim();
     if (!inputText) { displayError("Please enter text containing a URL."); return; }
     const urlRegex = /https?:\/\/[^\s/$.?#].[^\s]*/i;
@@ -294,7 +304,9 @@
     const targetUrl = match[0];
     console.log("Extracted URL:", targetUrl);
     const proxiedUrl = PROXY_URL + encodeURIComponent(targetUrl);
-    setLoadingState(true);
+
+    setLoadingState(true); // Set button to busy
+
     try {
         const response = await fetchWithRetries(proxiedUrl);
         const html = await response.text();
@@ -319,20 +331,18 @@
             if (extractedText.value.trim().length > 50) extractionSource = 'basic fallback'; else extractedText.value = '';
         }
 
-        // --- Update UI based on result ---
+        // Update UI based on result
         if (extractionSource) {
             displaySuccess(`Extracted using ${extractionSource}.`);
             enableCopyButton();
-            // SHOW OUTPUT SECTIONS
-            copyButtonWrapper.style.display = 'block'; // Or 'flex'/'grid' if needed for centering/layout
+            copyButtonWrapper.style.display = 'block'; // Show output
             detailsElement.style.display = 'block';
             detailsElement.open = true;
         } else {
              let finalError = "Extraction failed: Could not get meaningful content.";
              if (typeof Readability === 'undefined'){ finalError = "Extraction failed: Readability script missing & fallback failed."; }
             displayError(finalError);
-            // ENSURE OUTPUT SECTIONS ARE HIDDEN
-            copyButtonWrapper.style.display = 'none';
+            copyButtonWrapper.style.display = 'none'; // Hide output
             detailsElement.style.display = 'none';
             copyButton.disabled = true;
             detailsElement.open = false;
@@ -340,24 +350,24 @@
     } catch (error) {
         console.error("Error during fetch or extraction:", error);
         displayError(`Error: ${error.message}`);
-        // ENSURE OUTPUT SECTIONS ARE HIDDEN
-        copyButtonWrapper.style.display = 'none';
+        copyButtonWrapper.style.display = 'none'; // Hide output
         detailsElement.style.display = 'none';
         detailsElement.open = false;
     } finally {
-        setLoadingState(false);
+        setLoadingState(false); // Set button back to normal
     }
   }
 
    function setLoadingState(isLoading) {
+        // Only manage the button's busy state now
         if (isLoading) {
-            loadingIndicator.style.display = 'block';
-            if (progressIndicator) progressIndicator.removeAttribute('value');
             extractButton.setAttribute('aria-busy', 'true');
         } else {
-            loadingIndicator.style.display = 'none';
             extractButton.removeAttribute('aria-busy');
         }
+         // Hide/show the separate loading indicator if you keep it
+         // const loadingIndicator = document.getElementById('loading-indicator');
+         // if (loadingIndicator) loadingIndicator.style.display = isLoading ? 'block' : 'none';
     }
 
   // --- Clipboard and UI Functions ---
@@ -379,12 +389,12 @@
     errorMessage.textContent = '';
     successMessage.textContent = '';
     retryMessage.textContent = '';
-    setLoadingState(false);
+    setLoadingState(false); // Ensure button is not busy
     copyButton.disabled = true;
     copyButton.textContent = 'Copy Extracted Text';
     copyButton.classList.remove('secondary');
     detailsElement.open = false;
-    // HIDE OUTPUT SECTIONS
+    // Hide output sections
     copyButtonWrapper.style.display = 'none';
     detailsElement.style.display = 'none';
   }
