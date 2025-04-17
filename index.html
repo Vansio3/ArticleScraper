@@ -9,91 +9,42 @@
 <!-- Pico.css -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@latest/css/pico.min.css">
 
-<!-- Favicon Links (Remember to replace paths/files) -->
+<!-- Favicon Links -->
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32x32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16x16.png">
 <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/android-chrome-192x192.png">
-<!-- <link rel="shortcut icon" href="favicon.ico"> -->
 
 <!-- Manifest -->
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#00aeff">
 
 <style>
-  :root {
-      --pico-color-amber-500: #ffa000;
-      --pico-color-red-550: #d32f2f; /* Define a red for reset */
-      --pico-color-red-600: #c62828; /* Slightly darker red for hover */
-      --pico-border-radius-pill: 50px;
-  }
-
-  /* --- Animation / State Styles --- */
-  body {
-      font-family: var(--font-family); margin: 0; padding: var(--pico-spacing); line-height: 1.6;
-      background-color: var(--pico-color-dark-background); color: var(--pico-color);
-      display: flex; flex-direction: column; align-items: center;
-      min-height: 100vh; overflow-x: hidden; justify-content: flex-start;
-  }
-
-  main.container {
-      padding: calc(var(--pico-spacing) * 1.5); margin: calc(var(--pico-spacing) * 2) auto var(--pico-spacing) auto;
-      max-width: 700px; width: 90%; transition: transform 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
-      transform: translateY(0);
-  }
+  :root { --pico-color-amber-500: #ffa000; --pico-color-red-550: #d32f2f; --pico-color-red-600: #c62828; --pico-border-radius-pill: 50px; }
+  body { font-family: var(--font-family); margin: 0; padding: var(--pico-spacing); line-height: 1.6; background-color: var(--pico-color-dark-background); color: var(--pico-color); display: flex; flex-direction: column; align-items: center; min-height: 100vh; overflow-x: hidden; justify-content: flex-start; }
+  main.container { padding: calc(var(--pico-spacing) * 1.5); margin: calc(var(--pico-spacing) * 2) auto var(--pico-spacing) auto; max-width: 700px; width: 90%; transition: transform 0.6s cubic-bezier(0.25, 0.8, 0.25, 1); transform: translateY(0); }
   main.container.state-initial { transform: translateY(25vh); }
-
-  #copy-button-wrapper, #extracted-content-details, #status-messages {
-      display: block; opacity: 0; max-height: 0; overflow: hidden; transform: translateY(15px);
-      transition: opacity 0.5s ease-out 0.25s, max-height 0.5s ease-out 0.25s, transform 0.5s ease-out 0.25s;
-  }
-  main.container:not(.state-initial) #copy-button-wrapper, main.container:not(.state-initial) #extracted-content-details, main.container:not(.state-initial) #status-messages {
-      opacity: 1; max-height: 1000px; transform: translateY(0);
-  }
-  /* --- End Animation / State Styles --- */
-
-  /* Settings Button */
+  #copy-button-wrapper, #extracted-content-details, #status-messages { display: block; opacity: 0; max-height: 0; overflow: hidden; transform: translateY(15px); transition: opacity 0.5s ease-out 0.25s, max-height 0.5s ease-out 0.25s, transform 0.5s ease-out 0.25s; }
+  main.container:not(.state-initial) #copy-button-wrapper, main.container:not(.state-initial) #extracted-content-details, main.container:not(.state-initial) #status-messages { opacity: 1; max-height: 1000px; transform: translateY(0); }
   #settings-button { position: fixed; top: var(--pico-spacing); right: var(--pico-spacing); z-index: 100; padding: calc(var(--pico-spacing) * 0.3); width: auto; height: auto; border-radius: 50%; line-height: 0; }
   #settings-button svg { width: 1.1em; height: 1.1em; vertical-align: middle; }
-
-  /* Settings Dialog */
   dialog#settings-dialog { max-width: 500px; border: 1px solid var(--pico-contrast-border); }
   dialog#settings-dialog textarea { margin-bottom: var(--pico-spacing); min-height: 80px; }
   dialog#settings-dialog footer { text-align: right; }
   dialog header > button[aria-label="Close"] { margin-left: auto; margin-bottom: 0; }
-
-  /* Heading */
   h1 { font-size: 1.75em; margin-bottom: var(--pico-block-spacing-vertical); text-align: center; }
-
-  /* Input Group */
   #input-group { display: flex; align-items: center; background-color: var(--pico-form-element-background-color); border-radius: var(--pico-border-radius-pill); border: var(--pico-border-width) solid var(--pico-form-element-border-color); padding: 0; overflow: hidden; transition: border-color var(--pico-transition), box-shadow var(--pico-transition); margin-bottom: var(--pico-block-spacing-vertical); }
   #input-group:focus-within { border-color: var(--pico-primary); box-shadow: 0 0 0 var(--pico-outline-width) var(--pico-primary-focus); }
   #url-input { flex-grow: 1; border: none; background-color: transparent; padding: var(--pico-form-element-spacing-vertical) var(--pico-form-element-spacing-horizontal); padding-right: calc(var(--pico-form-element-spacing-horizontal) / 2); font-size: 1em; color: var(--pico-form-element-color); outline: none; margin: 0; min-width: 0; }
   #url-input::placeholder { color: var(--pico-secondary); }
-
-  /* Extract/Reset Button Style */
-  #extract-button {
-      flex-shrink: 0; border: none; background-color: var(--pico-primary); color: var(--pico-primary-inverse);
-      margin: 4px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center;
-      font-size: 1.4em; font-weight: bold; line-height: 1; width: 2.4em; height: 2.4em; padding: 0;
-      /* ADD transform to transition */
-      transition: background-color var(--pico-transition), transform 0.2s ease-in-out, color 0.1s ease;
-      position: relative; overflow: hidden; transform: rotate(0deg); /* Explicit initial state */
-  }
-  #extract-button:hover:not([aria-busy=true]):not(.reset-mode) { background-color: var(--pico-primary-hover); } /* Hover for extract */
-  #extract-button:active:not([aria-busy=true]):not(.reset-mode) { transform: scale(0.95); } /* Active for extract */
+  #extract-button { flex-shrink: 0; border: none; background-color: var(--pico-primary); color: var(--pico-primary-inverse); margin: 4px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.4em; font-weight: bold; line-height: 1; width: 2.4em; height: 2.4em; padding: 0; transition: background-color var(--pico-transition), transform 0.2s ease-in-out, color 0.1s ease; position: relative; overflow: hidden; transform: rotate(0deg); }
+  #extract-button:hover:not([aria-busy=true]):not(.reset-mode) { background-color: var(--pico-primary-hover); }
+  #extract-button:active:not([aria-busy=true]):not(.reset-mode) { transform: scale(0.95); }
   #extract-button[aria-busy=true] { background-color: var(--pico-secondary); cursor: default; color: transparent; }
   #extract-button[aria-busy=true]::before { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); margin: 0 !important; }
-  /* Reset Mode Styles */
-  #extract-button.reset-mode {
-      background-color: var(--pico-color-red-550); /* Red background */
-      color: #fff; /* White icon */
-      transform: rotate(180deg); /* Rotate for effect */
-  }
-  #extract-button.reset-mode:hover:not([aria-busy=true]) { background-color: var(--pico-color-red-600); } /* Hover for reset */
-  #extract-button.reset-mode:active:not([aria-busy=true]) { transform: rotate(180deg) scale(0.95); } /* Active for reset */
-
-  /* Copy Button */
+  #extract-button.reset-mode { background-color: var(--pico-color-red-550); color: #fff; transform: rotate(180deg); }
+  #extract-button.reset-mode:hover:not([aria-busy=true]) { background-color: var(--pico-color-red-600); }
+  #extract-button.reset-mode:active:not([aria-busy=true]) { transform: rotate(180deg) scale(0.95); }
   #copy-button-wrapper { margin-bottom: calc(var(--pico-spacing) / 2); display: block; text-align: center; }
   #copy-button { background-color: var(--pico-card-background-color); color: var(--pico-contrast-foreground); border: 1px solid var(--pico-contrast-border); padding: calc(var(--pico-spacing) * 0.6) calc(var(--pico-spacing) * 1.2); border-radius: var(--pico-border-radius); display: inline-flex; align-items: center; justify-content: center; gap: calc(var(--pico-spacing) * 0.5); transition: background-color var(--pico-transition), border-color var(--pico-transition), transform 0.1s ease, box-shadow var(--pico-transition); cursor: pointer; font-weight: var(--pico-font-weight-medium); width: auto; }
   #copy-button .icon-wrapper { display: inline-flex; align-items: center; line-height: 0; }
@@ -102,8 +53,6 @@
   #copy-button:not(:disabled):active { transform: translateY(0px); box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1); }
   #copy-button:disabled { background-color: var(--pico-card-background-color); color: var(--pico-contrast-foreground); border-color: var(--pico-contrast-border); opacity: 0.4; cursor: not-allowed; box-shadow: none; transform: none; }
   #copy-button.secondary { background-color: var(--pico-secondary-background); border-color: var(--pico-secondary-border); color: var(--pico-secondary-foreground); }
-
-  /* Other */
   #extracted-text { font-family: var(--pico-font-monospace); height: 250px; resize: vertical; margin-bottom: 0; }
   details summary { font-weight: var(--pico-font-weight-semibold); margin-top: var(--pico-spacing); }
   details > div { padding-top: var(--pico-form-element-spacing-vertical); }
@@ -111,40 +60,30 @@
   #error-message { color: var(--pico-color-red-500); }
   #success-message { color: var(--pico-color-green-500); }
   #retry-message { color: var(--pico-color-amber-500); }
-
-  /* Media Queries */
-  @media (min-width: 768px) { h1 { font-size: 2em; } #extracted-text { height: 300px; } /* main.container.state-initial { transform: translateY(25vh); } */ }
+  @media (min-width: 768px) { h1 { font-size: 2em; } #extracted-text { height: 300px; } }
   @media (min-width: 992px) { #extracted-text { height: 350px; } }
-
 </style>
 </head>
 <body data-theme="dark">
 
 <main class="container state-initial">
     <h1>Article Extractor</h1>
-
     <div id="input-group">
         <input type="text" id="url-input" name="url-input" placeholder="Paste URL or text here...">
-        <!-- Button starts in extract mode -->
-        <button id="extract-button" title="Extract Text" aria-label="Extract Text">
-             <!-- Initial content set by JS -->
-        </button>
+        <button id="extract-button" title="Extract Text" aria-label="Extract Text"></button>
     </div>
-
     <div id="copy-button-wrapper">
        <button id="copy-button" disabled>
             <span class="icon-wrapper"></span>
             <span class="text-wrapper">Copy Extracted Text</span>
        </button>
     </div>
-
     <details id="extracted-content-details">
         <summary>View Extracted Text</summary>
         <div>
             <textarea id="extracted-text" name="extracted-text" readonly placeholder="Extracted text will appear here..."></textarea>
         </div>
     </details>
-
     <div id="status-messages">
         <div id="retry-message"></div>
         <div id="error-message"></div>
@@ -189,11 +128,11 @@
   // --- SVG Icons ---
   const ICON_COPY_SVG = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-copy"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>`;
   const ICON_CHECK_SVG = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-check"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
-  const ICON_RESET_SVG = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>`; // Reset icon
+  const ICON_RESET_SVG = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>`;
 
-  // --- State Variables ---
+  // --- State Variable ---
   let currentTextPrefix = DEFAULT_TEXT_PREFIX;
-  let isInResetMode = false; // Track button state
+  let isInResetMode = false;
 
   // --- Element References ---
   const mainContainer = document.querySelector('main.container');
@@ -222,17 +161,11 @@
   function loadPrefix() { try { const storedPrefix = localStorage.getItem(PREFIX_STORAGE_KEY); if (storedPrefix !== null) { currentTextPrefix = storedPrefix; console.log("Loaded prefix from localStorage"); } else { currentTextPrefix = DEFAULT_TEXT_PREFIX; } } catch (e) { console.error("Could not access localStorage. Using default prefix.", e); currentTextPrefix = DEFAULT_TEXT_PREFIX; } if (prefixTextarea) prefixTextarea.value = currentTextPrefix; }
 
   // --- Initial Setup ---
-  function setInitialButtonState() {
-      extractButton.innerHTML = '→';
-      extractButton.title = 'Extract Text';
-      extractButton.setAttribute('aria-label', 'Extract Text');
-      extractButton.classList.remove('reset-mode');
-      isInResetMode = false;
-  }
+  function setInitialButtonState() { extractButton.innerHTML = '→'; extractButton.title = 'Extract Text'; extractButton.setAttribute('aria-label', 'Extract Text'); extractButton.classList.remove('reset-mode'); isInResetMode = false; }
   function setInitialCopyIcon() { if (copyButtonIconWrapper) copyButtonIconWrapper.innerHTML = ICON_COPY_SVG; }
   loadPrefix();
   setInitialCopyIcon();
-  setInitialButtonState(); // Set button look on load
+  setInitialButtonState();
 
   // --- Settings Dialog Logic ---
   function openSettings() { if (!settingsDialog) return; prefixTextarea.value = currentTextPrefix; settingsDialog.showModal(); }
@@ -240,16 +173,8 @@
   function saveSettings(event) { event.preventDefault(); if (!prefixTextarea) return; const newPrefix = prefixTextarea.value; currentTextPrefix = newPrefix; try { localStorage.setItem(PREFIX_STORAGE_KEY, newPrefix); console.log("Saved prefix to localStorage"); displaySuccess("Prefix saved!"); setTimeout(clearMessages, 2000); } catch (e) { console.error("Could not save prefix to localStorage.", e); displayError("Could not save prefix."); } closeSettings(); }
 
   // --- NAMED EVENT HANDLERS ---
-  function triggerExtractionDebounced() {
-      if (extractButton.getAttribute('aria-busy') === 'true' || isInResetMode) return;
-      clearTimeout(debounceTimer);
-      debounceTimer = setTimeout(handleExtraction, DEBOUNCE_DELAY_MS);
-  }
-  function triggerReset() {
-      // console.log("Triggering reset..."); // For debugging
-      resetUI();
-  }
-  // --- END NAMED EVENT HANDLERS ---
+  function triggerExtractionDebounced() { if (extractButton.getAttribute('aria-busy') === 'true' || isInResetMode) return; clearTimeout(debounceTimer); debounceTimer = setTimeout(handleExtraction, DEBOUNCE_DELAY_MS); }
+  function triggerReset() { resetUI(); }
 
   // --- Event Listeners ---
   settingsButton?.addEventListener('click', openSettings);
@@ -262,15 +187,11 @@
 
   // --- Core Logic ---
   function delay(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
-  async function fetchWithRetries(url, options, retries = MAX_RETRIES) { /* ... (same as before) ... */ for (let i = 0; i <= retries; i++) { try { if (i > 0) { displayRetryMessage(`Attempt ${i+1} of ${retries+1}...`); await delay(RETRY_DELAY_MS * i); } const response = await fetch(url, options); if (!response.ok) { if (response.status >= 500 && response.status < 600 && i < retries) { console.warn(`Attempt ${i+1} failed with status ${response.status}. Retrying...`); continue; } throw new Error(`Proxy fetch failed: ${response.status} ${response.statusText}`); } clearRetryMessage(); return response; } catch (error) { console.error(`Attempt ${i+1} caught error:`, error); if (i === retries) { clearRetryMessage(); throw error; } } } throw new Error("Fetch failed after all retries."); }
+  async function fetchWithRetries(url, options, retries = MAX_RETRIES) { for (let i = 0; i <= retries; i++) { try { if (i > 0) { displayRetryMessage(`Attempt ${i+1} of ${retries+1}...`); await delay(RETRY_DELAY_MS * i); } const response = await fetch(url, options); if (!response.ok) { if (response.status >= 500 && response.status < 600 && i < retries) { console.warn(`Attempt ${i+1} failed with status ${response.status}. Retrying...`); continue; } throw new Error(`Proxy fetch failed: ${response.status} ${response.statusText}`); } clearRetryMessage(); return response; } catch (error) { console.error(`Attempt ${i+1} caught error:`, error); if (i === retries) { clearRetryMessage(); throw error; } } } throw new Error("Fetch failed after all retries."); }
 
   async function handleExtraction() {
-    // Don't fully reset UI here, just clear messages and copy state
-    clearMessages();
-    copyButton.disabled = true; // Disable copy initially
-    setInitialCopyIcon();
-    if (copyButtonTextWrapper) copyButtonTextWrapper.textContent = 'Copy Extracted Text';
-    copyButton.classList.remove('secondary');
+    clearMessages(); // Clear status messages first
+    copyButton.disabled = true; setInitialCopyIcon(); if (copyButtonTextWrapper) copyButtonTextWrapper.textContent = 'Copy Extracted Text'; copyButton.classList.remove('secondary'); // Reset copy button
 
     const inputText = urlInput.value.trim(); if (!inputText) { displayError("Please enter text containing a URL."); return; }
     const urlRegex = /https?:\/\/[^\s/$.?#].[^\s]*/i; const match = inputText.match(urlRegex); if (!match) { displayError("No valid URL found in the input."); return; }
@@ -282,63 +203,36 @@
         else { if (extractionSource === '') { if (!article && typeof Readability !== 'undefined') console.log("Readability failed/insufficient, attempting fallback..."); else if (typeof Readability === 'undefined') {} else console.log("Readability content insufficient, attempting fallback..."); } const mainElement = doc.querySelector('main') || doc.querySelector('article') || doc.querySelector('.post-content') || doc.querySelector('.entry-content') || doc.body; if (mainElement) { const scripts = mainElement.querySelectorAll('script, style, nav, header, footer, aside, .sidebar, .ads, [aria-hidden="true"], noscript, form, button, input, figure, figcaption, .share-buttons, .comments-area'); scripts.forEach(el => el.remove()); rawExtractedText = mainElement.textContent.replace(/[\t\r\n]+/g, '\n').replace(/\n\s*\n/g, '\n\n').replace(/ {2,}/g, ' ').trim(); } else { rawExtractedText = doc.body ? doc.body.textContent.trim().replace(/\s\s+/g, ' ') : ''; } if (rawExtractedText.trim().length > 50) { if (!article && typeof Readability !== 'undefined') extractionSource = 'basic fallback (Readability failed)'; else extractionSource = 'basic fallback'; } else { rawExtractedText = ''; } }
 
         if (extractionSource) {
-            const formattedPrefix = currentTextPrefix.trimEnd() + "\n\n";
+            const formattedPrefix = currentTextPrefix.trimEnd() + "\n\n"; // Ensure newlines
             extractedText.value = formattedPrefix + rawExtractedText;
             displaySuccess(`Extracted using ${extractionSource}.`);
             enableCopyButton(rawExtractedText); // Pass raw text
             mainContainer.classList.remove('state-initial'); // Trigger animation
             detailsElement.open = true;
-
-            // --- TRANSFORM EXTRACT BUTTON ---
-            extractButton.innerHTML = ICON_RESET_SVG; // Change icon to X
-            extractButton.classList.add('reset-mode'); // Add class for styling
-            extractButton.title = 'Reset';
-            extractButton.setAttribute('aria-label', 'Reset');
-            isInResetMode = true;
+            // TRANSFORM EXTRACT BUTTON
+            extractButton.innerHTML = ICON_RESET_SVG; extractButton.classList.add('reset-mode'); extractButton.title = 'Reset'; extractButton.setAttribute('aria-label', 'Reset'); isInResetMode = true;
             extractButton.removeEventListener('click', triggerExtractionDebounced); // Switch listener
             extractButton.addEventListener('click', triggerReset);
-            // --- END TRANSFORM ---
-
-        } else {
-             extractedText.value = ''; let finalError = "Extraction failed: Could not get meaningful content."; if (typeof Readability === 'undefined'){ finalError = "Extraction failed: Readability script missing & fallback failed."; }
-            displayError(finalError);
-            if (!mainContainer.classList.contains('state-initial')) mainContainer.classList.add('state-initial');
-             setInitialButtonState(); // Ensure button is reset
-            extractButton.removeEventListener('click', triggerReset); // Ensure correct listener
-            extractButton.addEventListener('click', triggerExtractionDebounced);
-            enableCopyButton(''); detailsElement.open = false;
-        }
-    } catch (error) {
-        console.error("Error during fetch or extraction:", error); extractedText.value = ''; displayError(`Error: ${error.message}`);
-        if (!mainContainer.classList.contains('state-initial')) mainContainer.classList.add('state-initial');
-         setInitialButtonState(); // Ensure button is reset
-        extractButton.removeEventListener('click', triggerReset); // Ensure correct listener
-        extractButton.addEventListener('click', triggerExtractionDebounced);
-        enableCopyButton(''); detailsElement.open = false;
-    } finally { setLoadingState(false); }
+        } else { extractedText.value = ''; let finalError = "Extraction failed: Could not get meaningful content."; if (typeof Readability === 'undefined'){ finalError = "Extraction failed: Readability script missing & fallback failed."; } displayError(finalError); if (!mainContainer.classList.contains('state-initial')) mainContainer.classList.add('state-initial'); setInitialButtonState(); extractButton.removeEventListener('click', triggerReset); extractButton.addEventListener('click', triggerExtractionDebounced); enableCopyButton(''); detailsElement.open = false; }
+    } catch (error) { console.error("Error during fetch or extraction:", error); extractedText.value = ''; displayError(`Error: ${error.message}`); if (!mainContainer.classList.contains('state-initial')) mainContainer.classList.add('state-initial'); setInitialButtonState(); extractButton.removeEventListener('click', triggerReset); extractButton.addEventListener('click', triggerExtractionDebounced); enableCopyButton(''); detailsElement.open = false; }
+    finally { setLoadingState(false); }
   }
 
    function setLoadingState(isLoading) { if (isLoading) { extractButton.setAttribute('aria-busy', 'true'); } else { extractButton.removeAttribute('aria-busy'); } }
 
   // --- Clipboard and UI Functions ---
   function copyTextToClipboard() { if (!extractedText.value) { displayError("Nothing to copy."); return; } if (!detailsElement.open) { detailsElement.open = true; } navigator.clipboard.writeText(extractedText.value) .then(() => { displaySuccess("Content copied to clipboard!"); if (copyButtonIconWrapper) copyButtonIconWrapper.innerHTML = ICON_CHECK_SVG; if (copyButtonTextWrapper) copyButtonTextWrapper.textContent = 'Copied!'; copyButton.classList.add('secondary'); setTimeout(() => { setInitialCopyIcon(); if (copyButtonTextWrapper) copyButtonTextWrapper.textContent = 'Copy Extracted Text'; copyButton.classList.remove('secondary'); }, 2000); }) .catch(err => { console.error('Failed to copy text: ', err); try { detailsElement.open = true; extractedText.select(); document.execCommand('copy'); displaySuccess("Copied (using fallback)!"); } catch (execErr) { displayError("Failed to copy automatically."); } }); }
-
   function resetUI() {
     clearMessages(); setLoadingState(false);
+    urlInput.value = ''; // Clear input field
     enableCopyButton(''); // Disable copy button
-    setInitialCopyIcon();
-    if (copyButtonTextWrapper) copyButtonTextWrapper.textContent = 'Copy Extracted Text';
-    copyButton.classList.remove('secondary');
-    detailsElement.open = false;
-    extractedText.value = '';
+    setInitialCopyIcon(); if (copyButtonTextWrapper) copyButtonTextWrapper.textContent = 'Copy Extracted Text'; copyButton.classList.remove('secondary');
+    detailsElement.open = false; extractedText.value = '';
     mainContainer.classList.add('state-initial'); // Trigger animation back
-
-    // Reset Extract/Reset Button
-    setInitialButtonState(); // Reset appearance
+    setInitialButtonState(); // Reset extract button appearance
     extractButton.removeEventListener('click', triggerReset); // Remove reset listener
     extractButton.addEventListener('click', triggerExtractionDebounced); // Add extract listener
   }
-
   function displayError(message) { errorMessage.textContent = message; successMessage.textContent = ''; retryMessage.textContent = ''; }
   function displaySuccess(message) { successMessage.textContent = message; errorMessage.textContent = ''; retryMessage.textContent = ''; }
   function displayRetryMessage(message) { retryMessage.textContent = message; errorMessage.textContent = ''; successMessage.textContent = ''; }
