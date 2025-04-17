@@ -68,7 +68,7 @@
       color: var(--pico-secondary);
   }
 
-  /* --- UPDATED BUTTON STYLE --- */
+  /* --- Button Style (Centering Spinner Robustly) --- */
   #extract-button {
       flex-shrink: 0;
       border: none;
@@ -77,17 +77,19 @@
       margin: 4px;
       border-radius: 50%;
       cursor: pointer;
+      /* Flex properties for centering icon AND spinner */
       display: flex;
       align-items: center;
       justify-content: center;
+      /* --- */
       font-size: 1.4em;
       font-weight: bold;
       line-height: 1;
       width: 2.4em;
       height: 2.4em;
       padding: 0;
-      /* Added color to transition */
       transition: background-color var(--pico-transition), transform 0.1s ease, color 0.1s ease;
+      position: relative; /* Ensure positioning context for pseudo-elements if needed */
   }
   #extract-button:hover:not([aria-busy=true]) {
       background-color: var(--pico-primary-hover);
@@ -102,10 +104,10 @@
       /* Make icon invisible during loading */
       color: transparent;
   }
-  /* --- END UPDATED BUTTON STYLE --- */
+  /* --- END BUTTON STYLE --- */
 
 
-  /* --- Other Styles (Mostly Unchanged) --- */
+  /* --- Other Styles --- */
   #extracted-text {
     font-family: var(--pico-font-monospace);
     height: 250px;
@@ -153,6 +155,13 @@
       color: var(--pico-secondary);
   }
 
+  /* --- HIDE OUTPUT SECTIONS BY DEFAULT --- */
+  #copy-button-wrapper,
+  #extracted-content-details {
+      display: none;
+  }
+  /* --- END HIDE --- */
+
 
   /* --- Media Queries --- */
   @media (min-width: 768px) {
@@ -182,11 +191,11 @@
         Fetching and processing content... <progress></progress>
     </div>
 
-    <div id="copy-button-wrapper">
+    <div id="copy-button-wrapper"> <!-- Initially hidden by CSS -->
        <button id="copy-button" disabled>Copy Extracted Text</button>
     </div>
 
-    <details id="extracted-content-details">
+    <details id="extracted-content-details"> <!-- Initially hidden by CSS -->
         <summary>View Extracted Text</summary>
         <div>
             <textarea id="extracted-text" name="extracted-text" readonly placeholder="Extracted text will appear here..."></textarea>
@@ -221,6 +230,7 @@
   const retryMessage = document.getElementById('retry-message');
   const detailsElement = document.getElementById('extracted-content-details');
   const progressIndicator = loadingIndicator.querySelector('progress');
+  const copyButtonWrapper = document.getElementById('copy-button-wrapper'); // Added reference
 
   // --- Debounce Timer ---
   let debounceTimer;
@@ -275,7 +285,7 @@
   }
 
   async function handleExtraction() {
-    resetUI();
+    resetUI(); // Now also hides output sections
     const inputText = urlInput.value.trim();
     if (!inputText) { displayError("Please enter text containing a URL."); return; }
     const urlRegex = /https?:\/\/[^\s/$.?#].[^\s]*/i;
@@ -308,10 +318,35 @@
             } else { extractedText.value = doc.body ? doc.body.textContent.trim().replace(/\s\s+/g, ' ') : ''; }
             if (extractedText.value.trim().length > 50) extractionSource = 'basic fallback'; else extractedText.value = '';
         }
-        if (extractionSource) { displaySuccess(`Extracted using ${extractionSource}.`); enableCopyButton(); detailsElement.open = true; }
-        else { let finalError = "Extraction failed: Could not get meaningful content."; if (typeof Readability === 'undefined') finalError = "Extraction failed: Readability script missing & fallback failed."; displayError(finalError); copyButton.disabled = true; detailsElement.open = false; }
-    } catch (error) { console.error("Error during fetch or extraction:", error); displayError(`Error: ${error.message}`); detailsElement.open = false; }
-    finally { setLoadingState(false); }
+
+        // --- Update UI based on result ---
+        if (extractionSource) {
+            displaySuccess(`Extracted using ${extractionSource}.`);
+            enableCopyButton();
+            // SHOW OUTPUT SECTIONS
+            copyButtonWrapper.style.display = 'block'; // Or 'flex'/'grid' if needed for centering/layout
+            detailsElement.style.display = 'block';
+            detailsElement.open = true;
+        } else {
+             let finalError = "Extraction failed: Could not get meaningful content.";
+             if (typeof Readability === 'undefined'){ finalError = "Extraction failed: Readability script missing & fallback failed."; }
+            displayError(finalError);
+            // ENSURE OUTPUT SECTIONS ARE HIDDEN
+            copyButtonWrapper.style.display = 'none';
+            detailsElement.style.display = 'none';
+            copyButton.disabled = true;
+            detailsElement.open = false;
+        }
+    } catch (error) {
+        console.error("Error during fetch or extraction:", error);
+        displayError(`Error: ${error.message}`);
+        // ENSURE OUTPUT SECTIONS ARE HIDDEN
+        copyButtonWrapper.style.display = 'none';
+        detailsElement.style.display = 'none';
+        detailsElement.open = false;
+    } finally {
+        setLoadingState(false);
+    }
   }
 
    function setLoadingState(isLoading) {
@@ -332,17 +367,13 @@
     navigator.clipboard.writeText(extractedText.value)
       .then(() => {
         displaySuccess("Content copied to clipboard!");
-        const originalIcon = '→'; // Store the icon? Not needed if resetting to text
-        copyButton.textContent = '✓'; // Use checkmark for feedback
-        copyButton.classList.add('secondary'); // Pico class for visual feedback
-        setTimeout(() => {
-             copyButton.textContent = 'Copy Extracted Text'; // Reset to original TEXT
-             copyButton.classList.remove('secondary');
-        }, 1500);
+        const originalText = 'Copy Extracted Text';
+        copyButton.textContent = '✓';
+        copyButton.classList.add('secondary');
+        setTimeout(() => { copyButton.textContent = originalText; copyButton.classList.remove('secondary'); }, 1500);
       })
       .catch(err => { console.error('Failed to copy text: ', err); try { detailsElement.open = true; extractedText.select(); document.execCommand('copy'); displaySuccess("Copied (using fallback)!"); } catch (execErr) { displayError("Failed to copy automatically."); } });
   }
-
 
   function resetUI() {
     errorMessage.textContent = '';
@@ -353,6 +384,9 @@
     copyButton.textContent = 'Copy Extracted Text';
     copyButton.classList.remove('secondary');
     detailsElement.open = false;
+    // HIDE OUTPUT SECTIONS
+    copyButtonWrapper.style.display = 'none';
+    detailsElement.style.display = 'none';
   }
 
   function displayError(message) {
