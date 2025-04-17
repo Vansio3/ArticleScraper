@@ -185,9 +185,6 @@
     </div>
 
     <!-- Separate loading indicator is removed as spinner is in button -->
-    <!-- <div id="loading-indicator">
-        Fetching and processing content... <progress></progress>
-    </div> -->
 
     <div id="copy-button-wrapper"> <!-- Initially hidden -->
        <button id="copy-button" disabled>Copy Extracted Text</button>
@@ -305,40 +302,57 @@
                catch (readabilityError) { console.error("Readability Error:", readabilityError); } }
 
         let extractionSource = '';
-        let rawExtractedText = ''; // Store raw text here
+        let rawExtractedText = ''; // Holds final text *before* prefix
 
+        // --- PROCESS READABILITY RESULT (with Title handling) ---
         if (article && article.textContent && article.textContent.trim().length > 100) {
-            rawExtractedText = article.textContent.trim(); // Assign to raw text
+            const title = article.title?.trim(); // Get title safely
+            const bodyText = article.textContent.trim(); // Get body text
+
+            if (title) {
+                rawExtractedText = `${title}\n\n${bodyText}`; // Combine title and body
+            } else {
+                rawExtractedText = bodyText; // Just body
+            }
             extractionSource = 'Readability';
+        // --- END READABILITY PROCESSING ---
+
         } else {
-            if (!article && typeof Readability !== 'undefined') console.log("Readability failed/insufficient, attempting fallback...");
-            else if (typeof Readability === 'undefined') { /* Warned */ } else console.log("Readability content insufficient, attempting fallback...");
+             // --- FALLBACK LOGIC (No title available here) ---
+            if (extractionSource === '') { // Only log if Readability didn't already succeed
+                 if (!article && typeof Readability !== 'undefined') console.log("Readability failed/insufficient, attempting fallback...");
+                 else if (typeof Readability === 'undefined') { /* Warned */ } else console.log("Readability content insufficient, attempting fallback...");
+            }
             const mainElement = doc.querySelector('main') || doc.querySelector('article') || doc.querySelector('.post-content') || doc.querySelector('.entry-content') || doc.body;
             if (mainElement) {
                 const scripts = mainElement.querySelectorAll('script, style, nav, header, footer, aside, .sidebar, .ads, [aria-hidden="true"], noscript, form, button, input, figure, figcaption, .share-buttons, .comments-area');
                 scripts.forEach(el => el.remove());
-                rawExtractedText = mainElement.textContent.replace(/[\t\r\n]+/g, '\n').replace(/\n\s*\n/g, '\n\n').replace(/ {2,}/g, ' ').trim(); // Assign to raw text
+                rawExtractedText = mainElement.textContent.replace(/[\t\r\n]+/g, '\n').replace(/\n\s*\n/g, '\n\n').replace(/ {2,}/g, ' ').trim();
             } else {
-                 rawExtractedText = doc.body ? doc.body.textContent.trim().replace(/\s\s+/g, ' ') : ''; // Assign to raw text
+                 rawExtractedText = doc.body ? doc.body.textContent.trim().replace(/\s\s+/g, ' ') : '';
             }
-            if (rawExtractedText.trim().length > 50) { // Check raw text
-                if (!article && typeof Readability !== 'undefined') extractionSource = 'basic fallback (Readability failed)';
+            if (rawExtractedText.trim().length > 50) { // Check fallback text length
+                 if (!article && typeof Readability !== 'undefined') extractionSource = 'basic fallback (Readability failed)';
                  else extractionSource = 'basic fallback';
             } else {
                  rawExtractedText = ''; // Clear raw text if fallback failed
             }
+             // --- END FALLBACK LOGIC ---
         }
 
-        // Update UI based on result
+        // --- Update UI based on combined result ---
         if (extractionSource) {
-            extractedText.value = TEXT_PREFIX + rawExtractedText; // Prepend prefix
+            // Prepend the fixed prefix to the raw text (which might include the title)
+            extractedText.value = TEXT_PREFIX + rawExtractedText;
+
             displaySuccess(`Extracted using ${extractionSource}.`);
             enableCopyButton();
             copyButtonWrapper.style.display = 'block'; // Show output
             detailsElement.style.display = 'block';
             detailsElement.open = true;
         } else {
-             extractedText.value = ''; // Clear textarea on failure
+             // Handle failure (ensure text area is empty)
+             extractedText.value = '';
              let finalError = "Extraction failed: Could not get meaningful content.";
              if (typeof Readability === 'undefined'){ finalError = "Extraction failed: Readability script missing & fallback failed."; }
             displayError(finalError);
@@ -396,7 +410,7 @@
     // Hide output sections
     copyButtonWrapper.style.display = 'none';
     detailsElement.style.display = 'none';
-    // Clear text area on reset to avoid showing old prefix
+    // Clear text area on reset
     extractedText.value = '';
   }
 
@@ -423,8 +437,8 @@
   }
 
   function enableCopyButton() {
-    // Check includes prefix length to be safe, though trim() should handle it
-    if(extractedText.value.trim().length > TEXT_PREFIX.length){
+    // Check includes prefix length to be safe
+    if(extractedText.value.trim().length >= TEXT_PREFIX.length){ // Check if there's *anything* beyond the prefix
         copyButton.disabled = false;
     } else {
         copyButton.disabled = true;
