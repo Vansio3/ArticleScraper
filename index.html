@@ -1,18 +1,21 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark"> <!-- Force dark theme with Pico -->
+<html lang="en" data-theme="dark">
 <head>
 <title>Modern Article Extractor</title>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="color-scheme" content="dark light"> <!-- Indicate theme support -->
+<meta name="color-scheme" content="dark light">
 
 <!-- Pico.css - Include BEFORE custom styles -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@latest/css/pico.min.css">
 
 <style>
   /* --- Custom Styles & Overrides (Mobile First) --- */
+  :root {
+      /* Add retry status color */
+      --pico-color-amber-500: #ffa000; /* Example, adjust if needed */
+  }
 
-  /* Add some vertical spacing */
   main.container {
     padding-top: calc(var(--pico-spacing) * 2);
     padding-bottom: calc(var(--pico-spacing) * 2);
@@ -21,53 +24,45 @@
   }
 
   h1 {
-     font-size: 1.75em; /* Slightly adjust Pico's h1 */
+     font-size: 1.75em;
      margin-bottom: var(--pico-block-spacing-vertical);
   }
 
-  /* Layout for Input + Button */
   #input-area {
-      display: grid; /* Use grid for potentially better alignment */
-      grid-template-columns: 1fr; /* Stack on mobile */
+      display: grid;
+      grid-template-columns: 1fr;
       gap: var(--pico-form-element-spacing-vertical);
       margin-bottom: var(--pico-block-spacing-vertical);
   }
 
-  /* Keep textarea monospace */
   #extracted-text {
     font-family: var(--pico-font-monospace);
-    height: 250px; /* Default mobile height */
+    height: 250px;
     resize: vertical;
-     /* Pico might add margin, ensure it's inside the details */
-     margin-bottom: 0;
+    margin-bottom: 0;
   }
 
-  /* Center the copy button */
    #copy-button-wrapper {
        margin-bottom: calc(var(--pico-spacing) / 2);
-       display: block; /* Ensure it takes block space */
-       text-align: center; /* Center the inline-block button */
+       display: block;
+       text-align: center;
    }
    #copy-button {
-        display: inline-block; /* Allow text align to center it */
-        width: auto; /* Don't force full width unless needed */
-        padding-left: calc(var(--pico-spacing) * 1.5); /* More horizontal padding */
+        display: inline-block;
+        width: auto;
+        padding-left: calc(var(--pico-spacing) * 1.5);
         padding-right: calc(var(--pico-spacing) * 1.5);
    }
 
-  /* Style the details/summary trigger */
   details summary {
-      /* Pico styles this well, minor adjustments if needed */
       font-weight: var(--pico-font-weight-semibold);
-      margin-top: var(--pico-spacing); /* Space below copy button */
+      margin-top: var(--pico-spacing);
   }
 
-  /* Spacing inside the details */
   details > div {
       padding-top: var(--pico-form-element-spacing-vertical);
   }
 
-  /* Status messages */
   #status-messages {
       margin-top: var(--pico-block-spacing-vertical);
       min-height: 1.5em;
@@ -77,11 +72,15 @@
   }
 
   #error-message {
-    color: var(--pico-color-red-500); /* Use Pico variable */
+    color: var(--pico-color-red-500);
   }
 
   #success-message {
-    color: var(--pico-color-green-500); /* Use Pico variable */
+    color: var(--pico-color-green-500);
+  }
+  /* Style for retry message */
+  #retry-message {
+      color: var(--pico-color-amber-500);
   }
 
   #loading-indicator {
@@ -93,29 +92,22 @@
 
 
   /* --- Tablet & Larger Screens --- */
-  @media (min-width: 768px) { /* Pico's default breakpoint is often 768px */
+  @media (min-width: 768px) {
     h1 {
         font-size: 2em;
     }
 
     #input-area {
-        grid-template-columns: 1fr auto; /* Input takes space, button fits content */
+        grid-template-columns: 1fr auto;
         gap: var(--pico-form-element-spacing-horizontal);
-        align-items: flex-end; /* Align items to bottom edge */
+        align-items: flex-end;
     }
-
-    /* Label specific alignment if needed when side-by-side */
-    #input-area label {
-        /* margin-bottom: 0; */ /* Optional: remove bottom margin if aligned */
-    }
-
 
     #extracted-text {
-        height: 300px; /* More height on larger screens */
+        height: 300px;
     }
   }
 
-  /* Desktops and up */
   @media (min-width: 992px) {
      #extracted-text {
         height: 350px;
@@ -126,51 +118,50 @@
 </head>
 <body>
 
-<!-- Use main.container as recommended by Pico -->
 <main class="container">
     <h1>Article Extractor</h1>
 
-    <!-- Removed outer #input-container div -->
     <label for="url-input">Enter URL or text containing a URL:</label>
     <div id="input-area">
         <input type="text" id="url-input" name="url-input" placeholder="e.g., https://example.com/article">
-        <!-- Pico styles buttons automatically -->
         <button id="extract-button">Extract Text</button>
     </div>
 
     <div id="loading-indicator">
-        Fetching and processing content... <progress></progress> <!-- Pico styles progress -->
+        Fetching and processing content... <progress></progress>
     </div>
 
-    <!-- Removed outer #output-container div -->
-    <!-- Wrapper for copy button centering -->
     <div id="copy-button-wrapper">
        <button id="copy-button" disabled>Copy Extracted Text</button>
     </div>
 
-    <!-- Pico styles details/summary nicely -->
     <details id="extracted-content-details">
         <summary>View Extracted Text</summary>
-        <!-- Div needed inside details for padding -->
         <div>
             <textarea id="extracted-text" name="extracted-text" readonly placeholder="Extracted text will appear here..."></textarea>
         </div>
     </details>
 
     <div id="status-messages">
+        <!-- Added retry message element -->
+        <div id="retry-message"></div>
         <div id="error-message"></div>
         <div id="success-message"></div>
     </div>
-</main> <!-- End .container -->
-
+</main>
 
 <!-- ***** INCLUDE Readability.js SCRIPT HERE ***** -->
 <script src="readability.js"></script>
-<!-- Make sure readability.js file is in the same directory -->
-
 
 <script>
-  // Get reference to elements
+  // --- Constants ---
+  const PROXY_URL = 'https://api.allorigins.win/raw?url=';
+  // const PROXY_URL = 'https://corsproxy.io/?'; // Alternative proxy to try
+  const MAX_RETRIES = 3; // How many times to retry fetching
+  const RETRY_DELAY_MS = 1500; // Wait 1.5 seconds between retries
+  const DEBOUNCE_DELAY_MS = 500; // Wait 500ms after last click before fetching
+
+  // --- Element References ---
   const urlInput = document.getElementById('url-input');
   const extractButton = document.getElementById('extract-button');
   const loadingIndicator = document.getElementById('loading-indicator');
@@ -178,16 +169,66 @@
   const copyButton = document.getElementById('copy-button');
   const errorMessage = document.getElementById('error-message');
   const successMessage = document.getElementById('success-message');
+  const retryMessage = document.getElementById('retry-message'); // Added
   const detailsElement = document.getElementById('extracted-content-details');
-
-  // References to the progress element inside the indicator
   const progressIndicator = loadingIndicator.querySelector('progress');
 
+  // --- Debounce Timer ---
+  let debounceTimer;
 
-  extractButton.addEventListener('click', handleExtraction);
+  // --- Event Listeners ---
+  // Use debounced handler for the button click
+  extractButton.addEventListener('click', () => {
+      clearTimeout(debounceTimer); // Clear previous timer
+      // Set a new timer
+      debounceTimer = setTimeout(handleExtraction, DEBOUNCE_DELAY_MS);
+  });
   copyButton.addEventListener('click', copyTextToClipboard);
 
-  function handleExtraction() {
+  // --- Core Logic ---
+
+  // Simple promise-based delay function
+  function delay(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
+  // Fetch function with retry logic
+  async function fetchWithRetries(url, options, retries = MAX_RETRIES) {
+      for (let i = 0; i <= retries; i++) {
+          try {
+              if (i > 0) {
+                  displayRetryMessage(`Attempt ${i+1} of ${retries+1}...`);
+                  await delay(RETRY_DELAY_MS * i); // Exponential backoff could be better, simple delay for now
+              }
+              const response = await fetch(url, options);
+              if (!response.ok) {
+                   // Specific check for server errors likely from proxy overload/issues
+                  if (response.status >= 500 && response.status < 600 && i < retries) {
+                      console.warn(`Attempt ${i+1} failed with status ${response.status}. Retrying...`);
+                      continue; // Go to the next iteration to retry
+                  }
+                  // If not a retryable server error OR last attempt, throw the error
+                  throw new Error(`Proxy fetch failed: ${response.status} ${response.statusText}`);
+              }
+              clearRetryMessage(); // Clear retry message on success
+              return response; // Success! Return the response
+          } catch (error) {
+              // Catch network errors (TypeError: Failed to fetch) or errors thrown above
+              console.error(`Attempt ${i+1} caught error:`, error);
+              if (i === retries) {
+                  // If this was the last attempt, re-throw the error
+                  clearRetryMessage();
+                  throw error;
+              }
+              // Otherwise, the loop will continue to the next retry (after delay)
+          }
+      }
+      // Should theoretically not be reached if MAX_RETRIES >= 0, but satisfy compiler
+      throw new Error("Fetch failed after all retries.");
+  }
+
+
+  async function handleExtraction() { // Make async to use await for fetchWithRetries
     resetUI();
 
     const inputText = urlInput.value.trim();
@@ -207,30 +248,22 @@
     const targetUrl = match[0];
     console.log("Extracted URL:", targetUrl);
 
-    const corsProxyUrl = 'https://api.allorigins.win/raw?url=';
-    const proxiedUrl = corsProxyUrl + encodeURIComponent(targetUrl);
+    const proxiedUrl = PROXY_URL + encodeURIComponent(targetUrl);
 
-    setLoadingState(true); // Show loading indicator
+    setLoadingState(true);
 
-    fetch(proxiedUrl)
-      .then(response => {
-        if (!response.ok) {
-          let errorMsg = `Proxy fetch failed: ${response.status} ${response.statusText}`;
-          if (response.status === 404) errorMsg += ". URL not found via proxy.";
-          else if (response.status === 403) errorMsg += ". Access denied (proxy blocked?).";
-          else if (response.status >= 500) errorMsg += ". Proxy server error.";
-          throw new Error(errorMsg);
-        }
-        return response.text();
-      })
-      .then(html => {
+    try { // Wrap the core fetch/parse logic in try/catch
+        const response = await fetchWithRetries(proxiedUrl); // Use the retry wrapper
+        const html = await response.text();
+
+        // --- Parsing and Extraction (remains mostly the same) ---
         let doc;
         try {
             const parser = new DOMParser();
             doc = parser.parseFromString(html, 'text/html');
         } catch (parseError) {
             console.error("DOM Parsing Error:", parseError);
-            throw new Error("Failed to parse the HTML content.");
+            throw new Error("Failed to parse the HTML content."); // Throw to be caught by outer catch
         }
 
         let article = null;
@@ -252,38 +285,21 @@
             extractedText.value = article.textContent.trim();
             extractionSource = 'Readability';
         } else {
-             if (!article && typeof Readability !== 'undefined') {
-                 console.log("Readability failed or content insufficient, attempting fallback...");
-             } else if (typeof Readability === 'undefined') {
-                 // Already warned if undefined
-             } else {
-                  console.log("Readability content insufficient, attempting fallback...");
-             }
+             // Fallback logic ... (same as before)
+            if (!article && typeof Readability !== 'undefined') console.log("Readability failed/insufficient, attempting fallback...");
+            else if (typeof Readability === 'undefined') { /* Already warned */ }
+            else console.log("Readability content insufficient, attempting fallback...");
 
             const mainElement = doc.querySelector('main') || doc.querySelector('article') || doc.querySelector('.post-content') || doc.querySelector('.entry-content') || doc.body;
-
             if (mainElement) {
-                const scripts = mainElement.querySelectorAll('script, style, nav, header, footer, aside, .sidebar, .ads, [aria-hidden="true"], noscript, form, button, input, figure, figcaption, .share-buttons, .comments-area'); // Even more cleanup targets
+                const scripts = mainElement.querySelectorAll('script, style, nav, header, footer, aside, .sidebar, .ads, [aria-hidden="true"], noscript, form, button, input, figure, figcaption, .share-buttons, .comments-area');
                 scripts.forEach(el => el.remove());
-                // More aggressive whitespace cleanup
-                extractedText.value = mainElement.textContent
-                                       .replace(/[\t\r\n]+/g, '\n') // Collapse multiple line breaks/tabs/returns to single newline
-                                       .replace(/\n\s*\n/g, '\n\n') // Ensure max one blank line
-                                       .replace(/ {2,}/g, ' ') // Collapse multiple spaces
-                                       .trim();
+                extractedText.value = mainElement.textContent.replace(/[\t\r\n]+/g, '\n').replace(/\n\s*\n/g, '\n\n').replace(/ {2,}/g, ' ').trim();
             } else {
                  extractedText.value = doc.body ? doc.body.textContent.trim().replace(/\s\s+/g, ' ') : '';
             }
-
-            if (extractedText.value.trim().length > 50) {
-                 if (!article && typeof Readability !== 'undefined') {
-                      extractionSource = 'basic fallback (Readability failed)';
-                 } else {
-                      extractionSource = 'basic fallback';
-                 }
-            } else {
-                 extractedText.value = '';
-            }
+            if (extractedText.value.trim().length > 50) extractionSource = 'basic fallback';
+            else extractedText.value = '';
         }
 
         if (extractionSource) {
@@ -292,30 +308,27 @@
             detailsElement.open = true;
         } else {
              let finalError = "Extraction failed: Could not get meaningful content.";
-             if (typeof Readability === 'undefined'){
-                  finalError = "Extraction failed: Readability script missing & fallback found no content.";
-             }
+             if (typeof Readability === 'undefined'){ finalError = "Extraction failed: Readability script missing & fallback failed."; }
             displayError(finalError);
             copyButton.disabled = true;
             detailsElement.open = false;
         }
 
-      })
-      .catch(error => {
+    } catch (error) { // Catch errors from fetchWithRetries or parsing
         console.error("Error during fetch or extraction:", error);
-        displayError(`Error: ${error.message}`);
+        displayError(`Error: ${error.message}`); // Display the final error after retries
         detailsElement.open = false;
-      })
-      .finally(() => {
+    } finally { // This block always runs
         setLoadingState(false); // Hide loading indicator
-      });
+    }
   }
+
 
    function setLoadingState(isLoading) {
         if (isLoading) {
             loadingIndicator.style.display = 'block';
-            if (progressIndicator) progressIndicator.removeAttribute('value'); // Indeterminate progress
-            extractButton.setAttribute('aria-busy', 'true'); // Pico uses aria-busy for buttons
+            if (progressIndicator) progressIndicator.removeAttribute('value');
+            extractButton.setAttribute('aria-busy', 'true');
             extractButton.disabled = true;
         } else {
             loadingIndicator.style.display = 'none';
@@ -324,62 +337,63 @@
         }
     }
 
+  // --- Clipboard and UI Functions (remain mostly the same) ---
 
   function copyTextToClipboard() {
-    if (!extractedText.value) {
-        displayError("Nothing to copy.");
-        return;
-    }
-
-    if (!detailsElement.open) {
-        detailsElement.open = true;
-    }
-
+    // ... (same as before) ...
+    if (!extractedText.value) { displayError("Nothing to copy."); return; }
+    if (!detailsElement.open) { detailsElement.open = true; }
     navigator.clipboard.writeText(extractedText.value)
       .then(() => {
         displaySuccess("Content copied to clipboard!");
         const originalText = 'Copy Extracted Text';
         copyButton.textContent = 'Copied!';
-        copyButton.classList.add('secondary'); // Pico class for visual feedback
-        setTimeout(() => {
-            copyButton.textContent = originalText;
-            copyButton.classList.remove('secondary');
-        }, 1500);
+        copyButton.classList.add('secondary');
+        setTimeout(() => { copyButton.textContent = originalText; copyButton.classList.remove('secondary'); }, 1500);
       })
       .catch(err => {
         console.error('Failed to copy text: ', err);
         try {
             detailsElement.open = true;
             extractedText.select();
-            document.execCommand('copy');
-            displaySuccess("Copied (using fallback)!");
-        } catch (execErr) {
-             displayError("Failed to copy automatically.");
-        }
+            document.execCommand('copy'); displaySuccess("Copied (using fallback)!");
+        } catch (execErr) { displayError("Failed to copy automatically."); }
       });
   }
 
   function resetUI() {
     errorMessage.textContent = '';
     successMessage.textContent = '';
-    setLoadingState(false); // Ensure loading state is off
+    retryMessage.textContent = ''; // Clear retry message
+    setLoadingState(false);
     copyButton.disabled = true;
     copyButton.textContent = 'Copy Extracted Text';
-    copyButton.classList.remove('secondary'); // Ensure feedback class is removed
+    copyButton.classList.remove('secondary');
     detailsElement.open = false;
-    // Optional: Clear text area on reset?
-    // extractedText.value = '';
   }
 
   function displayError(message) {
     errorMessage.textContent = message;
     successMessage.textContent = '';
+    retryMessage.textContent = ''; // Clear retry message on final error
   }
 
   function displaySuccess(message) {
     successMessage.textContent = message;
     errorMessage.textContent = '';
+    retryMessage.textContent = ''; // Clear retry message on success
   }
+
+  function displayRetryMessage(message) {
+      retryMessage.textContent = message;
+      errorMessage.textContent = ''; // Clear previous final errors during retry
+      successMessage.textContent = '';
+  }
+
+  function clearRetryMessage() {
+       retryMessage.textContent = '';
+  }
+
 
   function enableCopyButton() {
     if(extractedText.value.trim()){
