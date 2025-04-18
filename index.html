@@ -1,3 +1,5 @@
+--- START OF FILE index.html ---
+
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
@@ -203,7 +205,7 @@
       const textToShare = extractedText.value;
       if (!textToShare || !textToShare.trim()) {
           displayError("Nothing to share.");
-          shareButton.blur(); // <-- Add blur here
+          setTimeout(() => shareButton.blur(), 0); // <-- Use setTimeout
           return;
       }
       try {
@@ -217,7 +219,7 @@
               displayError(`Share failed: ${err.message}`);
           }
       } finally {
-          shareButton.blur(); // <-- Add blur here in finally block
+          setTimeout(() => shareButton.blur(), 0); // <-- Use setTimeout in finally block
       }
   }
 
@@ -266,7 +268,7 @@
   function copyTextToClipboard() {
       if (!extractedText.value) {
           displayError("Nothing to copy.");
-          copyButton.blur(); // <-- Add blur here
+          setTimeout(() => copyButton.blur(), 0); // <-- Use setTimeout
           return;
       }
       if (!detailsElement.open) {
@@ -297,7 +299,7 @@
               }
           })
           .finally(() => { // Use finally to ensure blur happens
-              copyButton.blur(); // <-- Add blur here in finally block
+              setTimeout(() => copyButton.blur(), 0); // <-- Use setTimeout
           });
   }
 
