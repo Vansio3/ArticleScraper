@@ -197,6 +197,9 @@
   function triggerExtractionDebounced() { if (extractButton.getAttribute('aria-busy') === 'true' || isInResetMode) return; clearTimeout(debounceTimer); debounceTimer = setTimeout(handleExtraction, DEBOUNCE_DELAY_MS); }
   function triggerReset() { resetUI(); }
 
+  // --- Share Handler ---
+  async function handleShare() { if (!isShareSupported || shareButton.disabled) return; const textToShare = extractedText.value; if (!textToShare || !textToShare.trim()) { displayError("Nothing to share."); return; } try { await navigator.share({ text: textToShare }); console.log('Content shared successfully'); } catch (err) { if (err.name === 'AbortError') { console.log('Share dialog dismissed by user.'); } else { console.error('Error sharing:', err); displayError(`Share failed: ${err.message}`); } } }
+
   // --- Event Listeners ---
   settingsButton?.addEventListener('click', openSettings); settingsCloseButton?.addEventListener('click', closeSettings); settingsForm?.addEventListener('submit', saveSettings);
   prefixSummariseBtn?.addEventListener('click', () => setPrefixFromPreset(PRESET_SUMMARISE)); prefixFactcheckBtn?.addEventListener('click', () => setPrefixFromPreset(PRESET_FACTCHECK)); prefixExplainBtn?.addEventListener('click', () => setPrefixFromPreset(PRESET_EXPLAIN));
@@ -239,86 +242,7 @@
    function setLoadingState(isLoading) { if (isLoading) { extractButton.setAttribute('aria-busy', 'true'); } else { extractButton.removeAttribute('aria-busy'); } }
 
   // --- Clipboard and UI Functions ---
-  function copyTextToClipboard() {
-    // Blur immediately if there's nothing to copy or button is disabled
-    if (!extractedText.value || copyButton.disabled) {
-        if(!extractedText.value) displayError("Nothing to copy.");
-        copyButton.blur(); // <<< Remove focus
-        return;
-    }
-    if (!detailsElement.open) {
-        detailsElement.open = true;
-    }
-
-    navigator.clipboard.writeText(extractedText.value)
-        .then(() => {
-            displaySuccess("Content copied to clipboard!");
-            if (copyButtonIconWrapper) copyButtonIconWrapper.innerHTML = ICON_CHECK_SVG;
-            if (copyButtonTextWrapper) copyButtonTextWrapper.textContent = 'Copied!';
-            copyButton.classList.add('secondary');
-            setTimeout(() => {
-                setInitialCopyIcon();
-                if (copyButtonTextWrapper) copyButtonTextWrapper.textContent = 'Copy';
-                copyButton.classList.remove('secondary');
-            }, 2000);
-            copyButton.blur(); // <<< Remove focus on success
-        })
-        .catch(err => {
-            console.error('Failed to copy text: ', err);
-            try {
-                // Fallback selection + copy
-                if (!detailsElement.open) detailsElement.open = true; // Ensure open for selection
-                extractedText.select(); // Select the text
-                extractedText.setSelectionRange(0, 99999); // For mobile browsers
-                document.execCommand('copy');
-                displaySuccess("Copied (using fallback)!");
-                 // Apply visual feedback for fallback too
-                if (copyButtonIconWrapper) copyButtonIconWrapper.innerHTML = ICON_CHECK_SVG;
-                if (copyButtonTextWrapper) copyButtonTextWrapper.textContent = 'Copied!';
-                copyButton.classList.add('secondary');
-                setTimeout(() => {
-                  setInitialCopyIcon();
-                  if (copyButtonTextWrapper) copyButtonTextWrapper.textContent = 'Copy';
-                  copyButton.classList.remove('secondary');
-                }, 2000);
-                window.getSelection()?.removeAllRanges(); // Deselect text after copy
-            } catch (execErr) {
-                displayError("Failed to copy automatically.");
-            } finally {
-                 copyButton.blur(); // <<< Remove focus on error/fallback attempt
-            }
-        });
-   }
-
-  // --- Share Handler ---
-  async function handleShare() {
-    // Blur immediately if conditions aren't met
-    if (!isShareSupported || !shareButton || shareButton.disabled) {
-        shareButton?.blur(); // <<< Remove focus (using optional chaining)
-        return;
-    }
-    const textToShare = extractedText.value;
-    if (!textToShare || !textToShare.trim()) {
-        displayError("Nothing to share.");
-        shareButton.blur(); // <<< Remove focus
-        return;
-    }
-    try {
-        await navigator.share({ text: textToShare });
-        console.log('Content shared successfully');
-    } catch (err) {
-        if (err.name === 'AbortError') {
-            console.log('Share dialog dismissed by user.');
-        } else {
-            console.error('Error sharing:', err);
-            displayError(`Share failed: ${err.message}`);
-        }
-    } finally {
-        // Ensure blur happens regardless of try/catch outcome
-        shareButton.blur(); // <<< Remove focus in finally block
-    }
-  }
-
+  function copyTextToClipboard() { if (!extractedText.value) { displayError("Nothing to copy."); return; } if (!detailsElement.open) { detailsElement.open = true; } navigator.clipboard.writeText(extractedText.value) .then(() => { displaySuccess("Content copied to clipboard!"); if (copyButtonIconWrapper) copyButtonIconWrapper.innerHTML = ICON_CHECK_SVG; if (copyButtonTextWrapper) copyButtonTextWrapper.textContent = 'Copied!'; copyButton.classList.add('secondary'); setTimeout(() => { setInitialCopyIcon(); if (copyButtonTextWrapper) copyButtonTextWrapper.textContent = 'Copy'; copyButton.classList.remove('secondary'); }, 2000); }) .catch(err => { console.error('Failed to copy text: ', err); try { detailsElement.open = true; extractedText.select(); document.execCommand('copy'); displaySuccess("Copied (using fallback)!"); } catch (execErr) { displayError("Failed to copy automatically."); } }); }
   function resetUI() {
     clearMessages(); setLoadingState(false); urlInput.value = '';
     updateActionButtonsState(''); // Disable copy/share buttons
@@ -329,12 +253,7 @@
     setInitialButtonState(); // Reset extract button appearance
     extractButton.removeEventListener('click', triggerReset); // Remove reset listener
     extractButton.addEventListener('click', triggerExtractionDebounced); // Add extract listener
-
-    // Also blur buttons on reset just in case one was focused
-    copyButton.blur();
-    shareButton?.blur();
   }
-
   function displayError(message) { errorMessage.textContent = message; successMessage.textContent = ''; retryMessage.textContent = ''; }
   function displaySuccess(message) { successMessage.textContent = message; errorMessage.textContent = ''; retryMessage.textContent = ''; }
   function displayRetryMessage(message) { retryMessage.textContent = message; errorMessage.textContent = ''; successMessage.textContent = ''; }
