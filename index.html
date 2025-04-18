@@ -1,5 +1,3 @@
---- START OF FILE index.html ---
-
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
@@ -200,28 +198,7 @@
   function triggerReset() { resetUI(); }
 
   // --- Share Handler ---
-  async function handleShare() {
-      if (!isShareSupported || shareButton.disabled) return;
-      const textToShare = extractedText.value;
-      if (!textToShare || !textToShare.trim()) {
-          displayError("Nothing to share.");
-          setTimeout(() => shareButton.blur(), 0); // <-- Use setTimeout
-          return;
-      }
-      try {
-          await navigator.share({ text: textToShare });
-          console.log('Content shared successfully');
-      } catch (err) {
-          if (err.name === 'AbortError') {
-              console.log('Share dialog dismissed by user.');
-          } else {
-              console.error('Error sharing:', err);
-              displayError(`Share failed: ${err.message}`);
-          }
-      } finally {
-          setTimeout(() => shareButton.blur(), 0); // <-- Use setTimeout in finally block
-      }
-  }
+  async function handleShare() { if (!isShareSupported || shareButton.disabled) return; const textToShare = extractedText.value; if (!textToShare || !textToShare.trim()) { displayError("Nothing to share."); return; } try { await navigator.share({ text: textToShare }); console.log('Content shared successfully'); } catch (err) { if (err.name === 'AbortError') { console.log('Share dialog dismissed by user.'); } else { console.error('Error sharing:', err); displayError(`Share failed: ${err.message}`); } } }
 
   // --- Event Listeners ---
   settingsButton?.addEventListener('click', openSettings); settingsCloseButton?.addEventListener('click', closeSettings); settingsForm?.addEventListener('submit', saveSettings);
@@ -265,44 +242,7 @@
    function setLoadingState(isLoading) { if (isLoading) { extractButton.setAttribute('aria-busy', 'true'); } else { extractButton.removeAttribute('aria-busy'); } }
 
   // --- Clipboard and UI Functions ---
-  function copyTextToClipboard() {
-      if (!extractedText.value) {
-          displayError("Nothing to copy.");
-          setTimeout(() => copyButton.blur(), 0); // <-- Use setTimeout
-          return;
-      }
-      if (!detailsElement.open) {
-          detailsElement.open = true;
-      }
-      navigator.clipboard.writeText(extractedText.value)
-          .then(() => {
-              displaySuccess("Content copied to clipboard!");
-              if (copyButtonIconWrapper) copyButtonIconWrapper.innerHTML = ICON_CHECK_SVG;
-              if (copyButtonTextWrapper) copyButtonTextWrapper.textContent = 'Copied!';
-              copyButton.classList.add('secondary');
-              setTimeout(() => {
-                  setInitialCopyIcon();
-                  if (copyButtonTextWrapper) copyButtonTextWrapper.textContent = 'Copy';
-                  copyButton.classList.remove('secondary');
-              }, 2000);
-          })
-          .catch(err => {
-              console.error('Failed to copy text: ', err);
-              try {
-                  // Fallback for older browsers or specific contexts
-                  detailsElement.open = true;
-                  extractedText.select(); // Select the text
-                  document.execCommand('copy'); // Use deprecated method
-                  displaySuccess("Copied (using fallback)!");
-              } catch (execErr) {
-                  displayError("Failed to copy automatically.");
-              }
-          })
-          .finally(() => { // Use finally to ensure blur happens
-              setTimeout(() => copyButton.blur(), 0); // <-- Use setTimeout
-          });
-  }
-
+  function copyTextToClipboard() { if (!extractedText.value) { displayError("Nothing to copy."); return; } if (!detailsElement.open) { detailsElement.open = true; } navigator.clipboard.writeText(extractedText.value) .then(() => { displaySuccess("Content copied to clipboard!"); if (copyButtonIconWrapper) copyButtonIconWrapper.innerHTML = ICON_CHECK_SVG; if (copyButtonTextWrapper) copyButtonTextWrapper.textContent = 'Copied!'; copyButton.classList.add('secondary'); setTimeout(() => { setInitialCopyIcon(); if (copyButtonTextWrapper) copyButtonTextWrapper.textContent = 'Copy'; copyButton.classList.remove('secondary'); }, 2000); }) .catch(err => { console.error('Failed to copy text: ', err); try { detailsElement.open = true; extractedText.select(); document.execCommand('copy'); displaySuccess("Copied (using fallback)!"); } catch (execErr) { displayError("Failed to copy automatically."); } }); }
   function resetUI() {
     clearMessages(); setLoadingState(false); urlInput.value = '';
     updateActionButtonsState(''); // Disable copy/share buttons
