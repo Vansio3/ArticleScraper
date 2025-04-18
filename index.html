@@ -32,7 +32,7 @@
   /* --- START Settings Dialog Animation & Backdrop --- */
   dialog#settings-dialog {
     max-width: 500px;
-    border: 1px solid var(--pico-contrast-border);
+    /* border: 1px solid var(--pico-contrast-border); */
     border-radius: var(--pico-border-radius); /* Consistent border radius */
     padding: 0; /* Remove default padding if we use article */
     opacity: 0;
@@ -42,6 +42,7 @@
     overflow: visible; /* Allow box-shadow from article */
     background: transparent; /* Make dialog transparent, use article background */
     box-shadow: none; /* Remove default dialog shadow if any */
+    border: none;
   }
 
   /* The ::backdrop pseudo-element */
