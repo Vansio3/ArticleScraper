@@ -118,7 +118,7 @@
                 <small>Quick Presets:</small>
                 <button type="button" id="prefix-summarise-btn" class="outline secondary">Summarise</button>
                 <button type="button" id="prefix-factcheck-btn" class="outline secondary">Fact-check</button>
-                <button type="button" id="prefix-groundingcheck-btn" class="outline secondary">Grounding-check</button>
+                <button type="button" id="prefix-explain-btn" class="outline secondary">Explain</button>
             </div>
             <footer>
                 <button type="submit" id="settings-save-button">Save Prefix</button>
@@ -134,7 +134,7 @@
     // --- Constants ---
   const PROXY_URL = 'https://api.allorigins.win/raw?url='; const MAX_RETRIES = 3; const RETRY_DELAY_MS = 1500; const DEBOUNCE_DELAY_MS = 500;
   const DEFAULT_TEXT_PREFIX = "Summarise the key points from the following article:\n\n"; const PREFIX_STORAGE_KEY = 'articleExtractorPrefix';
-  const PRESET_SUMMARISE = "Summarise the key points from the following article:\n\n"; const PRESET_FACTCHECK = "You are a fact-checking assistant that verifies the factual accuracy of the provided text. Please fact-check the following text and provide a brief summary along with an accuracy percentage in your response.\n\n"; const PRESET_GROUNDINGCHECK = "You are an argument analysis assistant that identifies the main arguments and their supporting evidence within provided text. Please analyze the following text and provide a clear mapping of each main argument to the specific evidence used to support it in your response:\n\n";
+  const PRESET_SUMMARISE = "Summarise the key points from the following article:\n\n"; const PRESET_FACTCHECK = "You are a fact-checking assistant that verifies the factual accuracy of the provided text. Please fact-check the following text and provide a brief summary along with an accuracy percentage in your response:\n\n"; const PRESET_EXPLAIN = "Explain the following article:\n\n";
 
   // --- SVG Icons ---
   const ICON_COPY_SVG = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-copy"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>`;
@@ -147,7 +147,7 @@
   const isShareSupported = typeof navigator.share === 'function';
 
   // --- Element References ---
-  const mainContainer = document.querySelector('main.container'); const urlInput = document.getElementById('url-input'); const extractButton = document.getElementById('extract-button'); const extractedText = document.getElementById('extracted-text'); const copyButton = document.getElementById('copy-button'); const copyButtonIconWrapper = copyButton.querySelector('.icon-wrapper'); const copyButtonTextWrapper = copyButton.querySelector('.text-wrapper'); const shareButton = document.getElementById('share-button'); const shareButtonIconWrapper = shareButton?.querySelector('.icon-wrapper'); const shareButtonTextWrapper = shareButton?.querySelector('.text-wrapper'); const errorMessage = document.getElementById('error-message'); const successMessage = document.getElementById('success-message'); const retryMessage = document.getElementById('retry-message'); const detailsElement = document.getElementById('extracted-content-details'); const copyButtonWrapper = document.getElementById('copy-button-wrapper'); const settingsButton = document.getElementById('settings-button'); const settingsDialog = document.getElementById('settings-dialog'); const settingsCloseButton = document.getElementById('settings-close-button'); const settingsForm = document.getElementById('settings-form'); const prefixTextarea = document.getElementById('prefix-textarea'); const settingsSaveButton = document.getElementById('settings-save-button'); const prefixSummariseBtn = document.getElementById('prefix-summarise-btn'); const prefixFactcheckBtn = document.getElementById('prefix-factcheck-btn'); const prefixGroundingCheckBtn = document.getElementById('prefix-groundingcheck-btn');
+  const mainContainer = document.querySelector('main.container'); const urlInput = document.getElementById('url-input'); const extractButton = document.getElementById('extract-button'); const extractedText = document.getElementById('extracted-text'); const copyButton = document.getElementById('copy-button'); const copyButtonIconWrapper = copyButton.querySelector('.icon-wrapper'); const copyButtonTextWrapper = copyButton.querySelector('.text-wrapper'); const shareButton = document.getElementById('share-button'); const shareButtonIconWrapper = shareButton?.querySelector('.icon-wrapper'); const shareButtonTextWrapper = shareButton?.querySelector('.text-wrapper'); const errorMessage = document.getElementById('error-message'); const successMessage = document.getElementById('success-message'); const retryMessage = document.getElementById('retry-message'); const detailsElement = document.getElementById('extracted-content-details'); const copyButtonWrapper = document.getElementById('copy-button-wrapper'); const settingsButton = document.getElementById('settings-button'); const settingsDialog = document.getElementById('settings-dialog'); const settingsCloseButton = document.getElementById('settings-close-button'); const settingsForm = document.getElementById('settings-form'); const prefixTextarea = document.getElementById('prefix-textarea'); const settingsSaveButton = document.getElementById('settings-save-button'); const prefixSummariseBtn = document.getElementById('prefix-summarise-btn'); const prefixFactcheckBtn = document.getElementById('prefix-factcheck-btn'); const prefixExplainBtn = document.getElementById('prefix-explain-btn');
 
   // --- Debounce Timer ---
   let debounceTimer;
@@ -202,7 +202,7 @@
 
   // --- Event Listeners ---
   settingsButton?.addEventListener('click', openSettings); settingsCloseButton?.addEventListener('click', closeSettings); settingsForm?.addEventListener('submit', saveSettings);
-  prefixSummariseBtn?.addEventListener('click', () => setPrefixFromPreset(PRESET_SUMMARISE)); prefixFactcheckBtn?.addEventListener('click', () => setPrefixFromPreset(PRESET_FACTCHECK)); prefixGroundingCheckBtn?.addEventListener('click', () => setPrefixFromPreset(PRESET_GROUNDINGCHECK));
+  prefixSummariseBtn?.addEventListener('click', () => setPrefixFromPreset(PRESET_SUMMARISE)); prefixFactcheckBtn?.addEventListener('click', () => setPrefixFromPreset(PRESET_FACTCHECK)); prefixExplainBtn?.addEventListener('click', () => setPrefixFromPreset(PRESET_EXPLAIN));
   extractButton.addEventListener('click', triggerExtractionDebounced); // Initial listener
   urlInput.addEventListener('keypress', (event) => { if (event.key === 'Enter') { event.preventDefault(); if (extractButton.getAttribute('aria-busy') === 'true' || isInResetMode) return; triggerExtractionDebounced(); } });
   copyButton.addEventListener('click', copyTextToClipboard);
