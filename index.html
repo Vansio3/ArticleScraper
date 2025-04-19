@@ -28,48 +28,17 @@
   main.container:not(.state-initial) #copy-button-wrapper, main.container:not(.state-initial) #extracted-content-details, main.container:not(.state-initial) #status-messages { opacity: 1; max-height: 1000px; transform: translateY(0); }
   #settings-button { position: fixed; top: var(--pico-spacing); right: var(--pico-spacing); z-index: 100; padding: calc(var(--pico-spacing) * 0.3); width: auto; height: auto; border-radius: 50%; line-height: 0; }
   #settings-button svg { width: 1.1em; height: 1.1em; vertical-align: middle; }
-
   /* --- START Settings Dialog Animation & Backdrop --- */
-  dialog#settings-dialog {
-    max-width: 500px;
-    /* border: 1px solid var(--pico-contrast-border); */ /* Removed */
-    border-radius: var(--pico-border-radius);
-    padding: 0;
-    opacity: 0;
-    transform: scale(0.95) translateY(10px);
-    transition: opacity 0.25s ease-out, transform 0.25s ease-out, display 0.25s allow-discrete;
-    pointer-events: none;
-    overflow: visible;
-    background: transparent;
-    box-shadow: none;
-    border: none; /* Added */
-  }
-
-  dialog#settings-dialog::backdrop {
-    background-color: rgba(26, 26, 26, 0);
-    transition: background-color 0.3s ease-out;
-  }
-
-  dialog#settings-dialog[open] {
-    opacity: 1;
-    transform: scale(1) translateY(0);
-    pointer-events: auto;
-  }
-
-  dialog#settings-dialog[open]::backdrop {
-    background-color: rgba(26, 26, 26, 0.6);
-  }
-
-  dialog#settings-dialog > article {
-    background-color: var(--pico-card-background-color);
-    border: 1px solid var(--pico-card-border-color);
-    box-shadow: var(--pico-card-box-shadow);
-    border-radius: var(--pico-border-radius);
-    margin: 0;
-    padding: var(--pico-block-spacing-vertical) var(--pico-block-spacing-horizontal);
-  }
- /* --- END Settings Dialog Animation & Backdrop --- */
-
+  dialog#settings-dialog { max-width: 500px; border-radius: var(--pico-border-radius); padding: 0; opacity: 0; transform: scale(0.95) translateY(10px); transition: opacity 0.25s ease-out, transform 0.25s ease-out, display 0.25s allow-discrete; pointer-events: none; overflow: visible; background: transparent; box-shadow: none; border: none; }
+  /* The ::backdrop pseudo-element */
+  dialog#settings-dialog::backdrop { background-color: rgba(26, 26, 26, 0); transition: background-color 0.3s ease-out; }
+  /* Styles for when the dialog is open */
+  dialog#settings-dialog[open] { opacity: 1; transform: scale(1) translateY(0); pointer-events: auto; }
+  /* Styles for when the dialog is open - backdrop */
+  dialog#settings-dialog[open]::backdrop { background-color: rgba(26, 26, 26, 0.6); }
+  /* Ensure article inside dialog gets the styling */
+  dialog#settings-dialog > article { background-color: var(--pico-card-background-color); border: 1px solid var(--pico-card-border-color); box-shadow: var(--pico-card-box-shadow); border-radius: var(--pico-border-radius); margin: 0; padding: var(--pico-block-spacing-vertical) var(--pico-block-spacing-horizontal); }
+  /* --- END Settings Dialog Animation & Backdrop --- */
   dialog#settings-dialog textarea { margin-bottom: var(--pico-spacing); min-height: 80px; }
   .prefix-buttons-container { margin-bottom: calc(var(--pico-spacing) * 1.5); display: flex; flex-wrap: wrap; gap: calc(var(--pico-spacing) * 0.5); align-items: center; }
   .prefix-buttons-container small { width: 100%; margin-bottom: calc(var(--pico-spacing) * 0.25); color: var(--pico-secondary); font-size: 0.85em; }
@@ -159,9 +128,7 @@
                 <small>Quick Presets:</small>
                 <button type="button" id="prefix-summarise-btn" class="outline secondary">Summarise</button>
                 <button type="button" id="prefix-factcheck-btn" class="outline secondary">Fact-check</button>
-                <!-- **** START CHANGE **** -->
                 <button type="button" id="prefix-formatting-btn" class="outline secondary">Formatting</button>
-                <!-- **** END CHANGE **** -->
             </div>
             <footer>
                 <button type="submit" id="settings-save-button">Save Prefix</button>
@@ -177,11 +144,11 @@
     // --- Constants ---
   const PROXY_URL = 'https://api.allorigins.win/raw?url='; const MAX_RETRIES = 3; const RETRY_DELAY_MS = 1500; const DEBOUNCE_DELAY_MS = 500;
   const DEFAULT_TEXT_PREFIX = "Summarise the key points from the following article:\n\n"; const PREFIX_STORAGE_KEY = 'articleExtractorPrefix';
-  // **** START CHANGE ****
   const PRESET_SUMMARISE = "Summarise the key points from the following article:\n\n";
-  const PRESET_FACTCHECK = "You are a fact-checking assistant that verifies the factual accuracy of the provided text. Please fact-check the following text and provide a brief summary along with an accuracy percentage in your response:\n\n";
-  const PRESET_FORMATTING = "Fix the punctuation and formatting of the following text:\n\n"; // New preset text
+  // **** START CHANGE ****
+  const PRESET_FACTCHECK = "You are a fact-checking assistant that verifies the factual accuracy of the provided text. Please fact-check the following text using real-time data grounding and provide a brief summary along with an accuracy percentage in your response:\n\n"; // Updated preset text
   // **** END CHANGE ****
+  const PRESET_FORMATTING = "Fix the punctuation and formatting of the following text:\n\n";
 
   // --- SVG Icons ---
   const ICON_COPY_SVG = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-copy"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>`;
@@ -195,9 +162,7 @@
 
   // --- Element References ---
   const mainContainer = document.querySelector('main.container'); const urlInput = document.getElementById('url-input'); const extractButton = document.getElementById('extract-button'); const extractedText = document.getElementById('extracted-text'); const copyButton = document.getElementById('copy-button'); const copyButtonIconWrapper = copyButton.querySelector('.icon-wrapper'); const copyButtonTextWrapper = copyButton.querySelector('.text-wrapper'); const shareButton = document.getElementById('share-button'); const shareButtonIconWrapper = shareButton?.querySelector('.icon-wrapper'); const shareButtonTextWrapper = shareButton?.querySelector('.text-wrapper'); const errorMessage = document.getElementById('error-message'); const successMessage = document.getElementById('success-message'); const retryMessage = document.getElementById('retry-message'); const detailsElement = document.getElementById('extracted-content-details'); const copyButtonWrapper = document.getElementById('copy-button-wrapper'); const settingsButton = document.getElementById('settings-button'); const settingsDialog = document.getElementById('settings-dialog'); const settingsCloseButton = document.getElementById('settings-close-button'); const settingsForm = document.getElementById('settings-form'); const prefixTextarea = document.getElementById('prefix-textarea'); const settingsSaveButton = document.getElementById('settings-save-button'); const prefixSummariseBtn = document.getElementById('prefix-summarise-btn'); const prefixFactcheckBtn = document.getElementById('prefix-factcheck-btn');
-  // **** START CHANGE ****
-  const prefixFormattingBtn = document.getElementById('prefix-formatting-btn'); // New variable name and ID
-  // **** END CHANGE ****
+  const prefixFormattingBtn = document.getElementById('prefix-formatting-btn');
 
   // --- Debounce Timer ---
   let debounceTimer;
@@ -256,9 +221,7 @@
   settingsForm?.addEventListener('submit', saveSettings);
   prefixSummariseBtn?.addEventListener('click', () => setPrefixFromPreset(PRESET_SUMMARISE));
   prefixFactcheckBtn?.addEventListener('click', () => setPrefixFromPreset(PRESET_FACTCHECK));
-  // **** START CHANGE ****
-  prefixFormattingBtn?.addEventListener('click', () => setPrefixFromPreset(PRESET_FORMATTING)); // Updated listener
-  // **** END CHANGE ****
+  prefixFormattingBtn?.addEventListener('click', () => setPrefixFromPreset(PRESET_FORMATTING));
   extractButton.addEventListener('click', triggerExtractionDebounced);
   urlInput.addEventListener('keypress', (event) => { if (event.key === 'Enter') { event.preventDefault(); if (extractButton.getAttribute('aria-busy') === 'true' || isInResetMode) return; triggerExtractionDebounced(); } });
   copyButton.addEventListener('click', copyTextToClipboard);
