@@ -125,55 +125,26 @@
       .custom-preset-buttons-container:empty {
           display: none; border-top: none; padding-top: 0; margin-top: 0; margin-bottom: 0;
       }
-
-      /* Styling for each custom preset item (button + edit btn) */
       .custom-preset-item {
-        display: flex;
-        align-items: center; /* *** Key for vertical alignment *** */
-        gap: calc(var(--pico-spacing) * 0.4);
-        width: 100%;
-        flex-wrap: nowrap;
+        display: flex; align-items: center; /* Vertical alignment */
+        gap: calc(var(--pico-spacing) * 0.4); width: 100%; flex-wrap: nowrap;
       }
       .custom-preset-item button.custom-preset-btn {
-        flex-grow: 1;
-        /* Explicitly set vertical padding */
-        padding-top: calc(var(--pico-spacing) * 0.4);
-        padding-bottom: calc(var(--pico-spacing) * 0.4);
-        /* Horizontal padding */
-        padding-left: calc(var(--pico-spacing) * 0.8);
-        padding-right: calc(var(--pico-spacing) * 0.8);
-        font-size: 0.9em;
-        margin: 0;
-        text-align: left;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-        min-width: 0;
-        line-height: 1.4; /* Adjust line-height slightly for better text centering within padding */
-        box-sizing: border-box; /* Ensure padding is included in height calculation */
+        flex-grow: 1; padding: calc(var(--pico-spacing) * 0.4) calc(var(--pico-spacing) * 0.8);
+        font-size: 0.9em; margin: 0; text-align: left; overflow: hidden;
+        text-overflow: ellipsis; white-space: nowrap; min-width: 0;
+        line-height: 1.5; /* Adjust if necessary based on font */
       }
       .custom-preset-item button.edit-preset-btn {
-        flex-shrink: 0;
-         /* Match vertical padding EXACTLY with text button */
-        padding-top: calc(var(--pico-spacing) * 0.4);
-        padding-bottom: calc(var(--pico-spacing) * 0.4);
-        /* Adjust horizontal padding */
-        padding-left: calc(var(--pico-spacing) * 0.5); /* Make slightly wider than vertical */
-        padding-right: calc(var(--pico-spacing) * 0.5);
-        /* Make the button itself a flex container to center the SVG */
-        display: inline-flex;
-        align-items: center;     /* Center SVG vertically */
-        justify-content: center; /* Center SVG horizontally */
-        width: auto;
-        height: auto; /* Let padding define height */
-        border-radius: var(--pico-border-radius);
-        box-sizing: border-box; /* Include padding in size calculation */
+        flex-shrink: 0; padding: calc(var(--pico-spacing) * 0.4); /* Match vertical padding */
+        line-height: 0; width: auto; height: auto;
+        border-radius: var(--pico-border-radius); display: inline-flex; align-items: center; justify-content: center;
+        margin-bottom: 0; /* <<< Explicitly remove bottom margin >>> */
       }
        .custom-preset-item button.edit-preset-btn svg {
-         width: 1em;
+         width: 1em; /* Slightly larger icon */
          height: 1em;
-         display: block; /* Prevents potential extra space below SVG */
-         stroke-width: 2.5;
+         vertical-align: middle; stroke-width: 2.5;
        }
 
       /* Conditionally Visible "Add as Preset" Button */
@@ -267,6 +238,7 @@
   </symbol>
 </svg>
 
+
 <main class="container state-initial">
      <h1>Article Extractor</h1>
     <div id="input-group">
@@ -311,6 +283,7 @@
                 Prefix Text (prepended to extracted content):
                 <textarea id="prefix-textarea" name="prefix" rows="4" placeholder="Enter text to prepend..."></textarea>
             </label>
+            <!-- Add Preset button (conditionally visible) -->
             <button type="button" id="add-preset-button" class="outline contrast">Add as Preset</button>
 
             <div class="prefix-buttons-container">
@@ -319,7 +292,11 @@
                 <button type="button" id="prefix-factcheck-btn" class="outline secondary">Fact-check</button>
                 <button type="button" id="prefix-formatting-btn" class="outline secondary">Formatting</button>
             </div>
-            <div class="custom-preset-buttons-container" id="custom-preset-buttons-container"></div>
+            <!-- Container for dynamically added custom presets -->
+            <!-- Label "Your Presets:" is added dynamically by JS if needed -->
+            <div class="custom-preset-buttons-container" id="custom-preset-buttons-container">
+                <!-- Custom preset items (button + edit button) will be added here by JS -->
+            </div>
             <footer>
                 <button type="submit" id="settings-save-button">Save Prefix</button>
             </footer>
@@ -327,6 +304,7 @@
     </article>
 </dialog>
 
+<!-- Dialog for Saving NEW Custom Preset -->
 <dialog id="save-preset-dialog">
     <article>
         <header>
@@ -352,6 +330,7 @@
     </article>
 </dialog>
 
+<!-- Dialog for Editing EXISTING Custom Preset -->
 <dialog id="edit-preset-dialog">
     <article>
         <header>
@@ -364,13 +343,16 @@
                 <input type="text" id="edit-preset-title-input" name="edit-preset-title" maxlength="30" required>
             </label>
              <small id="edit-preset-title-char-count" class="char-count">0 / 30</small>
+
              <label for="edit-preset-text-textarea">
                 Preset Text:
                 <textarea id="edit-preset-text-textarea" name="edit-preset-text" rows="5"></textarea>
             </label>
+
             <div id="edit-preset-error-message" class="dialog-error-message"></div>
+
             <footer>
-                <button type="button" id="delete-preset-button" class="contrast">Delete</button>
+                <button type="button" id="delete-preset-button" class="contrast">Delete</button> <!-- Text Changed -->
                 <button type="button" id="cancel-edit-preset-button-footer" class="secondary outline">Cancel</button>
                 <button type="submit" id="confirm-edit-preset-button">Save Changes</button>
             </footer>
@@ -378,7 +360,10 @@
     </article>
 </dialog>
 
+
+<!-- ***** INCLUDE Readability.js SCRIPT HERE ***** -->
 <script src="readability.js"></script>
+
 <script>
     // --- Constants ---
     const PROXY_URL = 'https://api.allorigins.win/raw?url=';
@@ -389,7 +374,7 @@
     const DEFAULT_TEXT_PREFIX = "Summarise the key points from the following article:\n\n";
     const PREFIX_STORAGE_KEY = 'articleExtractorPrefix';
     const CUSTOM_PRESETS_STORAGE_KEY = 'articleExtractorCustomPresets';
-    const MAX_PRESET_TITLE_LENGTH = 30; // Updated Max Length
+    const MAX_PRESET_TITLE_LENGTH = 30; // **** UPDATED ****
     const PRESET_SUMMARISE = "Summarise the key points from the following article:\n\n";
     const PRESET_FACTCHECK = "I want you to fact check this article in full. Leave no stone unturned. To do so, first, look at the text of the article and parse out each individual fact — after this, you should have a list of facts. Then, for each fact, do comprehensive research to determine whether it is true, false, or unclear. Aim for at least three independent, high quality and trustworthy sources for each fact.\n Then, once you've done this for *every* fact, return a table with each fact and its corresponding results (including sources for each check).:\n\n";
     const PRESET_FORMATTING = "Fix the punctuation and formatting of the following text:\n\n";
@@ -460,58 +445,42 @@
     const cancelEditPresetButtonFooter = document.getElementById('cancel-edit-preset-button-footer');
     const editPresetErrorMessage = document.getElementById('edit-preset-error-message');
 
+
     // --- Load Prefixes (Current and Custom) ---
-    function loadPrefix() {
-        try { const storedPrefix = localStorage.getItem(PREFIX_STORAGE_KEY); currentTextPrefix = storedPrefix !== null ? storedPrefix : DEFAULT_TEXT_PREFIX; console.log("Loaded prefix from localStorage"); } catch (e) { console.error("Could not access localStorage for prefix. Using default.", e); currentTextPrefix = DEFAULT_TEXT_PREFIX; } if (prefixTextarea) prefixTextarea.value = currentTextPrefix;
-    }
-    function loadCustomPresets() {
-        try { const storedCustom = localStorage.getItem(CUSTOM_PRESETS_STORAGE_KEY); customPresets = storedCustom ? JSON.parse(storedCustom) : []; console.log("Loaded custom presets from localStorage:", customPresets); } catch (e) { console.error("Could not load/parse custom presets from localStorage.", e); customPresets = []; } renderCustomPresetButtons();
-    }
-    function saveCustomPresets() {
-        try { localStorage.setItem(CUSTOM_PRESETS_STORAGE_KEY, JSON.stringify(customPresets)); console.log("Saved custom presets to localStorage:", customPresets); } catch (e) { console.error("Could not save custom presets to localStorage.", e); displayError("Failed to save custom presets."); }
-    }
+    function loadPrefix() { try { const storedPrefix = localStorage.getItem(PREFIX_STORAGE_KEY); currentTextPrefix = storedPrefix !== null ? storedPrefix : DEFAULT_TEXT_PREFIX; console.log("Loaded prefix from localStorage"); } catch (e) { console.error("Could not access localStorage for prefix. Using default.", e); currentTextPrefix = DEFAULT_TEXT_PREFIX; } if (prefixTextarea) prefixTextarea.value = currentTextPrefix; }
+    function loadCustomPresets() { try { const storedCustom = localStorage.getItem(CUSTOM_PRESETS_STORAGE_KEY); customPresets = storedCustom ? JSON.parse(storedCustom) : []; console.log("Loaded custom presets from localStorage:", customPresets); } catch (e) { console.error("Could not load/parse custom presets from localStorage.", e); customPresets = []; } renderCustomPresetButtons(); }
+    function saveCustomPresets() { try { localStorage.setItem(CUSTOM_PRESETS_STORAGE_KEY, JSON.stringify(customPresets)); console.log("Saved custom presets to localStorage:", customPresets); } catch (e) { console.error("Could not save custom presets to localStorage.", e); displayError("Failed to save custom presets."); } }
 
     // --- Render Custom Preset Buttons ---
-    function renderCustomPresetButtons() {
-        if (!customPresetButtonsContainer) return;
-        let labelElement = customPresetButtonsContainer.previousElementSibling;
-        if (labelElement && !labelElement.matches('small.custom-presets-label')) { labelElement = null; }
-        customPresetButtonsContainer.innerHTML = '';
-        if (customPresets.length > 0) {
-            if (!labelElement) { const small = document.createElement('small'); small.textContent = 'Your Presets:'; small.classList.add('custom-presets-label'); customPresetButtonsContainer.insertAdjacentElement('beforebegin', small); }
-        } else { if (labelElement) { labelElement.remove(); } }
-        customPresets.forEach((preset, index) => {
-            const itemDiv = document.createElement('div'); itemDiv.classList.add('custom-preset-item');
-            const presetButton = document.createElement('button'); presetButton.type = 'button'; presetButton.classList.add('outline', 'secondary', 'custom-preset-btn'); presetButton.textContent = preset.title; presetButton.title = `Apply preset: "${preset.title}"`; presetButton.addEventListener('click', () => { setPrefixFromPreset(preset.text); });
-            const editButton = document.createElement('button'); editButton.type = 'button'; editButton.classList.add('secondary', 'outline', 'edit-preset-btn'); editButton.setAttribute('aria-label', `Edit preset: ${preset.title}`); editButton.title = `Edit preset: ${preset.title}`; editButton.innerHTML = ICON_EDIT_SVG; editButton.addEventListener('click', (e) => { e.stopPropagation(); handleEditPresetClick(index); });
-            itemDiv.appendChild(presetButton); itemDiv.appendChild(editButton); customPresetButtonsContainer.appendChild(itemDiv);
-        });
-    }
+    function renderCustomPresetButtons() { if (!customPresetButtonsContainer) return; let labelElement = customPresetButtonsContainer.previousElementSibling; if (labelElement && !labelElement.matches('small.custom-presets-label')) { labelElement = null; } customPresetButtonsContainer.innerHTML = ''; if (customPresets.length > 0) { if (!labelElement) { const small = document.createElement('small'); small.textContent = 'Your Presets:'; small.classList.add('custom-presets-label'); customPresetButtonsContainer.insertAdjacentElement('beforebegin', small); } } else { if (labelElement) { labelElement.remove(); } } customPresets.forEach((preset, index) => { const itemDiv = document.createElement('div'); itemDiv.classList.add('custom-preset-item'); const presetButton = document.createElement('button'); presetButton.type = 'button'; presetButton.classList.add('outline', 'secondary', 'custom-preset-btn'); presetButton.textContent = preset.title; presetButton.title = `Apply preset: "${preset.title}"`; presetButton.addEventListener('click', () => { setPrefixFromPreset(preset.text); }); const editButton = document.createElement('button'); editButton.type = 'button'; editButton.classList.add('secondary', 'outline', 'edit-preset-btn'); editButton.setAttribute('aria-label', `Edit preset: ${preset.title}`); editButton.title = `Edit preset: ${preset.title}`; editButton.innerHTML = ICON_EDIT_SVG; editButton.addEventListener('click', (e) => { e.stopPropagation(); handleEditPresetClick(index); }); itemDiv.appendChild(presetButton); itemDiv.appendChild(editButton); customPresetButtonsContainer.appendChild(itemDiv); }); }
 
     // --- Initial Setup ---
     function setInitialButtonState() { extractButton.innerHTML = '→'; extractButton.title = 'Extract Text'; extractButton.setAttribute('aria-label', 'Extract Text'); extractButton.classList.remove('reset-mode'); isInResetMode = false; }
     function setInitialCopyIcon() { if (copyButtonIconWrapper) copyButtonIconWrapper.innerHTML = ICON_COPY_SVG; }
     function setInitialShareIcon() { if (isShareSupported && shareButtonIconWrapper) shareButtonIconWrapper.innerHTML = ICON_SHARE_SVG; }
-    loadPrefix(); loadCustomPresets(); setInitialCopyIcon(); setInitialShareIcon(); setInitialButtonState(); copyButton.classList.add('enabled'); if (isShareSupported && shareButton) shareButton.classList.add('enabled');
+
+    loadPrefix();
+    loadCustomPresets();
+    setInitialCopyIcon(); setInitialShareIcon(); setInitialButtonState();
+    copyButton.classList.add('enabled');
+    if (isShareSupported && shareButton) shareButton.classList.add('enabled');
 
     // --- Settings Dialog Logic ---
     function openSettings() { if (!settingsDialog) return; prefixTextarea.value = currentTextPrefix; checkPrefixForCustomSave(); renderCustomPresetButtons(); settingsDialog.showModal(); }
     function closeSettings() { if (!settingsDialog) return; settingsDialog.close(); }
     function handleSettingsBackdropClick(event) { if (event.target === settingsDialog) { closeSettings(); } }
-    function saveSettings(event) {
-        event.preventDefault(); if (!prefixTextarea) return; const newPrefix = prefixTextarea.value; const oldPrefix = currentTextPrefix; currentTextPrefix = newPrefix; try { localStorage.setItem(PREFIX_STORAGE_KEY, newPrefix); console.log("Saved current prefix to localStorage"); displaySuccess("Prefix saved!"); setTimeout(clearMessages, 2000); const currentOutput = extractedText.value; if (currentOutput && currentOutput.startsWith(oldPrefix) && currentOutput.length > oldPrefix.length) { const rawTextPart = currentOutput.substring(oldPrefix.length); const formattedNewPrefix = newPrefix.trimEnd() + (newPrefix ? "\n\n" : ""); extractedText.value = formattedNewPrefix + rawTextPart; console.log("Dynamically updated displayed text with new prefix."); } } catch (e) { console.error("Could not save prefix to localStorage.", e); displayError("Could not save prefix."); currentTextPrefix = oldPrefix; } closeSettings();
-    }
+    function saveSettings(event) { event.preventDefault(); if (!prefixTextarea) return; const newPrefix = prefixTextarea.value; const oldPrefix = currentTextPrefix; currentTextPrefix = newPrefix; try { localStorage.setItem(PREFIX_STORAGE_KEY, newPrefix); console.log("Saved current prefix to localStorage"); displaySuccess("Prefix saved!"); setTimeout(clearMessages, 2000); const currentOutput = extractedText.value; if (currentOutput && currentOutput.startsWith(oldPrefix) && currentOutput.length > oldPrefix.length) { const rawTextPart = currentOutput.substring(oldPrefix.length); const formattedNewPrefix = newPrefix.trimEnd() + (newPrefix ? "\n\n" : ""); extractedText.value = formattedNewPrefix + rawTextPart; console.log("Dynamically updated displayed text with new prefix."); } } catch (e) { console.error("Could not save prefix to localStorage.", e); displayError("Could not save prefix."); currentTextPrefix = oldPrefix; } closeSettings(); }
     function setPrefixFromPreset(presetValue) { if (prefixTextarea) { prefixTextarea.value = presetValue; checkPrefixForCustomSave(); } }
 
     // --- Custom Preset SAVING Logic (for NEW presets) ---
-     function isExistingPreset(text, indexToExclude = -1) { if (!text) return true; const trimmedText = text.trim(); if (!trimmedText) return true; const defaultPresets = [PRESET_SUMMARISE, PRESET_FACTCHECK, PRESET_FORMATTING]; if (defaultPresets.some(preset => preset.trim() === trimmedText)) { return true; } return customPresets.some((preset, index) => index !== indexToExclude && preset.text.trim() === trimmedText); }
-     function isExistingTitle(title, indexToExclude = -1) { if (!title) return true; const lowerTitle = title.trim().toLowerCase(); return customPresets.some((preset, index) => index !== indexToExclude && preset.title.toLowerCase() === lowerTitle); }
-     function checkPrefixForCustomSave() { if (!prefixTextarea || !addPresetButton) return; const currentPrefixText = prefixTextarea.value; const trimmedPrefixText = currentPrefixText.trim(); if (trimmedPrefixText && !isExistingPreset(trimmedPrefixText)) { addPresetButton.classList.add('visible'); } else { addPresetButton.classList.remove('visible'); } }
-     function handleAddPresetClick() { const prefixTextToDisplay = prefixTextarea.value; const trimmedCheckText = prefixTextToDisplay.trim(); if (!trimmedCheckText || isExistingPreset(trimmedCheckText)) { console.warn("Add Preset clicked, but text is empty or already exists (trimmed comparison)."); checkPrefixForCustomSave(); return; } presetTextDisplay.textContent = prefixTextToDisplay; presetTitleInput.value = ''; savePresetErrorMessage.textContent = ''; updateCharCount(presetTitleInput, presetTitleCharCount); savePresetDialog.showModal(); presetTitleInput.focus(); }
-     function closeSavePresetDialog() { if(savePresetDialog) savePresetDialog.close(); }
-     function handleSavePresetDialogBackdropClick(event) { if (event.target === savePresetDialog) { closeSavePresetDialog(); } }
-     function handleConfirmSavePreset(event) { event.preventDefault(); const presetTitle = presetTitleInput.value.trim(); const prefixTextToSave = presetTextDisplay.textContent.trim(); savePresetErrorMessage.textContent = ''; if (!presetTitle) { savePresetErrorMessage.textContent = 'Preset title cannot be empty.'; presetTitleInput.focus(); return; } if (presetTitle.length > MAX_PRESET_TITLE_LENGTH) { savePresetErrorMessage.textContent = `Title exceeds ${MAX_PRESET_TITLE_LENGTH} characters.`; presetTitleInput.focus(); return; } if (isExistingTitle(presetTitle)) { savePresetErrorMessage.textContent = 'A preset with this title already exists.'; presetTitleInput.focus(); return; } if (isExistingPreset(prefixTextToSave)) { savePresetErrorMessage.textContent = 'This prefix content is already saved.'; return; } customPresets.push({ title: presetTitle, text: prefixTextToSave }); saveCustomPresets(); renderCustomPresetButtons(); closeSavePresetDialog(); checkPrefixForCustomSave(); }
-     function updateCharCount(inputElement, countElement) { if(inputElement && countElement) { const count = inputElement.value.length; const max = inputElement.maxLength > 0 ? inputElement.maxLength : MAX_PRESET_TITLE_LENGTH; countElement.textContent = `${count} / ${max}`; } }
+    function isExistingPreset(text, indexToExclude = -1) { if (!text) return true; const trimmedText = text.trim(); if (!trimmedText) return true; const defaultPresets = [PRESET_SUMMARISE, PRESET_FACTCHECK, PRESET_FORMATTING]; if (defaultPresets.some(preset => preset.trim() === trimmedText)) { return true; } return customPresets.some((preset, index) => index !== indexToExclude && preset.text.trim() === trimmedText); }
+    function isExistingTitle(title, indexToExclude = -1) { if (!title) return true; const lowerTitle = title.trim().toLowerCase(); return customPresets.some((preset, index) => index !== indexToExclude && preset.title.toLowerCase() === lowerTitle); }
+    function checkPrefixForCustomSave() { if (!prefixTextarea || !addPresetButton) return; const currentPrefixText = prefixTextarea.value; const trimmedPrefixText = currentPrefixText.trim(); if (trimmedPrefixText && !isExistingPreset(trimmedPrefixText)) { addPresetButton.classList.add('visible'); } else { addPresetButton.classList.remove('visible'); } }
+    function handleAddPresetClick() { const prefixTextToDisplay = prefixTextarea.value; const trimmedCheckText = prefixTextToDisplay.trim(); if (!trimmedCheckText || isExistingPreset(trimmedCheckText)) { console.warn("Add Preset clicked, but text is empty or already exists (trimmed comparison)."); checkPrefixForCustomSave(); return; } presetTextDisplay.textContent = prefixTextToDisplay; presetTitleInput.value = ''; savePresetErrorMessage.textContent = ''; updateCharCount(presetTitleInput, presetTitleCharCount); savePresetDialog.showModal(); presetTitleInput.focus(); }
+    function closeSavePresetDialog() { if(savePresetDialog) savePresetDialog.close(); }
+    function handleSavePresetDialogBackdropClick(event) { if (event.target === savePresetDialog) { closeSavePresetDialog(); } }
+    function handleConfirmSavePreset(event) { event.preventDefault(); const presetTitle = presetTitleInput.value.trim(); const prefixTextToSave = presetTextDisplay.textContent.trim(); savePresetErrorMessage.textContent = ''; if (!presetTitle) { savePresetErrorMessage.textContent = 'Preset title cannot be empty.'; presetTitleInput.focus(); return; } if (presetTitle.length > MAX_PRESET_TITLE_LENGTH) { savePresetErrorMessage.textContent = `Title exceeds ${MAX_PRESET_TITLE_LENGTH} characters.`; presetTitleInput.focus(); return; } if (isExistingTitle(presetTitle)) { savePresetErrorMessage.textContent = 'A preset with this title already exists.'; presetTitleInput.focus(); return; } if (isExistingPreset(prefixTextToSave)) { savePresetErrorMessage.textContent = 'This prefix content is already saved.'; return; } customPresets.push({ title: presetTitle, text: prefixTextToSave }); saveCustomPresets(); renderCustomPresetButtons(); closeSavePresetDialog(); checkPrefixForCustomSave(); }
+    function updateCharCount(inputElement, countElement) { if(inputElement && countElement) { const count = inputElement.value.length; const max = inputElement.maxLength > 0 ? inputElement.maxLength : MAX_PRESET_TITLE_LENGTH; countElement.textContent = `${count} / ${max}`; } }
 
     // --- Custom Preset EDITING Logic ---
     function handleEditPresetClick(index) { if (index < 0 || index >= customPresets.length) { console.error("Invalid index for editing preset:", index); return; } editPresetIndex = index; const preset = customPresets[index]; editPresetTitleInput.value = preset.title; editPresetTextTextarea.value = preset.text; editPresetErrorMessage.textContent = ''; updateCharCount(editPresetTitleInput, editPresetTitleCharCount); editPresetDialog.showModal(); editPresetTitleInput.focus(); }
@@ -530,15 +499,45 @@
 
     // --- Event Listeners Setup ---
     function setupEventListeners() {
-        settingsButton?.addEventListener('click', openSettings); settingsCloseButton?.addEventListener('click', closeSettings); settingsDialog?.addEventListener('click', handleSettingsBackdropClick); settingsForm?.addEventListener('submit', saveSettings);
-        prefixSummariseBtn?.addEventListener('click', () => setPrefixFromPreset(PRESET_SUMMARISE)); prefixFactcheckBtn?.addEventListener('click', () => setPrefixFromPreset(PRESET_FACTCHECK)); prefixFormattingBtn?.addEventListener('click', () => setPrefixFromPreset(PRESET_FORMATTING));
-        prefixTextarea?.addEventListener('input', handlePrefixInputDebounced); addPresetButton?.addEventListener('click', handleAddPresetClick);
-        savePresetDialog?.addEventListener('click', handleSavePresetDialogBackdropClick); savePresetForm?.addEventListener('submit', handleConfirmSavePreset); confirmSavePresetButton?.addEventListener('click', handleConfirmSavePreset); cancelSavePresetButton?.addEventListener('click', closeSavePresetDialog); cancelSavePresetButtonFooter?.addEventListener('click', closeSavePresetDialog); presetTitleInput?.addEventListener('input', () => updateCharCount(presetTitleInput, presetTitleCharCount));
-        editPresetDialog?.addEventListener('click', handleEditPresetDialogBackdropClick); editPresetForm?.addEventListener('submit', handleConfirmEditPreset); confirmEditPresetButton?.addEventListener('click', handleConfirmEditPreset); deletePresetButton?.addEventListener('click', handleDeletePresetClick); cancelEditPresetButton?.addEventListener('click', closeEditPresetDialog); cancelEditPresetButtonFooter?.addEventListener('click', closeEditPresetDialog); editPresetTitleInput?.addEventListener('input', () => updateCharCount(editPresetTitleInput, editPresetTitleCharCount));
-        extractButton.addEventListener('click', () => { isInResetMode ? triggerReset() : triggerExtractionDebounced(); }); urlInput.addEventListener('keypress', (event) => { if (event.key === 'Enter') { event.preventDefault(); if (extractButton.getAttribute('aria-busy') === 'true' || isInResetMode) return; triggerExtractionDebounced(); } }); copyButton.addEventListener('click', copyTextToClipboard); if (isShareSupported && shareButton) shareButton.addEventListener('click', handleShare);
-        if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('/ArticleScraper/sw.js').then(reg => console.log('SW registered!', reg)).catch(err => console.error('SW registration failed:', err)); }); } window.addEventListener('load', handleIncomingShare);
+        // Settings Dialog & Standard Presets
+        settingsButton?.addEventListener('click', openSettings);
+        settingsCloseButton?.addEventListener('click', closeSettings);
+        settingsDialog?.addEventListener('click', handleSettingsBackdropClick);
+        settingsForm?.addEventListener('submit', saveSettings);
+        prefixSummariseBtn?.addEventListener('click', () => setPrefixFromPreset(PRESET_SUMMARISE));
+        prefixFactcheckBtn?.addEventListener('click', () => setPrefixFromPreset(PRESET_FACTCHECK));
+        prefixFormattingBtn?.addEventListener('click', () => setPrefixFromPreset(PRESET_FORMATTING));
+
+        // Custom Preset Saving (New)
+        prefixTextarea?.addEventListener('input', handlePrefixInputDebounced);
+        addPresetButton?.addEventListener('click', handleAddPresetClick);
+        savePresetDialog?.addEventListener('click', handleSavePresetDialogBackdropClick);
+        savePresetForm?.addEventListener('submit', handleConfirmSavePreset);
+        confirmSavePresetButton?.addEventListener('click', handleConfirmSavePreset);
+        cancelSavePresetButton?.addEventListener('click', closeSavePresetDialog);
+        cancelSavePresetButtonFooter?.addEventListener('click', closeSavePresetDialog);
+        presetTitleInput?.addEventListener('input', () => updateCharCount(presetTitleInput, presetTitleCharCount));
+
+        // Custom Preset Editing
+        editPresetDialog?.addEventListener('click', handleEditPresetDialogBackdropClick);
+        editPresetForm?.addEventListener('submit', handleConfirmEditPreset);
+        confirmEditPresetButton?.addEventListener('click', handleConfirmEditPreset);
+        deletePresetButton?.addEventListener('click', handleDeletePresetClick);
+        cancelEditPresetButton?.addEventListener('click', closeEditPresetDialog);
+        cancelEditPresetButtonFooter?.addEventListener('click', closeEditPresetDialog);
+        editPresetTitleInput?.addEventListener('input', () => updateCharCount(editPresetTitleInput, editPresetTitleCharCount));
+
+        // Main Actions
+        extractButton.addEventListener('click', () => { isInResetMode ? triggerReset() : triggerExtractionDebounced(); });
+        urlInput.addEventListener('keypress', (event) => { if (event.key === 'Enter') { event.preventDefault(); if (extractButton.getAttribute('aria-busy') === 'true' || isInResetMode) return; triggerExtractionDebounced(); } });
+        copyButton.addEventListener('click', copyTextToClipboard);
+        if (isShareSupported && shareButton) shareButton.addEventListener('click', handleShare);
+
+        // PWA & Share Target
+        if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('/ArticleScraper/sw.js').then(reg => console.log('SW registered!', reg)).catch(err => console.error('SW registration failed:', err)); }); }
+        window.addEventListener('load', handleIncomingShare);
     }
-    setupEventListeners();
+    setupEventListeners(); // Call the setup function
 
     // --- Core Extraction Logic ---
     function delay(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
