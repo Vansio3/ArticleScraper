@@ -31,493 +31,202 @@
 
       /* --- General Body & Layout --- */
       body {
-        font-family: var(--font-family);
-        margin: 0;
-        padding: var(--pico-spacing);
-        line-height: 1.6;
-        background-color: var(--pico-color-dark-background);
-        color: var(--pico-color);
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        min-height: 100vh;
-        overflow-x: hidden;
-        justify-content: flex-start;
+        font-family: var(--font-family); margin: 0; padding: var(--pico-spacing);
+        line-height: 1.6; background-color: var(--pico-color-dark-background);
+        color: var(--pico-color); display: flex; flex-direction: column;
+        align-items: center; min-height: 100vh; overflow-x: hidden; justify-content: flex-start;
       }
-
       main.container {
-        padding: calc(var(--pico-spacing) * 1.5);
-        margin: calc(var(--pico-spacing) * 2) auto var(--pico-spacing) auto;
-        max-width: 700px;
-        width: 90%;
-        transition: transform 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
+        padding: calc(var(--pico-spacing) * 1.5); margin: calc(var(--pico-spacing) * 2) auto var(--pico-spacing) auto;
+        max-width: 700px; width: 90%; transition: transform 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
         transform: translateY(0);
       }
-
-      main.container.state-initial {
-        transform: translateY(25vh); /* Start lower down */
-      }
+      main.container.state-initial { transform: translateY(25vh); }
 
       /* --- Content Reveal Animation --- */
-      #copy-button-wrapper,
-      #extracted-content-details,
-      #status-messages {
-        display: block;
-        opacity: 0;
-        max-height: 0;
-        overflow: hidden;
-        transform: translateY(15px);
+      #copy-button-wrapper, #extracted-content-details, #status-messages {
+        display: block; opacity: 0; max-height: 0; overflow: hidden; transform: translateY(15px);
         transition: opacity 0.5s ease-out 0.25s, max-height 0.5s ease-out 0.25s, transform 0.5s ease-out 0.25s;
       }
-
       main.container:not(.state-initial) #copy-button-wrapper,
       main.container:not(.state-initial) #extracted-content-details,
       main.container:not(.state-initial) #status-messages {
-        opacity: 1;
-        max-height: 1000px; /* Arbitrary large value */
-        transform: translateY(0);
+        opacity: 1; max-height: 1000px; transform: translateY(0);
       }
 
       /* --- Floating Settings Button --- */
       #settings-button {
-        position: fixed;
-        top: var(--pico-spacing);
-        right: var(--pico-spacing);
-        z-index: 100;
-        padding: calc(var(--pico-spacing) * 0.3);
-        width: auto;
-        height: auto;
-        border-radius: 50%;
-        line-height: 0; /* Align SVG better */
+        position: fixed; top: var(--pico-spacing); right: var(--pico-spacing); z-index: 100;
+        padding: calc(var(--pico-spacing) * 0.3); width: auto; height: auto; border-radius: 50%;
+        line-height: 0;
       }
-
-      #settings-button svg {
-        width: 1.1em;
-        height: 1.1em;
-        vertical-align: middle;
-      }
+      #settings-button svg { width: 1.1em; height: 1.1em; vertical-align: middle; }
 
       /* --- Dialog Animations & Backdrop (Applied to all dialogs) --- */
-      dialog#settings-dialog,
-      dialog#save-preset-dialog,
-      dialog#edit-preset-dialog { /* Apply common styles */
-        max-width: 500px;
-        border-radius: var(--pico-border-radius);
-        padding: 0; /* Padding is handled by article */
-        opacity: 0;
-        transform: scale(0.95) translateY(10px);
-        transition: opacity 0.25s ease-out, transform 0.25s ease-out, display 0.25s allow-discrete; /* Animate display for accessibility */
-        pointer-events: none; /* Prevent interaction when hidden */
-        overflow: visible; /* Allow potential box-shadow */
-        background: transparent; /* Let article define background */
-        box-shadow: none; /* Let article define shadow */
-        border: none; /* Let article define border */
+      dialog#settings-dialog, dialog#save-preset-dialog, dialog#edit-preset-dialog {
+        max-width: 500px; border-radius: var(--pico-border-radius); padding: 0; opacity: 0;
+        transform: scale(0.95) translateY(10px); transition: opacity 0.25s ease-out, transform 0.25s ease-out, display 0.25s allow-discrete;
+        pointer-events: none; overflow: visible; background: transparent; box-shadow: none; border: none;
       }
-
-      dialog#settings-dialog::backdrop,
-      dialog#save-preset-dialog::backdrop,
-      dialog#edit-preset-dialog::backdrop { /* Backdrop styles */
-        background-color: rgba(26, 26, 26, 0); /* Start transparent */
-        transition: background-color 0.3s ease-out;
+      dialog#settings-dialog::backdrop, dialog#save-preset-dialog::backdrop, dialog#edit-preset-dialog::backdrop {
+        background-color: rgba(26, 26, 26, 0); transition: background-color 0.3s ease-out;
       }
-
-      /* Styles for when the dialog is open */
-      dialog#settings-dialog[open],
-      dialog#save-preset-dialog[open],
-      dialog#edit-preset-dialog[open] { /* Open styles */
-        opacity: 1;
-        transform: scale(1) translateY(0);
-        pointer-events: auto; /* Allow interaction when open */
+      dialog#settings-dialog[open], dialog#save-preset-dialog[open], dialog#edit-preset-dialog[open] {
+        opacity: 1; transform: scale(1) translateY(0); pointer-events: auto;
       }
-
-      /* Styles for when the dialog is open - backdrop */
-      dialog#settings-dialog[open]::backdrop,
-      dialog#save-preset-dialog[open]::backdrop,
-      dialog#edit-preset-dialog[open]::backdrop { /* Open backdrop styles */
-         background-color: rgba(26, 26, 26, 0.6); /* Darken background */
+      dialog#settings-dialog[open]::backdrop, dialog#save-preset-dialog[open]::backdrop, dialog#edit-preset-dialog[open]::backdrop {
+         background-color: rgba(26, 26, 26, 0.6);
       }
-
-      /* Ensure article inside dialog gets the styling */
-      dialog#settings-dialog > article,
-      dialog#save-preset-dialog > article,
-      dialog#edit-preset-dialog > article { /* Article styles */
-         background-color: var(--pico-card-background-color);
-         border: 1px solid var(--pico-card-border-color);
-         box-shadow: var(--pico-card-box-shadow);
-         border-radius: var(--pico-border-radius);
-         margin: 0;
-         padding: var(--pico-block-spacing-vertical) var(--pico-block-spacing-horizontal);
+      dialog#settings-dialog > article, dialog#save-preset-dialog > article, dialog#edit-preset-dialog > article {
+         background-color: var(--pico-card-background-color); border: 1px solid var(--pico-card-border-color);
+         box-shadow: var(--pico-card-box-shadow); border-radius: var(--pico-border-radius);
+         margin: 0; padding: var(--pico-block-spacing-vertical) var(--pico-block-spacing-horizontal);
       }
       /* --- END Dialog Animation & Backdrop --- */
 
       /* --- Specific Dialog Content Styles --- */
-      dialog#settings-dialog textarea,
-      dialog#edit-preset-dialog textarea { /* Apply to both textareas */
-        margin-bottom: var(--pico-spacing);
-        min-height: 80px;
+      dialog#settings-dialog textarea, dialog#edit-preset-dialog textarea {
+        margin-bottom: var(--pico-spacing); min-height: 80px;
       }
-
-      dialog#save-preset-dialog #preset-text-display { /* Style for prefix display in save dialog */
-          background-color: var(--pico-form-element-background-color);
-          border: 1px solid var(--pico-form-element-border-color);
-          border-radius: var(--pico-border-radius);
-          padding: var(--pico-form-element-spacing-vertical) var(--pico-form-element-spacing-horizontal);
-          font-family: var(--pico-font-monospace);
-          font-size: 0.9em;
-          max-height: 150px; /* Limit height and allow scroll */
-          overflow-y: auto;
-          margin-top: calc(var(--pico-spacing) * 0.5);
-          margin-bottom: var(--pico-spacing);
-          white-space: pre-wrap; /* Preserve line breaks */
-          word-wrap: break-word; /* Prevent long unbroken strings from overflowing */
+      dialog#save-preset-dialog #preset-text-display {
+          background-color: var(--pico-form-element-background-color); border: 1px solid var(--pico-form-element-border-color);
+          border-radius: var(--pico-border-radius); padding: var(--pico-form-element-spacing-vertical) var(--pico-form-element-spacing-horizontal);
+          font-family: var(--pico-font-monospace); font-size: 0.9em; max-height: 150px; overflow-y: auto;
+          margin-top: calc(var(--pico-spacing) * 0.5); margin-bottom: var(--pico-spacing); white-space: pre-wrap; word-wrap: break-word;
       }
-      dialog#save-preset-dialog label,
-      dialog#edit-preset-dialog label { /* Apply to labels in both */
-        font-weight: var(--pico-font-weight-semibold);
-        display: block; /* Ensure labels take full width */
-        margin-bottom: calc(var(--pico-form-element-spacing-vertical) / 2);
+      dialog#save-preset-dialog label, dialog#edit-preset-dialog label {
+        font-weight: var(--pico-font-weight-semibold); display: block; margin-bottom: calc(var(--pico-form-element-spacing-vertical) / 2);
       }
-      dialog#save-preset-dialog input[type="text"],
-      dialog#edit-preset-dialog input[type="text"] { /* Apply to text inputs in both */
+      dialog#save-preset-dialog input[type="text"], dialog#edit-preset-dialog input[type="text"] {
         margin-bottom: var(--pico-spacing);
       }
-      dialog#save-preset-dialog small.char-count,
-      dialog#edit-preset-dialog small.char-count { /* Apply to char counts in both */
-        font-size: 0.8em;
-        color: var(--pico-secondary);
-        display: block;
-        text-align: right;
-        margin-top: calc(var(--pico-spacing) * -0.75); /* Pull up closer to input */
-        margin-bottom: var(--pico-spacing);
+      dialog#save-preset-dialog small.char-count, dialog#edit-preset-dialog small.char-count {
+        font-size: 0.8em; color: var(--pico-secondary); display: block; text-align: right;
+        margin-top: calc(var(--pico-spacing) * -0.75); margin-bottom: var(--pico-spacing);
       }
 
        /* --- Preset Button Containers & Items --- */
       .prefix-buttons-container {
-        margin-bottom: calc(var(--pico-spacing) * 1.5);
-        display: flex;
-        flex-wrap: wrap;
-        gap: calc(var(--pico-spacing) * 0.5);
-        align-items: center;
+        margin-bottom: calc(var(--pico-spacing) * 1.5); display: flex; flex-wrap: wrap;
+        gap: calc(var(--pico-spacing) * 0.5); align-items: center;
       }
-
-      .prefix-buttons-container small,
-      small.custom-presets-label /* Target dynamic label specifically */
-      {
-        width: 100%;
-        margin-bottom: calc(var(--pico-spacing) * 0.25);
-        color: var(--pico-secondary);
-        font-size: 0.85em;
+      .prefix-buttons-container small, small.custom-presets-label {
+        width: 100%; margin-bottom: calc(var(--pico-spacing) * 0.25); color: var(--pico-secondary); font-size: 0.85em;
       }
-
-      .prefix-buttons-container button { /* Standard preset buttons */
-          padding: calc(var(--pico-spacing) * 0.4) calc(var(--pico-spacing) * 0.8);
-          font-size: 0.9em;
-          margin: 0;
+      .prefix-buttons-container button {
+          padding: calc(var(--pico-spacing) * 0.4) calc(var(--pico-spacing) * 0.8); font-size: 0.9em; margin: 0;
       }
-
-      .custom-preset-buttons-container { /* Container for added buttons */
-          margin-top: calc(var(--pico-spacing) * 0.5); /* Space above custom buttons */
-          display: flex;
-          flex-direction: column; /* Stack items vertically */
-          gap: calc(var(--pico-spacing) * 0.5); /* Gap between items */
-          align-items: stretch; /* Make items take full width */
-          border-top: 1px solid var(--pico-card-border-color); /* Separator line */
-          padding-top: calc(var(--pico-spacing) * 0.75);
-          margin-bottom: var(--pico-spacing); /* Space before footer */
+      .custom-preset-buttons-container {
+          margin-top: calc(var(--pico-spacing) * 0.5); display: flex; flex-direction: column;
+          gap: calc(var(--pico-spacing) * 0.5); align-items: stretch;
+          border-top: 1px solid var(--pico-card-border-color); padding-top: calc(var(--pico-spacing) * 0.75);
+          margin-bottom: var(--pico-spacing);
       }
-
-      .custom-preset-buttons-container:empty { /* Hide if empty visually and for spacing*/
-          display: none;
-          border-top: none;
-          padding-top: 0;
-          margin-top: 0;
-          margin-bottom: 0;
+      .custom-preset-buttons-container:empty {
+          display: none; border-top: none; padding-top: 0; margin-top: 0; margin-bottom: 0;
       }
-
-      /* Styling for each custom preset item (button + edit btn) */
       .custom-preset-item {
-        display: flex;
-        align-items: center;
-        gap: calc(var(--pico-spacing) * 0.4);
-        width: 100%; /* Item takes full width of container */
-        flex-wrap: nowrap; /* Prevent wrapping within item */
+        display: flex; align-items: center; /* Vertical alignment */
+        gap: calc(var(--pico-spacing) * 0.4); width: 100%; flex-wrap: nowrap;
       }
       .custom-preset-item button.custom-preset-btn {
-        flex-grow: 1; /* Allow preset button to take available space */
-        padding: calc(var(--pico-spacing) * 0.4) calc(var(--pico-spacing) * 0.8);
-        font-size: 0.9em;
-        margin: 0;
-        text-align: left; /* Align text left */
-        overflow: hidden; /* Prevent text overflow */
-        text-overflow: ellipsis; /* Add ellipsis if too long */
-        white-space: nowrap; /* Keep on one line */
-        min-width: 0; /* Allow shrinking */
+        flex-grow: 1; padding: calc(var(--pico-spacing) * 0.4) calc(var(--pico-spacing) * 0.8);
+        font-size: 0.9em; margin: 0; text-align: left; overflow: hidden;
+        text-overflow: ellipsis; white-space: nowrap; min-width: 0;
+        /* Match height/padding with edit button more closely if needed */
+         line-height: 1.5; /* Adjust if necessary based on font */
       }
       .custom-preset-item button.edit-preset-btn {
-        flex-shrink: 0; /* Prevent edit button from shrinking */
-        padding: calc(var(--pico-spacing) * 0.3);
-        line-height: 0; /* Align SVG */
-        width: auto; /* Fit content */
-        height: auto; /* Fit content */
-        border-radius: var(--pico-border-radius); /* Standard button radius */
+        flex-shrink: 0; padding: calc(var(--pico-spacing) * 0.4); /* Match vertical padding */
+        line-height: 0; width: auto; height: auto;
+        border-radius: var(--pico-border-radius); display: inline-flex; align-items: center; justify-content: center;
       }
        .custom-preset-item button.edit-preset-btn svg {
-         width: 0.9em;
-         height: 0.9em;
-         vertical-align: middle;
-         stroke-width: 2.5; /* Make icon slightly bolder */
+         width: 1em; /* Slightly larger icon */
+         height: 1em;
+         vertical-align: middle; stroke-width: 2.5;
        }
 
       /* Conditionally Visible "Add as Preset" Button */
       #add-preset-button {
-          display: none; /* Hidden by default */
-          margin-top: calc(var(--pico-spacing) * -0.5); /* Pull up slightly */
-          margin-bottom: var(--pico-spacing);
-          width: 100%;
-          font-size: 0.9em;
-          padding: calc(var(--pico-spacing) * 0.5) var(--pico-spacing);
+          display: none; margin-top: calc(var(--pico-spacing) * -0.5); margin-bottom: var(--pico-spacing);
+          width: 100%; font-size: 0.9em; padding: calc(var(--pico-spacing) * 0.5) var(--pico-spacing);
       }
-      #add-preset-button.visible {
-          display: block; /* Show when needed */
-      }
+      #add-preset-button.visible { display: block; }
 
       /* --- Dialog Footer & Header --- */
       dialog footer {
-        display: flex; /* Use flexbox for footer buttons */
-        justify-content: flex-end; /* Align buttons to the right by default */
-        gap: calc(var(--pico-spacing) * 0.5); /* Space between buttons */
-        margin-top: var(--pico-block-spacing-vertical); /* Add space above footer */
+        display: flex; justify-content: flex-end; gap: calc(var(--pico-spacing) * 0.5);
+        margin-top: var(--pico-block-spacing-vertical);
       }
-
-      dialog header > button[aria-label="Close"] {
-        margin-left: auto; /* Push close button to the right */
-        margin-bottom: 0;
-      }
-      /* Specific button styles in dialogs */
+      dialog header > button[aria-label="Close"] { margin-left: auto; margin-bottom: 0; }
       dialog footer button#delete-preset-button {
-        background-color: var(--pico-color-red-550);
-        border-color: var(--pico-color-red-550);
-        color: var(--pico-color-red-contrast);
-        margin-right: auto; /* Push delete button to the left */
+        background-color: var(--pico-color-red-550); border-color: var(--pico-color-red-550);
+        color: var(--pico-color-red-contrast); margin-right: auto; /* Push delete button to the left */
       }
        dialog footer button#delete-preset-button:hover {
-         background-color: var(--pico-color-red-600);
-         border-color: var(--pico-color-red-600);
+         background-color: var(--pico-color-red-600); border-color: var(--pico-color-red-600);
        }
 
       /* --- Main Page Elements --- */
-      h1 {
-        font-size: 1.75em;
-        margin-bottom: var(--pico-block-spacing-vertical);
-        text-align: center;
-      }
-
+      h1 { font-size: 1.75em; margin-bottom: var(--pico-block-spacing-vertical); text-align: center; }
       #input-group {
-        display: flex;
-        align-items: center;
-        background-color: var(--pico-form-element-background-color);
-        border-radius: var(--pico-border-radius-pill); /* Rounded pill shape */
-        border: var(--pico-border-width) solid var(--pico-form-element-border-color);
-        padding: 0;
-        overflow: hidden; /* Clip button corners */
-        margin-bottom: var(--pico-block-spacing-vertical);
+        display: flex; align-items: center; background-color: var(--pico-form-element-background-color);
+        border-radius: var(--pico-border-radius-pill); border: var(--pico-border-width) solid var(--pico-form-element-border-color);
+        padding: 0; overflow: hidden; margin-bottom: var(--pico-block-spacing-vertical);
       }
-
-      #input-group:focus-within {
-        border-color: var(--pico-primary);
-        box-shadow: 0 0 0 var(--pico-outline-width) var(--pico-primary-focus);
-      }
-
+      #input-group:focus-within { border-color: var(--pico-primary); box-shadow: 0 0 0 var(--pico-outline-width) var(--pico-primary-focus); }
       #url-input {
-        flex-grow: 1;
-        border: none;
-        background-color: transparent;
+        flex-grow: 1; border: none; background-color: transparent;
         padding: var(--pico-form-element-spacing-vertical) var(--pico-form-element-spacing-horizontal);
-        padding-right: calc(var(--pico-form-element-spacing-horizontal) / 2);
-        font-size: 1em;
-        color: var(--pico-form-element-color);
-        outline: none !important; /* Force remove outline */
-        box-shadow: none !important; /* Force remove shadow */
-        margin: 0;
-        min-width: 0; /* Prevent shrinking too much */
+        padding-right: calc(var(--pico-form-element-spacing-horizontal) / 2); font-size: 1em;
+        color: var(--pico-form-element-color); outline: none !important; box-shadow: none !important;
+        margin: 0; min-width: 0;
       }
-
-      #url-input::placeholder {
-        color: var(--pico-secondary);
-      }
-
-      /* Extract/Reset Button */
+      #url-input::placeholder { color: var(--pico-secondary); }
       #extract-button {
-        flex-shrink: 0;
-        border: none;
-        background-color: var(--pico-primary);
-        color: var(--pico-primary-inverse);
-        margin: 4px; /* Space inside the input group */
-        border-radius: 50%; /* Make it circular */
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.4em;
-        font-weight: bold;
-        line-height: 1; /* Keep tight */
-        width: 2.4em;  /* Fixed size */
-        height: 2.4em; /* Fixed size */
-        padding: 0;
+        flex-shrink: 0; border: none; background-color: var(--pico-primary); color: var(--pico-primary-inverse);
+        margin: 4px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center;
+        font-size: 1.4em; font-weight: bold; line-height: 1; width: 2.4em; height: 2.4em; padding: 0;
         transition: background-color var(--pico-transition), transform 0.2s ease-in-out, color 0.1s ease;
-        position: relative; /* For loader positioning */
-        overflow: hidden; /* Clip loader */
-        transform: rotate(0deg); /* Initial state for rotation */
+        position: relative; overflow: hidden; transform: rotate(0deg);
       }
-      #extract-button:hover:not([aria-busy=true]):not(.reset-mode) {
-        background-color: var(--pico-primary-hover);
+      #extract-button:hover:not([aria-busy=true]):not(.reset-mode) { background-color: var(--pico-primary-hover); }
+      #extract-button:active:not([aria-busy=true]):not(.reset-mode) { transform: scale(0.95); }
+      #extract-button[aria-busy=true] { background-color: var(--pico-secondary); cursor: default; color: transparent; }
+      #extract-button[aria-busy=true]::before { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); margin: 0 !important; }
+      #extract-button.reset-mode { background-color: var(--pico-color-red-550); color: #fff; transform: rotate(180deg); }
+      #extract-button.reset-mode:hover:not([aria-busy=true]) { background-color: var(--pico-color-red-600); }
+      #extract-button.reset-mode:active:not([aria-busy=true]) { transform: rotate(180deg) scale(0.95); }
+      #copy-button-wrapper { margin-bottom: calc(var(--pico-spacing) / 2); display: flex; justify-content: center; gap: var(--pico-spacing); flex-wrap: wrap; }
+      #copy-button, #share-button {
+        background-color: var(--pico-card-background-color); color: var(--pico-contrast-foreground);
+        border: 1px solid var(--pico-contrast-border); padding: calc(var(--pico-spacing) * 0.6) calc(var(--pico-spacing) * 1.0);
+        border-radius: var(--pico-border-radius); display: inline-flex; align-items: center; justify-content: center;
+        gap: calc(var(--pico-spacing) * 0.5); transition: background-color var(--pico-transition), border-color var(--pico-transition), transform 0.1s ease, box-shadow var(--pico-transition), opacity 0.2s ease;
+        cursor: pointer; font-weight: var(--pico-font-weight-medium); width: auto; display: none;
       }
-      #extract-button:active:not([aria-busy=true]):not(.reset-mode) {
-        transform: scale(0.95); /* Click feedback */
-      }
-      #extract-button[aria-busy=true] {
-        background-color: var(--pico-secondary);
-        cursor: default;
-        color: transparent; /* Hide icon/text when busy */
-      }
-      #extract-button[aria-busy=true]::before { /* Pico loader */
-        position: absolute;
-        left: 50%;
-        top: 50%;
-        transform: translate(-50%, -50%);
-        margin: 0 !important; /* Override Pico's margin */
-      }
-      #extract-button.reset-mode {
-        background-color: var(--pico-color-red-550);
-        color: #fff;
-        transform: rotate(180deg); /* Rotate for reset */
-      }
-      #extract-button.reset-mode:hover:not([aria-busy=true]) {
-        background-color: var(--pico-color-red-600);
-      }
-      #extract-button.reset-mode:active:not([aria-busy=true]) {
-        transform: rotate(180deg) scale(0.95); /* Click feedback in reset mode */
-      }
-
-      /* Copy/Share Buttons */
-      #copy-button-wrapper {
-        margin-bottom: calc(var(--pico-spacing) / 2);
-        display: flex;
-        justify-content: center;
-        gap: var(--pico-spacing);
-        flex-wrap: wrap;
-      }
-
-      #copy-button,
-      #share-button {
-        background-color: var(--pico-card-background-color); /* Use card bg for contrast */
-        color: var(--pico-contrast-foreground);
-        border: 1px solid var(--pico-contrast-border);
-        padding: calc(var(--pico-spacing) * 0.6) calc(var(--pico-spacing) * 1.0);
-        border-radius: var(--pico-border-radius);
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: calc(var(--pico-spacing) * 0.5);
-        transition: background-color var(--pico-transition), border-color var(--pico-transition), transform 0.1s ease, box-shadow var(--pico-transition), opacity 0.2s ease;
-        cursor: pointer;
-        font-weight: var(--pico-font-weight-medium);
-        width: auto; /* Let content define width */
-        display: none; /* Hide initially, shown by JS */
-      }
-      #copy-button.enabled,
-      #share-button.enabled {
-          display: inline-flex; /* Show if enabled by JS */
-      }
-      #copy-button .icon-wrapper,
-      #share-button .icon-wrapper {
-        display: inline-flex;
-        align-items: center;
-        line-height: 0; /* Help vertical alignment */
-      }
-      #copy-button svg,
-      #share-button svg {
-        width: 1.1em;
-        height: 1.1em;
-        fill: currentColor;
-      }
-      #copy-button:not(:disabled):hover,
-      #share-button:not(:disabled):hover {
-        background-color: var(--pico-contrast-hover-background);
-        border-color: var(--pico-contrast-hover-border);
-        transform: translateY(-1px); /* Slight lift effect */
-        box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
-      }
-      #copy-button:not(:disabled):active,
-      #share-button:not(:disabled):active {
-        transform: translateY(0px); /* Press down effect */
-        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-      }
-      #copy-button:disabled,
-      #share-button:disabled {
-        opacity: 0.4;
-        cursor: not-allowed;
-        box-shadow: none;
-        transform: none;
-        /* Keep base styles when disabled */
-        background-color: var(--pico-card-background-color);
-        color: var(--pico-contrast-foreground);
-        border-color: var(--pico-contrast-border);
-      }
-      #copy-button.secondary { /* Style for 'Copied!' state */
-        background-color: var(--pico-secondary-background);
-        border-color: var(--pico-secondary-border);
-        color: var(--pico-secondary-foreground);
-      }
-
-      /* Extracted Text Area */
-      #extracted-text {
-        font-family: var(--pico-font-monospace);
-        height: 250px; /* Default height */
-        resize: vertical; /* Allow user resizing */
-        margin-bottom: 0; /* Remove default bottom margin */
-      }
-
-      /* Details/Summary for Extracted Text */
-      details summary {
-        font-weight: var(--pico-font-weight-semibold);
-        margin-top: var(--pico-spacing);
-      }
-      details > div {
-        padding-top: var(--pico-form-element-spacing-vertical); /* Space above textarea */
-      }
-
-      /* Status Messages */
-      #status-messages {
-        margin-top: var(--pico-block-spacing-vertical);
-        min-height: 1.5em; /* Reserve space */
-        text-align: center;
-        font-weight: var(--pico-font-weight-medium);
-        font-size: 0.9em;
-      }
+      #copy-button.enabled, #share-button.enabled { display: inline-flex; }
+      #copy-button .icon-wrapper, #share-button .icon-wrapper { display: inline-flex; align-items: center; line-height: 0; }
+      #copy-button svg, #share-button svg { width: 1.1em; height: 1.1em; fill: currentColor; }
+      #copy-button:not(:disabled):hover, #share-button:not(:disabled):hover { background-color: var(--pico-contrast-hover-background); border-color: var(--pico-contrast-hover-border); transform: translateY(-1px); box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15); }
+      #copy-button:not(:disabled):active, #share-button:not(:disabled):active { transform: translateY(0px); box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1); }
+      #copy-button:disabled, #share-button:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none; transform: none; background-color: var(--pico-card-background-color); color: var(--pico-contrast-foreground); border-color: var(--pico-contrast-border); }
+      #copy-button.secondary { background-color: var(--pico-secondary-background); border-color: var(--pico-secondary-border); color: var(--pico-secondary-foreground); }
+      #extracted-text { font-family: var(--pico-font-monospace); height: 250px; resize: vertical; margin-bottom: 0; }
+      details summary { font-weight: var(--pico-font-weight-semibold); margin-top: var(--pico-spacing); }
+      details > div { padding-top: var(--pico-form-element-spacing-vertical); }
+      #status-messages { margin-top: var(--pico-block-spacing-vertical); min-height: 1.5em; text-align: center; font-weight: var(--pico-font-weight-medium); font-size: 0.9em; }
       #error-message { color: var(--pico-color-red-500); }
       #success-message { color: var(--pico-color-green-500); }
       #retry-message { color: var(--pico-color-amber-500); }
-
-      /* Error messages inside dialogs */
       .dialog-error-message {
-          color: var(--pico-color-red-500);
-          font-size: 0.9em;
-          margin-top: calc(var(--pico-spacing) * -0.75); /* Pull up closer to input/textarea */
-          margin-bottom: var(--pico-spacing);
-          min-height: 1.2em; /* Reserve space */
-          display: block; /* Ensure it takes space */
-          text-align: left; /* Align error text left */
+          color: var(--pico-color-red-500); font-size: 0.9em; margin-top: calc(var(--pico-spacing) * -0.75);
+          margin-bottom: var(--pico-spacing); min-height: 1.2em; display: block; text-align: left;
       }
-
       /* --- Responsive Adjustments --- */
-      @media (min-width: 768px) {
-        h1 { font-size: 2em; }
-        #extracted-text { height: 300px; }
-      }
-      @media (min-width: 992px) {
-        #extracted-text { height: 350px; }
-      }
+      @media (min-width: 768px) { h1 { font-size: 2em; } #extracted-text { height: 300px; } }
+      @media (min-width: 992px) { #extracted-text { height: 350px; } }
     </style>
 </head>
 <body data-theme="dark">
@@ -604,10 +313,10 @@
         </header>
         <form id="save-preset-form">
             <label for="preset-title-input">
-                Preset Title (max 15 chars):
-                <input type="text" id="preset-title-input" name="preset-title" maxlength="15" required placeholder="e.g., My Summary">
+                Preset Title (max 30 chars): <!-- CHANGE max length -->
+                <input type="text" id="preset-title-input" name="preset-title" maxlength="30" required placeholder="e.g., My Summary"> <!-- CHANGE max length -->
             </label>
-             <small id="preset-title-char-count" class="char-count">0 / 15</small>
+             <small id="preset-title-char-count" class="char-count">0 / 30</small> <!-- CHANGE max length display -->
             <label for="preset-text-display">
                 Preset Text:
                 <div id="preset-text-display" readonly aria-live="polite"></div> <!-- Display prefix here -->
@@ -630,10 +339,10 @@
         </header>
         <form id="edit-preset-form">
              <label for="edit-preset-title-input">
-                Preset Title (max 15 chars):
-                <input type="text" id="edit-preset-title-input" name="edit-preset-title" maxlength="15" required>
+                Preset Title (max 30 chars): <!-- CHANGE max length -->
+                <input type="text" id="edit-preset-title-input" name="edit-preset-title" maxlength="30" required> <!-- CHANGE max length -->
             </label>
-             <small id="edit-preset-title-char-count" class="char-count">0 / 15</small>
+             <small id="edit-preset-title-char-count" class="char-count">0 / 30</small> <!-- CHANGE max length display -->
 
              <label for="edit-preset-text-textarea">
                 Preset Text:
@@ -644,7 +353,7 @@
 
             <footer>
                 <!-- Delete button pushed to the left -->
-                <button type="button" id="delete-preset-button" class="contrast">Delete Preset</button>
+                <button type="button" id="delete-preset-button" class="contrast">Delete</button> <!-- CHANGE Button text -->
                 <!-- Cancel and Save buttons -->
                 <button type="button" id="cancel-edit-preset-button-footer" class="secondary outline">Cancel</button>
                 <button type="submit" id="confirm-edit-preset-button">Save Changes</button>
@@ -667,7 +376,7 @@
     const DEFAULT_TEXT_PREFIX = "Summarise the key points from the following article:\n\n";
     const PREFIX_STORAGE_KEY = 'articleExtractorPrefix';
     const CUSTOM_PRESETS_STORAGE_KEY = 'articleExtractorCustomPresets';
-    const MAX_PRESET_TITLE_LENGTH = 15;
+    const MAX_PRESET_TITLE_LENGTH = 30; // **** CHANGE Max Length ****
     const PRESET_SUMMARISE = "Summarise the key points from the following article:\n\n";
     const PRESET_FACTCHECK = "I want you to fact check this article in full. Leave no stone unturned. To do so, first, look at the text of the article and parse out each individual fact — after this, you should have a list of facts. Then, for each fact, do comprehensive research to determine whether it is true, false, or unclear. Aim for at least three independent, high quality and trustworthy sources for each fact.\n Then, once you've done this for *every* fact, return a table with each fact and its corresponding results (including sources for each check).:\n\n";
     const PRESET_FORMATTING = "Fix the punctuation and formatting of the following text:\n\n";
@@ -740,434 +449,160 @@
 
 
     // --- Load Prefixes (Current and Custom) ---
-    function loadPrefix() {
-        try {
-            const storedPrefix = localStorage.getItem(PREFIX_STORAGE_KEY);
-            currentTextPrefix = storedPrefix !== null ? storedPrefix : DEFAULT_TEXT_PREFIX;
-            console.log("Loaded prefix from localStorage");
-        } catch (e) {
-            console.error("Could not access localStorage for prefix. Using default.", e);
-            currentTextPrefix = DEFAULT_TEXT_PREFIX;
-        }
-        if (prefixTextarea) prefixTextarea.value = currentTextPrefix;
+    function loadPrefix() { /* ... (unchanged) ... */
+        try { const storedPrefix = localStorage.getItem(PREFIX_STORAGE_KEY); currentTextPrefix = storedPrefix !== null ? storedPrefix : DEFAULT_TEXT_PREFIX; console.log("Loaded prefix from localStorage"); } catch (e) { console.error("Could not access localStorage for prefix. Using default.", e); currentTextPrefix = DEFAULT_TEXT_PREFIX; } if (prefixTextarea) prefixTextarea.value = currentTextPrefix;
     }
-
-    function loadCustomPresets() {
-        try {
-            const storedCustom = localStorage.getItem(CUSTOM_PRESETS_STORAGE_KEY);
-            customPresets = storedCustom ? JSON.parse(storedCustom) : [];
-            console.log("Loaded custom presets from localStorage:", customPresets);
-        } catch (e) {
-            console.error("Could not load/parse custom presets from localStorage.", e);
-            customPresets = [];
-            // localStorage.removeItem(CUSTOM_PRESETS_STORAGE_KEY); // Option: Clear bad data
-        }
-        renderCustomPresetButtons(); // Initial render
+    function loadCustomPresets() { /* ... (unchanged) ... */
+        try { const storedCustom = localStorage.getItem(CUSTOM_PRESETS_STORAGE_KEY); customPresets = storedCustom ? JSON.parse(storedCustom) : []; console.log("Loaded custom presets from localStorage:", customPresets); } catch (e) { console.error("Could not load/parse custom presets from localStorage.", e); customPresets = []; } renderCustomPresetButtons();
     }
-
-    function saveCustomPresets() {
-        try {
-            localStorage.setItem(CUSTOM_PRESETS_STORAGE_KEY, JSON.stringify(customPresets));
-            console.log("Saved custom presets to localStorage:", customPresets);
-        } catch (e) {
-            console.error("Could not save custom presets to localStorage.", e);
-            displayError("Failed to save custom presets.");
-        }
+    function saveCustomPresets() { /* ... (unchanged) ... */
+        try { localStorage.setItem(CUSTOM_PRESETS_STORAGE_KEY, JSON.stringify(customPresets)); console.log("Saved custom presets to localStorage:", customPresets); } catch (e) { console.error("Could not save custom presets to localStorage.", e); displayError("Failed to save custom presets."); }
     }
 
     // --- Render Custom Preset Buttons ---
-    function renderCustomPresetButtons() {
-        if (!customPresetButtonsContainer) return;
-        let labelElement = customPresetButtonsContainer.previousElementSibling;
-        // Ensure labelElement is the correct one we might add/remove
-        if (labelElement && !labelElement.matches('small.custom-presets-label')) {
-             labelElement = null; // Ignore if it's not our specific label
-        }
-
-        customPresetButtonsContainer.innerHTML = ''; // Clear existing items
-
-        // Manage the "Your Presets:" label
-        if (customPresets.length > 0) {
-            if (!labelElement) { // Add label if it doesn't exist
-                const small = document.createElement('small');
-                small.textContent = 'Your Presets:';
-                small.classList.add('custom-presets-label'); // Add class for specific targeting
-                customPresetButtonsContainer.insertAdjacentElement('beforebegin', small);
-            }
-        } else {
-            if (labelElement) { // Remove label if no presets
-                labelElement.remove();
-            }
-        }
-
-        // Add items (preset button + edit button) for each custom preset
-        customPresets.forEach((preset, index) => {
-            const itemDiv = document.createElement('div');
-            itemDiv.classList.add('custom-preset-item');
-
-            const presetButton = document.createElement('button');
-            presetButton.type = 'button';
-            presetButton.classList.add('outline', 'secondary', 'custom-preset-btn');
-            presetButton.textContent = preset.title;
-            presetButton.title = `Apply preset: "${preset.title}"`;
-            presetButton.addEventListener('click', () => {
-                setPrefixFromPreset(preset.text);
-            });
-
-            const editButton = document.createElement('button');
-            editButton.type = 'button';
-            editButton.classList.add('secondary', 'outline', 'edit-preset-btn');
-            editButton.setAttribute('aria-label', `Edit preset: ${preset.title}`);
-            editButton.title = `Edit preset: ${preset.title}`;
-            editButton.innerHTML = ICON_EDIT_SVG; // Use SVG icon
-            editButton.addEventListener('click', (e) => {
-                e.stopPropagation(); // Prevent triggering preset application if clicking edit
-                handleEditPresetClick(index);
-            }); // Pass index
-
-            itemDiv.appendChild(presetButton);
-            itemDiv.appendChild(editButton);
-            customPresetButtonsContainer.appendChild(itemDiv);
-        });
+    function renderCustomPresetButtons() { /* ... (unchanged - CSS handles alignment) ... */
+        if (!customPresetButtonsContainer) return; let labelElement = customPresetButtonsContainer.previousElementSibling; if (labelElement && !labelElement.matches('small.custom-presets-label')) { labelElement = null; } customPresetButtonsContainer.innerHTML = ''; if (customPresets.length > 0) { if (!labelElement) { const small = document.createElement('small'); small.textContent = 'Your Presets:'; small.classList.add('custom-presets-label'); customPresetButtonsContainer.insertAdjacentElement('beforebegin', small); } } else { if (labelElement) { labelElement.remove(); } } customPresets.forEach((preset, index) => { const itemDiv = document.createElement('div'); itemDiv.classList.add('custom-preset-item'); const presetButton = document.createElement('button'); presetButton.type = 'button'; presetButton.classList.add('outline', 'secondary', 'custom-preset-btn'); presetButton.textContent = preset.title; presetButton.title = `Apply preset: "${preset.title}"`; presetButton.addEventListener('click', () => { setPrefixFromPreset(preset.text); }); const editButton = document.createElement('button'); editButton.type = 'button'; editButton.classList.add('secondary', 'outline', 'edit-preset-btn'); editButton.setAttribute('aria-label', `Edit preset: ${preset.title}`); editButton.title = `Edit preset: ${preset.title}`; editButton.innerHTML = ICON_EDIT_SVG; editButton.addEventListener('click', (e) => { e.stopPropagation(); handleEditPresetClick(index); }); itemDiv.appendChild(presetButton); itemDiv.appendChild(editButton); customPresetButtonsContainer.appendChild(itemDiv); });
     }
 
     // --- Initial Setup ---
-    function setInitialButtonState() {
-        extractButton.innerHTML = '→'; // Right arrow
-        extractButton.title = 'Extract Text';
-        extractButton.setAttribute('aria-label', 'Extract Text');
-        extractButton.classList.remove('reset-mode');
-        isInResetMode = false;
+    function setInitialButtonState() { /* ... (unchanged) ... */
+        extractButton.innerHTML = '→'; extractButton.title = 'Extract Text'; extractButton.setAttribute('aria-label', 'Extract Text'); extractButton.classList.remove('reset-mode'); isInResetMode = false;
     }
-    function setInitialCopyIcon() { if (copyButtonIconWrapper) copyButtonIconWrapper.innerHTML = ICON_COPY_SVG; }
-    function setInitialShareIcon() { if (isShareSupported && shareButtonIconWrapper) shareButtonIconWrapper.innerHTML = ICON_SHARE_SVG; }
+    function setInitialCopyIcon() { /* ... (unchanged) ... */ if (copyButtonIconWrapper) copyButtonIconWrapper.innerHTML = ICON_COPY_SVG; }
+    function setInitialShareIcon() { /* ... (unchanged) ... */ if (isShareSupported && shareButtonIconWrapper) shareButtonIconWrapper.innerHTML = ICON_SHARE_SVG; }
 
     loadPrefix();
     loadCustomPresets();
-    setInitialCopyIcon();
-    setInitialShareIcon();
-    setInitialButtonState();
-    copyButton.classList.add('enabled'); // Enable copy button structure (disabled state handled later)
-    if (isShareSupported && shareButton) {
-        shareButton.classList.add('enabled'); // Enable share button structure
-    }
+    setInitialCopyIcon(); setInitialShareIcon(); setInitialButtonState();
+    copyButton.classList.add('enabled');
+    if (isShareSupported && shareButton) shareButton.classList.add('enabled');
 
     // --- Settings Dialog Logic ---
-    function openSettings() {
-        if (!settingsDialog) return;
-        prefixTextarea.value = currentTextPrefix;
-        checkPrefixForCustomSave(); // Check initial state when opening
-        renderCustomPresetButtons(); // Ensure buttons are up-to-date when opening
-        settingsDialog.showModal();
+    function openSettings() { /* ... (unchanged) ... */
+        if (!settingsDialog) return; prefixTextarea.value = currentTextPrefix; checkPrefixForCustomSave(); renderCustomPresetButtons(); settingsDialog.showModal();
     }
-    function closeSettings() { if (!settingsDialog) return; settingsDialog.close(); }
-    function handleSettingsBackdropClick(event) { if (event.target === settingsDialog) { closeSettings(); } }
-
-    // Saves the currently displayed prefix in the main textarea
-    function saveSettings(event) {
-        event.preventDefault();
-        if (!prefixTextarea) return;
-        const newPrefix = prefixTextarea.value;
-        const oldPrefix = currentTextPrefix; // Keep track in case we need to update output
-
-        currentTextPrefix = newPrefix; // Update state
-
-        try {
-            localStorage.setItem(PREFIX_STORAGE_KEY, newPrefix);
-            console.log("Saved current prefix to localStorage");
-            displaySuccess("Prefix saved!");
-            setTimeout(clearMessages, 2000); // Clear success message after 2s
-
-            // Optionally update the already extracted text if it used the old prefix
-            const currentOutput = extractedText.value;
-            // Check if there is output, it started with the *exact* old prefix, and there's text after it
-            if (currentOutput && currentOutput.startsWith(oldPrefix) && currentOutput.length > oldPrefix.length) {
-                const rawTextPart = currentOutput.substring(oldPrefix.length);
-                // Add new prefix (ensure proper spacing if prefix exists)
-                const formattedNewPrefix = newPrefix.trimEnd() + (newPrefix ? "\n\n" : "");
-                extractedText.value = formattedNewPrefix + rawTextPart;
-                console.log("Dynamically updated displayed text with new prefix.");
-            }
-        } catch (e) {
-            console.error("Could not save prefix to localStorage.", e);
-            displayError("Could not save prefix.");
-            currentTextPrefix = oldPrefix; // Revert state on error
-        }
-        closeSettings();
+    function closeSettings() { /* ... (unchanged) ... */ if (!settingsDialog) return; settingsDialog.close(); }
+    function handleSettingsBackdropClick(event) { /* ... (unchanged) ... */ if (event.target === settingsDialog) { closeSettings(); } }
+    function saveSettings(event) { /* ... (unchanged) ... */
+        event.preventDefault(); if (!prefixTextarea) return; const newPrefix = prefixTextarea.value; const oldPrefix = currentTextPrefix; currentTextPrefix = newPrefix; try { localStorage.setItem(PREFIX_STORAGE_KEY, newPrefix); console.log("Saved current prefix to localStorage"); displaySuccess("Prefix saved!"); setTimeout(clearMessages, 2000); const currentOutput = extractedText.value; if (currentOutput && currentOutput.startsWith(oldPrefix) && currentOutput.length > oldPrefix.length) { const rawTextPart = currentOutput.substring(oldPrefix.length); const formattedNewPrefix = newPrefix.trimEnd() + (newPrefix ? "\n\n" : ""); extractedText.value = formattedNewPrefix + rawTextPart; console.log("Dynamically updated displayed text with new prefix."); } } catch (e) { console.error("Could not save prefix to localStorage.", e); displayError("Could not save prefix."); currentTextPrefix = oldPrefix; } closeSettings();
     }
-
-    // Sets the main prefix textarea value from a preset button click
-    function setPrefixFromPreset(presetValue) {
-        if (prefixTextarea) {
-            prefixTextarea.value = presetValue;
-            checkPrefixForCustomSave(); // Update "Add as Preset" button visibility
-        }
+    function setPrefixFromPreset(presetValue) { /* ... (unchanged) ... */
+        if (prefixTextarea) { prefixTextarea.value = presetValue; checkPrefixForCustomSave(); }
     }
 
     // --- Custom Preset SAVING Logic (for NEW presets) ---
-
-    // Checks if a given text (trimmed) matches any existing preset (trimmed), optionally excluding an index
-     function isExistingPreset(text, indexToExclude = -1) {
-        if (!text) return true; // Empty/null text is invalid
-        const trimmedText = text.trim();
-        if (!trimmedText) return true; // Treat blank/whitespace-only as existing/invalid
-
-        const defaultPresets = [PRESET_SUMMARISE, PRESET_FACTCHECK, PRESET_FORMATTING];
-        // Compare trimmed input against trimmed default presets
-        if (defaultPresets.some(preset => preset.trim() === trimmedText)) {
-            return true;
-        }
-        // Compare trimmed input against trimmed custom presets, excluding the one at indexToExclude
-        return customPresets.some((preset, index) =>
-            index !== indexToExclude && preset.text.trim() === trimmedText
-        );
+    function isExistingPreset(text, indexToExclude = -1) { /* ... (unchanged) ... */
+        if (!text) return true; const trimmedText = text.trim(); if (!trimmedText) return true; const defaultPresets = [PRESET_SUMMARISE, PRESET_FACTCHECK, PRESET_FORMATTING]; if (defaultPresets.some(preset => preset.trim() === trimmedText)) { return true; } return customPresets.some((preset, index) => index !== indexToExclude && preset.text.trim() === trimmedText);
     }
-
-    // Checks if a given title (trimmed, case-insensitive) matches any existing custom preset title, optionally excluding an index
-     function isExistingTitle(title, indexToExclude = -1) {
-         if (!title) return true; // Title is required
-         const lowerTitle = title.trim().toLowerCase();
-          // Check custom presets for duplicate title, excluding the one at indexToExclude
-         return customPresets.some((preset, index) =>
-            index !== indexToExclude && preset.title.toLowerCase() === lowerTitle
-         );
-     }
-
-    // Shows/hides the "Add as Preset" button based on textarea content
-    function checkPrefixForCustomSave() {
-        if (!prefixTextarea || !addPresetButton) return;
-        const currentPrefixText = prefixTextarea.value; // Get the raw value
-        const trimmedPrefixText = currentPrefixText.trim(); // Trim for checking existence
-
-        // Show button if trimmed text is not empty AND it doesn't match any existing trimmed preset
-        if (trimmedPrefixText && !isExistingPreset(trimmedPrefixText)) { // Check against all existing
-            addPresetButton.classList.add('visible');
-        } else {
-            addPresetButton.classList.remove('visible');
-        }
-     }
-
-    // Triggered when "Add as Preset" button is clicked
-    function handleAddPresetClick() {
-        const prefixTextToDisplay = prefixTextarea.value; // Get raw value for display
-        const trimmedCheckText = prefixTextToDisplay.trim(); // Trim for final existence check
-
-        // Safeguard check (should be prevented by button visibility)
-        if (!trimmedCheckText || isExistingPreset(trimmedCheckText)) {
-            console.warn("Add Preset clicked, but text is empty or already exists (trimmed comparison).");
-            checkPrefixForCustomSave(); // Ensure button state is correct
-            return;
-        }
-
-        // Populate and open the save dialog
-        presetTextDisplay.textContent = prefixTextToDisplay; // Show raw text in display div
-        presetTitleInput.value = ''; // Clear title input
-        savePresetErrorMessage.textContent = ''; // Clear any old errors
-        updateCharCount(presetTitleInput, presetTitleCharCount); // Reset char count display
-        savePresetDialog.showModal();
-        presetTitleInput.focus(); // Focus title input for convenience
+    function isExistingTitle(title, indexToExclude = -1) { /* ... (unchanged) ... */
+         if (!title) return true; const lowerTitle = title.trim().toLowerCase(); return customPresets.some((preset, index) => index !== indexToExclude && preset.title.toLowerCase() === lowerTitle);
     }
-
-    function closeSavePresetDialog() { if(savePresetDialog) savePresetDialog.close(); }
-    function handleSavePresetDialogBackdropClick(event) { if (event.target === savePresetDialog) { closeSavePresetDialog(); } }
-
-    // Handles the final confirmation of saving a NEW preset
-    function handleConfirmSavePreset(event) {
-        event.preventDefault(); // Prevent form submission reloading page
-        const presetTitle = presetTitleInput.value.trim();
-        const prefixTextToSave = presetTextDisplay.textContent.trim(); // Trim text before saving/checking
-        savePresetErrorMessage.textContent = ''; // Clear previous errors
-
-        // --- Validation ---
+    function checkPrefixForCustomSave() { /* ... (unchanged) ... */
+        if (!prefixTextarea || !addPresetButton) return; const currentPrefixText = prefixTextarea.value; const trimmedPrefixText = currentPrefixText.trim(); if (trimmedPrefixText && !isExistingPreset(trimmedPrefixText)) { addPresetButton.classList.add('visible'); } else { addPresetButton.classList.remove('visible'); }
+    }
+    function handleAddPresetClick() { /* ... (unchanged) ... */
+        const prefixTextToDisplay = prefixTextarea.value; const trimmedCheckText = prefixTextToDisplay.trim(); if (!trimmedCheckText || isExistingPreset(trimmedCheckText)) { console.warn("Add Preset clicked, but text is empty or already exists (trimmed comparison)."); checkPrefixForCustomSave(); return; } presetTextDisplay.textContent = prefixTextToDisplay; presetTitleInput.value = ''; savePresetErrorMessage.textContent = ''; updateCharCount(presetTitleInput, presetTitleCharCount); savePresetDialog.showModal(); presetTitleInput.focus();
+    }
+    function closeSavePresetDialog() { /* ... (unchanged) ... */ if(savePresetDialog) savePresetDialog.close(); }
+    function handleSavePresetDialogBackdropClick(event) { /* ... (unchanged) ... */ if (event.target === savePresetDialog) { closeSavePresetDialog(); } }
+    function handleConfirmSavePreset(event) { /* Uses MAX_PRESET_TITLE_LENGTH */
+        event.preventDefault(); const presetTitle = presetTitleInput.value.trim(); const prefixTextToSave = presetTextDisplay.textContent.trim(); savePresetErrorMessage.textContent = '';
         if (!presetTitle) { savePresetErrorMessage.textContent = 'Preset title cannot be empty.'; presetTitleInput.focus(); return; }
         if (presetTitle.length > MAX_PRESET_TITLE_LENGTH) { savePresetErrorMessage.textContent = `Title exceeds ${MAX_PRESET_TITLE_LENGTH} characters.`; presetTitleInput.focus(); return; }
         if (isExistingTitle(presetTitle)) { savePresetErrorMessage.textContent = 'A preset with this title already exists.'; presetTitleInput.focus(); return; }
         if (isExistingPreset(prefixTextToSave)) { savePresetErrorMessage.textContent = 'This prefix content is already saved.'; return; }
-        // --- End Validation ---
-
-        // Add the TRIMMED text to custom presets array
-        customPresets.push({ title: presetTitle, text: prefixTextToSave });
-        saveCustomPresets(); // Save updated array to localStorage
-        renderCustomPresetButtons(); // Update buttons in settings dialog
-        closeSavePresetDialog(); // Close the naming dialog
-        checkPrefixForCustomSave(); // Hide the 'Add as preset' button again as the current text is now saved
+        customPresets.push({ title: presetTitle, text: prefixTextToSave }); saveCustomPresets(); renderCustomPresetButtons(); closeSavePresetDialog(); checkPrefixForCustomSave();
     }
-
-    // Generalized function to update character count display
-    function updateCharCount(inputElement, countElement) {
-         if(inputElement && countElement) {
-            const count = inputElement.value.length;
-            const max = inputElement.maxLength > 0 ? inputElement.maxLength : MAX_PRESET_TITLE_LENGTH; // Use maxlength if set
-            countElement.textContent = `${count} / ${max}`;
-         }
+    function updateCharCount(inputElement, countElement) { /* Uses MAX_PRESET_TITLE_LENGTH */
+         if(inputElement && countElement) { const count = inputElement.value.length; const max = inputElement.maxLength > 0 ? inputElement.maxLength : MAX_PRESET_TITLE_LENGTH; countElement.textContent = `${count} / ${max}`; }
     }
 
     // --- Custom Preset EDITING Logic ---
-
-    // Opens the edit dialog for a specific preset
-    function handleEditPresetClick(index) {
-        if (index < 0 || index >= customPresets.length) {
-            console.error("Invalid index for editing preset:", index);
-            return;
-        }
-        editPresetIndex = index; // Store the index of the preset being edited
-        const preset = customPresets[index];
-
-        // Populate the edit dialog fields
-        editPresetTitleInput.value = preset.title;
-        editPresetTextTextarea.value = preset.text;
-        editPresetErrorMessage.textContent = ''; // Clear old errors
-        updateCharCount(editPresetTitleInput, editPresetTitleCharCount); // Update char count for edit dialog
-
-        editPresetDialog.showModal();
-        editPresetTitleInput.focus(); // Focus title first
+    function handleEditPresetClick(index) { /* ... (unchanged) ... */
+        if (index < 0 || index >= customPresets.length) { console.error("Invalid index for editing preset:", index); return; } editPresetIndex = index; const preset = customPresets[index]; editPresetTitleInput.value = preset.title; editPresetTextTextarea.value = preset.text; editPresetErrorMessage.textContent = ''; updateCharCount(editPresetTitleInput, editPresetTitleCharCount); editPresetDialog.showModal(); editPresetTitleInput.focus();
     }
-
-    function closeEditPresetDialog() {
-        editPresetIndex = -1; // Reset index when closing
-        if(editPresetDialog) editPresetDialog.close();
+    function closeEditPresetDialog() { /* ... (unchanged) ... */
+        editPresetIndex = -1; if(editPresetDialog) editPresetDialog.close();
     }
-
-    function handleEditPresetDialogBackdropClick(event) {
-         if (event.target === editPresetDialog) {
-            closeEditPresetDialog();
-        }
+    function handleEditPresetDialogBackdropClick(event) { /* ... (unchanged) ... */
+         if (event.target === editPresetDialog) { closeEditPresetDialog(); }
     }
-
-    // Handles saving changes from the edit dialog
-    function handleConfirmEditPreset(event) {
-        event.preventDefault();
-        if (editPresetIndex === -1) { // Safeguard
-            console.error("Cannot save edit, no preset index stored.");
-            closeEditPresetDialog();
-            return;
-        }
-
-        const newTitle = editPresetTitleInput.value.trim();
-        const newText = editPresetTextTextarea.value.trim(); // Trim text before saving/checking
-        editPresetErrorMessage.textContent = ''; // Clear previous errors
-
-        // --- Validation (checking against *other* presets using the excluded index) ---
+    function handleConfirmEditPreset(event) { /* Uses MAX_PRESET_TITLE_LENGTH */
+        event.preventDefault(); if (editPresetIndex === -1) { console.error("Cannot save edit, no preset index stored."); closeEditPresetDialog(); return; }
+        const newTitle = editPresetTitleInput.value.trim(); const newText = editPresetTextTextarea.value.trim(); editPresetErrorMessage.textContent = '';
         if (!newTitle) { editPresetErrorMessage.textContent = 'Preset title cannot be empty.'; editPresetTitleInput.focus(); return; }
         if (newTitle.length > MAX_PRESET_TITLE_LENGTH) { editPresetErrorMessage.textContent = `Title exceeds ${MAX_PRESET_TITLE_LENGTH} characters.`; editPresetTitleInput.focus(); return; }
-        // Check if new title conflicts with OTHERS
         if (isExistingTitle(newTitle, editPresetIndex)) { editPresetErrorMessage.textContent = 'Another preset with this title already exists.'; editPresetTitleInput.focus(); return; }
-         // Check if new text conflicts with OTHERS (Defaults or Custom)
         if (isExistingPreset(newText, editPresetIndex)) { editPresetErrorMessage.textContent = 'Another preset with this text content already exists.'; editPresetTextTextarea.focus(); return; }
-        // --- End Validation ---
-
-        // Update the preset in the array
-        const oldPresetText = customPresets[editPresetIndex].text; // Get old text before updating
-        customPresets[editPresetIndex] = { title: newTitle, text: newText };
-        saveCustomPresets(); // Save changes
-        renderCustomPresetButtons(); // Re-render the list
-
-        // If the currently active prefix in the main settings textarea was the one just edited, update it
-        if (prefixTextarea && prefixTextarea.value === oldPresetText) {
-             prefixTextarea.value = newText;
-             console.log("Updated main prefix textarea as the edited preset was active.");
-             checkPrefixForCustomSave(); // Re-check add button visibility as text changed
-        }
-
-        closeEditPresetDialog(); // Close the edit dialog
+        const oldPresetText = customPresets[editPresetIndex].text; customPresets[editPresetIndex] = { title: newTitle, text: newText }; saveCustomPresets(); renderCustomPresetButtons();
+        if (prefixTextarea && prefixTextarea.value === oldPresetText) { prefixTextarea.value = newText; console.log("Updated main prefix textarea as the edited preset was active."); checkPrefixForCustomSave(); }
+        closeEditPresetDialog();
     }
-
-    // Handles clicking the delete button in the edit dialog
-    function handleDeletePresetClick() {
-        if (editPresetIndex === -1) { // Safeguard
-            console.error("Cannot delete, no preset index stored.");
-            closeEditPresetDialog();
-            return;
-        }
-
+    function handleDeletePresetClick() { /* ... (unchanged) ... */
+        if (editPresetIndex === -1) { console.error("Cannot delete, no preset index stored."); closeEditPresetDialog(); return; }
         const presetToDelete = customPresets[editPresetIndex];
-        // User Confirmation
         if (window.confirm(`Are you sure you want to delete the preset "${presetToDelete.title}"? This action cannot be undone.`)) {
-            const deletedPresetText = presetToDelete.text; // Get text before deleting for comparison later
-            customPresets.splice(editPresetIndex, 1); // Remove the preset from the array
-            saveCustomPresets(); // Save the updated array
-            renderCustomPresetButtons(); // Re-render the list
-
-            // If the currently active prefix in the main settings was the one just deleted, reset it to default
-             if (prefixTextarea && prefixTextarea.value === deletedPresetText) {
-                 prefixTextarea.value = DEFAULT_TEXT_PREFIX; // Reset textarea
-                 currentTextPrefix = DEFAULT_TEXT_PREFIX; // Update state variable
-                 localStorage.setItem(PREFIX_STORAGE_KEY, currentTextPrefix); // Save the reset prefix
-                 console.log("Set prefix to default as the active preset was deleted.");
-                 checkPrefixForCustomSave(); // Re-check add button visibility
-             }
-
-            closeEditPresetDialog(); // Close the edit dialog after deletion
+            const deletedPresetText = presetToDelete.text; customPresets.splice(editPresetIndex, 1); saveCustomPresets(); renderCustomPresetButtons();
+            if (prefixTextarea && prefixTextarea.value === deletedPresetText) { prefixTextarea.value = DEFAULT_TEXT_PREFIX; currentTextPrefix = DEFAULT_TEXT_PREFIX; localStorage.setItem(PREFIX_STORAGE_KEY, currentTextPrefix); console.log("Set prefix to default as the active preset was deleted."); checkPrefixForCustomSave(); }
+            closeEditPresetDialog();
         }
-        // If user cancels confirmation, do nothing, dialog remains open.
     }
-
 
     // --- NAMED EVENT HANDLERS for Debouncing/Clarity ---
-    function triggerExtractionDebounced() {
-        if (extractButton.getAttribute('aria-busy') === 'true' || isInResetMode) return;
-        clearTimeout(extractionDebounceTimer);
-        extractionDebounceTimer = setTimeout(handleExtraction, EXTRACTION_DEBOUNCE_DELAY_MS);
+    function triggerExtractionDebounced() { /* ... (unchanged) ... */
+        if (extractButton.getAttribute('aria-busy') === 'true' || isInResetMode) return; clearTimeout(extractionDebounceTimer); extractionDebounceTimer = setTimeout(handleExtraction, EXTRACTION_DEBOUNCE_DELAY_MS);
     }
-    function triggerReset() { resetUI(); }
-    // Debounced handler for main prefix textarea input
-    function handlePrefixInputDebounced() {
-        clearTimeout(prefixCheckDebounceTimer);
-        prefixCheckDebounceTimer = setTimeout(checkPrefixForCustomSave, DEBOUNCE_DELAY_MS);
+    function triggerReset() { /* ... (unchanged) ... */ resetUI(); }
+    function handlePrefixInputDebounced() { /* ... (unchanged) ... */
+        clearTimeout(prefixCheckDebounceTimer); prefixCheckDebounceTimer = setTimeout(checkPrefixForCustomSave, DEBOUNCE_DELAY_MS);
     }
-
 
     // --- Share Handler ---
-    async function handleShare() {
-        if (!isShareSupported || shareButton.disabled) return;
-        const textToShare = extractedText.value;
-        if (!textToShare || !textToShare.trim()) {
-            displayError("Nothing to share.");
-            return;
-        }
-        try {
-            await navigator.share({ text: textToShare });
-            console.log('Content shared successfully');
-        } catch (err) {
-            if (err.name === 'AbortError') { console.log('Share dialog dismissed by user.'); }
-            else { console.error('Error sharing:', err); displayError(`Share failed: ${err.message}`); }
-        }
+    async function handleShare() { /* ... (unchanged) ... */
+        if (!isShareSupported || shareButton.disabled) return; const textToShare = extractedText.value; if (!textToShare || !textToShare.trim()) { displayError("Nothing to share."); return; } try { await navigator.share({ text: textToShare }); console.log('Content shared successfully'); } catch (err) { if (err.name === 'AbortError') { console.log('Share dialog dismissed by user.'); } else { console.error('Error sharing:', err); displayError(`Share failed: ${err.message}`); } }
     }
 
-    // --- Event Listeners ---
-    // Settings Dialog & Standard Presets
-    settingsButton?.addEventListener('click', openSettings);
-    settingsCloseButton?.addEventListener('click', closeSettings);
-    settingsDialog?.addEventListener('click', handleSettingsBackdropClick);
-    settingsForm?.addEventListener('submit', saveSettings); // Handles saving the *current* prefix
-    prefixSummariseBtn?.addEventListener('click', () => setPrefixFromPreset(PRESET_SUMMARISE));
-    prefixFactcheckBtn?.addEventListener('click', () => setPrefixFromPreset(PRESET_FACTCHECK));
-    prefixFormattingBtn?.addEventListener('click', () => setPrefixFromPreset(PRESET_FORMATTING));
+    // --- Event Listeners Setup ---
+    function setupEventListeners() {
+        // Settings Dialog & Standard Presets
+        settingsButton?.addEventListener('click', openSettings);
+        settingsCloseButton?.addEventListener('click', closeSettings);
+        settingsDialog?.addEventListener('click', handleSettingsBackdropClick);
+        settingsForm?.addEventListener('submit', saveSettings);
+        prefixSummariseBtn?.addEventListener('click', () => setPrefixFromPreset(PRESET_SUMMARISE));
+        prefixFactcheckBtn?.addEventListener('click', () => setPrefixFromPreset(PRESET_FACTCHECK));
+        prefixFormattingBtn?.addEventListener('click', () => setPrefixFromPreset(PRESET_FORMATTING));
 
-    // Custom Preset Saving (New)
-    prefixTextarea?.addEventListener('input', handlePrefixInputDebounced);
-    addPresetButton?.addEventListener('click', handleAddPresetClick);
-    savePresetDialog?.addEventListener('click', handleSavePresetDialogBackdropClick);
-    savePresetForm?.addEventListener('submit', handleConfirmSavePreset);
-    confirmSavePresetButton?.addEventListener('click', handleConfirmSavePreset); // Click fallback
-    cancelSavePresetButton?.addEventListener('click', closeSavePresetDialog);
-    cancelSavePresetButtonFooter?.addEventListener('click', closeSavePresetDialog);
-    presetTitleInput?.addEventListener('input', () => updateCharCount(presetTitleInput, presetTitleCharCount));
+        // Custom Preset Saving (New)
+        prefixTextarea?.addEventListener('input', handlePrefixInputDebounced);
+        addPresetButton?.addEventListener('click', handleAddPresetClick);
+        savePresetDialog?.addEventListener('click', handleSavePresetDialogBackdropClick);
+        savePresetForm?.addEventListener('submit', handleConfirmSavePreset);
+        confirmSavePresetButton?.addEventListener('click', handleConfirmSavePreset);
+        cancelSavePresetButton?.addEventListener('click', closeSavePresetDialog);
+        cancelSavePresetButtonFooter?.addEventListener('click', closeSavePresetDialog);
+        presetTitleInput?.addEventListener('input', () => updateCharCount(presetTitleInput, presetTitleCharCount));
 
-    // Custom Preset Editing
-    editPresetDialog?.addEventListener('click', handleEditPresetDialogBackdropClick);
-    editPresetForm?.addEventListener('submit', handleConfirmEditPreset);
-    confirmEditPresetButton?.addEventListener('click', handleConfirmEditPreset); // Click fallback
-    deletePresetButton?.addEventListener('click', handleDeletePresetClick);
-    cancelEditPresetButton?.addEventListener('click', closeEditPresetDialog);
-    cancelEditPresetButtonFooter?.addEventListener('click', closeEditPresetDialog);
-    editPresetTitleInput?.addEventListener('input', () => updateCharCount(editPresetTitleInput, editPresetTitleCharCount));
+        // Custom Preset Editing
+        editPresetDialog?.addEventListener('click', handleEditPresetDialogBackdropClick);
+        editPresetForm?.addEventListener('submit', handleConfirmEditPreset);
+        confirmEditPresetButton?.addEventListener('click', handleConfirmEditPreset);
+        deletePresetButton?.addEventListener('click', handleDeletePresetClick);
+        cancelEditPresetButton?.addEventListener('click', closeEditPresetDialog);
+        cancelEditPresetButtonFooter?.addEventListener('click', closeEditPresetDialog);
+        editPresetTitleInput?.addEventListener('input', () => updateCharCount(editPresetTitleInput, editPresetTitleCharCount));
 
-    // Main Actions
-    extractButton.addEventListener('click', () => { isInResetMode ? triggerReset() : triggerExtractionDebounced(); });
-    urlInput.addEventListener('keypress', (event) => { if (event.key === 'Enter') { event.preventDefault(); if (extractButton.getAttribute('aria-busy') === 'true' || isInResetMode) return; triggerExtractionDebounced(); } });
-    copyButton.addEventListener('click', copyTextToClipboard);
-    if (isShareSupported && shareButton) shareButton.addEventListener('click', handleShare);
+        // Main Actions
+        extractButton.addEventListener('click', () => { isInResetMode ? triggerReset() : triggerExtractionDebounced(); });
+        urlInput.addEventListener('keypress', (event) => { if (event.key === 'Enter') { event.preventDefault(); if (extractButton.getAttribute('aria-busy') === 'true' || isInResetMode) return; triggerExtractionDebounced(); } });
+        copyButton.addEventListener('click', copyTextToClipboard);
+        if (isShareSupported && shareButton) shareButton.addEventListener('click', handleShare);
+
+        // PWA & Share Target
+        if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('/ArticleScraper/sw.js').then(reg => console.log('SW registered!', reg)).catch(err => console.error('SW registration failed:', err)); }); }
+        window.addEventListener('load', handleIncomingShare);
+    }
+    setupEventListeners(); // Call the setup function
 
     // --- Core Extraction Logic ---
     function delay(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
@@ -1175,19 +610,7 @@
         for (let i = 0; i <= retries; i++) { try { if (i > 0) { displayRetryMessage(`Attempt ${i+1} of ${retries+1}...`); await delay(RETRY_DELAY_MS * i); } const response = await fetch(url, options); if (!response.ok) { if (response.status >= 500 && response.status < 600 && i < retries) { console.warn(`Attempt ${i+1} failed with status ${response.status}. Retrying...`); continue; } throw new Error(`Proxy fetch failed: ${response.status} ${response.statusText}`); } clearRetryMessage(); return response; } catch (error) { console.error(`Attempt ${i+1} caught error:`, error); if (i === retries) { clearRetryMessage(); throw error; } } } clearRetryMessage(); throw new Error("Fetch failed after all retries.");
     }
     async function handleExtraction() { /* ... (unchanged) ... */
-      clearMessages(); updateActionButtonsState('');
-      const inputText = urlInput.value.trim(); if (!inputText) { displayError("Please enter a URL or text containing one."); return; }
-      const urlRegex = /https?:\/\/[^\s/$.?#].[^\s]*/i; const match = inputText.match(urlRegex); if (!match) { displayError("No valid URL found in the input."); return; }
-      const targetUrl = match[0]; console.log("Extracted URL:", targetUrl);
-      const proxiedUrl = PROXY_URL + encodeURIComponent(targetUrl); setLoadingState(true);
-      try {
-          const response = await fetchWithRetries(proxiedUrl); const html = await response.text(); let doc; try { const parser = new DOMParser(); doc = parser.parseFromString(html, 'text/html'); } catch (parseError) { console.error("DOM Parsing Error:", parseError); throw new Error("Failed to parse the HTML content."); } let article = null; if (typeof Readability === 'undefined') { console.warn("Readability.js not loaded. Extraction quality may be reduced."); } else { try { const documentClone = doc.cloneNode(true); let reader = new Readability(documentClone); article = reader.parse(); } catch (readabilityError) { console.error("Readability Error:", readabilityError); } } let extractionSource = ''; let rawExtractedText = '';
-          if (article && article.textContent && article.textContent.trim().length > 100) { const title = article.title?.trim(); const bodyText = article.textContent.trim(); rawExtractedText = title ? `${title}\n\n${bodyText}` : bodyText; extractionSource = 'Readability'; }
-          else { if (!article && typeof Readability !== 'undefined') console.log("Readability failed or returned insufficient content, attempting fallback..."); else if (typeof Readability === 'undefined') console.log("Readability not loaded, attempting fallback..."); else console.log("Readability content insufficient, attempting fallback..."); const mainElement = doc.querySelector('main') || doc.querySelector('article') || doc.querySelector('.post-content') || doc.querySelector('.entry-content') || doc.body; if (mainElement) { const mainClone = mainElement.cloneNode(true); const noiseSelectors = 'script, style, nav, header, footer, aside, .sidebar, .ad, .ads, [aria-hidden="true"], noscript, form, button, input, figure figcaption, .share-buttons, .comments-area, #comments'; mainClone.querySelectorAll(noiseSelectors).forEach(el => el.remove()); rawExtractedText = mainClone.textContent.replace(/[\t\r\n]+/g, '\n').replace(/\n\s*\n/g, '\n\n').replace(/ {2,}/g, ' ').trim(); } else { rawExtractedText = doc.body ? doc.body.textContent.trim().replace(/\s\s+/g, ' ') : ''; } if (rawExtractedText.length > 50) { extractionSource = typeof Readability !== 'undefined' ? 'Basic Fallback (Readability failed)' : 'Basic Fallback'; } else { rawExtractedText = ''; } }
-          if (extractionSource) { const formattedPrefix = currentTextPrefix.trimEnd() + (currentTextPrefix ? "\n\n" : ""); extractedText.value = formattedPrefix + rawExtractedText; displaySuccess(`Extracted using ${extractionSource}.`); updateActionButtonsState(rawExtractedText); mainContainer.classList.remove('state-initial'); detailsElement.open = true; setResetMode(true); }
-          else { extractedText.value = ''; let finalError = "Extraction failed: Could not get meaningful content."; if (typeof Readability === 'undefined'){ finalError = "Extraction failed: Readability script missing & fallback failed."; } displayError(finalError); if (!mainContainer.classList.contains('state-initial')) { } setResetMode(false); updateActionButtonsState(''); detailsElement.open = false; }
-      } catch (error) { console.error("Error during fetch or extraction:", error); extractedText.value = ''; displayError(`Error: ${error.message}`); if (!mainContainer.classList.contains('state-initial')) { } setResetMode(false); updateActionButtonsState(''); detailsElement.open = false; }
-      finally { setLoadingState(false); }
+        clearMessages(); updateActionButtonsState(''); const inputText = urlInput.value.trim(); if (!inputText) { displayError("Please enter a URL or text containing one."); return; } const urlRegex = /https?:\/\/[^\s/$.?#].[^\s]*/i; const match = inputText.match(urlRegex); if (!match) { displayError("No valid URL found in the input."); return; } const targetUrl = match[0]; console.log("Extracted URL:", targetUrl); const proxiedUrl = PROXY_URL + encodeURIComponent(targetUrl); setLoadingState(true); try { const response = await fetchWithRetries(proxiedUrl); const html = await response.text(); let doc; try { const parser = new DOMParser(); doc = parser.parseFromString(html, 'text/html'); } catch (parseError) { console.error("DOM Parsing Error:", parseError); throw new Error("Failed to parse the HTML content."); } let article = null; if (typeof Readability === 'undefined') { console.warn("Readability.js not loaded. Extraction quality may be reduced."); } else { try { const documentClone = doc.cloneNode(true); let reader = new Readability(documentClone); article = reader.parse(); } catch (readabilityError) { console.error("Readability Error:", readabilityError); } } let extractionSource = ''; let rawExtractedText = ''; if (article && article.textContent && article.textContent.trim().length > 100) { const title = article.title?.trim(); const bodyText = article.textContent.trim(); rawExtractedText = title ? `${title}\n\n${bodyText}` : bodyText; extractionSource = 'Readability'; } else { if (!article && typeof Readability !== 'undefined') console.log("Readability failed or returned insufficient content, attempting fallback..."); else if (typeof Readability === 'undefined') console.log("Readability not loaded, attempting fallback..."); else console.log("Readability content insufficient, attempting fallback..."); const mainElement = doc.querySelector('main') || doc.querySelector('article') || doc.querySelector('.post-content') || doc.querySelector('.entry-content') || doc.body; if (mainElement) { const mainClone = mainElement.cloneNode(true); const noiseSelectors = 'script, style, nav, header, footer, aside, .sidebar, .ad, .ads, [aria-hidden="true"], noscript, form, button, input, figure figcaption, .share-buttons, .comments-area, #comments'; mainClone.querySelectorAll(noiseSelectors).forEach(el => el.remove()); rawExtractedText = mainClone.textContent.replace(/[\t\r\n]+/g, '\n').replace(/\n\s*\n/g, '\n\n').replace(/ {2,}/g, ' ').trim(); } else { rawExtractedText = doc.body ? doc.body.textContent.trim().replace(/\s\s+/g, ' ') : ''; } if (rawExtractedText.length > 50) { extractionSource = typeof Readability !== 'undefined' ? 'Basic Fallback (Readability failed)' : 'Basic Fallback'; } else { rawExtractedText = ''; } } if (extractionSource) { const formattedPrefix = currentTextPrefix.trimEnd() + (currentTextPrefix ? "\n\n" : ""); extractedText.value = formattedPrefix + rawExtractedText; displaySuccess(`Extracted using ${extractionSource}.`); updateActionButtonsState(rawExtractedText); mainContainer.classList.remove('state-initial'); detailsElement.open = true; setResetMode(true); } else { extractedText.value = ''; let finalError = "Extraction failed: Could not get meaningful content."; if (typeof Readability === 'undefined'){ finalError = "Extraction failed: Readability script missing & fallback failed."; } displayError(finalError); if (!mainContainer.classList.contains('state-initial')) { } setResetMode(false); updateActionButtonsState(''); detailsElement.open = false; } } catch (error) { console.error("Error during fetch or extraction:", error); extractedText.value = ''; displayError(`Error: ${error.message}`); if (!mainContainer.classList.contains('state-initial')) { } setResetMode(false); updateActionButtonsState(''); detailsElement.open = false; } finally { setLoadingState(false); }
     }
     function setLoadingState(isLoading) { /* ... (unchanged) ... */
        if (isLoading) { extractButton.setAttribute('aria-busy', 'true'); } else { extractButton.removeAttribute('aria-busy'); }
@@ -1212,11 +635,6 @@
         const hasContent = !!rawText && rawText.trim().length > 0; copyButton.disabled = !hasContent; if (isShareSupported && shareButton) { shareButton.disabled = !hasContent; }
     }
 
-    // --- PWA Service Worker Registration ---
-     if ('serviceWorker' in navigator) { /* ... (unchanged) ... */
-        window.addEventListener('load', () => { navigator.serviceWorker.register('/ArticleScraper/sw.js') .then(registration => { console.log('ServiceWorker registration successful with scope: ', registration.scope); }) .catch(err => { console.error('ServiceWorker registration failed: ', err); }); });
-     }
-
     // --- HANDLE INCOMING SHARE TARGET ---
     function handleIncomingShare() { /* ... (unchanged) ... */
       const urlParams = new URLSearchParams(window.location.search); const sharedUrl = urlParams.get('url'); const sharedText = urlParams.get('text'); let textToInput = '';
@@ -1224,7 +642,6 @@
       else if (sharedText) { console.log("Received shared text:", sharedText); const urlRegex = /https?:\/\/[^\s/$.?#].[^\s]*/i; const match = sharedText.match(urlRegex); if (match) { textToInput = match[0]; console.log("Extracted URL from shared text:", textToInput); } else { console.log("Shared text received, but no URL found within it."); } }
       if (textToInput && urlInput) { urlInput.value = textToInput; console.log("Populated input field with shared data."); if (!isInResetMode && extractButton.getAttribute('aria-busy') !== 'true') { console.log("Auto-triggering extraction from share..."); triggerExtractionDebounced(); } else { console.log("Skipping auto-trigger due to current state (reset mode or busy)."); } if (window.history.replaceState) { const cleanUrl = window.location.pathname; window.history.replaceState({}, document.title, cleanUrl); } }
     }
-    window.addEventListener('load', handleIncomingShare);
 
 </script>
 
