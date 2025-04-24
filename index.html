@@ -237,7 +237,9 @@
 
 
 <!-- ***** INCLUDE Readability.js SCRIPT HERE ***** -->
-<script src="readability.js"></script>
+<!-- Example: <script src="readability.js"></script> -->
+<!-- Make sure Readability.js is available at the specified path -->
+
 
 <script>
     // --- Constants ---
@@ -321,7 +323,7 @@
               loadButton.textContent = preset.title;
               loadButton.dataset.index = index; // Store index for loading
               loadButton.title = `Use preset: "${preset.title}"`;
-              loadButton.addEventListener('click', handlePresetButtonClick);
+              // Event listener added via delegation below
 
               const editButton = document.createElement('button');
               editButton.type = 'button';
@@ -330,7 +332,7 @@
               editButton.setAttribute('aria-label', `Edit preset: "${preset.title}"`);
               editButton.dataset.index = index; // Store index for editing
               editButton.innerHTML = ICON_EDIT_SVG;
-              editButton.addEventListener('click', openEditPresetDialog);
+              // Event listener added via delegation below
 
               itemDiv.appendChild(loadButton);
               itemDiv.appendChild(editButton);
@@ -357,7 +359,7 @@
           setTimeout(clearMessages, 2000);
           // Dynamically update output ONLY if it was using the old prefix
           const currentOutput = extractedText.value;
-          if (currentOutput && currentOutput.startsWith(oldPrefix) && currentOutput.substring(oldPrefix.length).trim().length > 0) {
+          if (currentOutput && oldPrefix && currentOutput.startsWith(oldPrefix) && currentOutput.substring(oldPrefix.length).trim().length > 0) {
                const rawTextPart = currentOutput.substring(oldPrefix.length);
                const formattedNewPrefix = currentTextPrefix.trimEnd() + (currentTextPrefix ? "\n\n" : "");
                extractedText.value = formattedNewPrefix + rawTextPart;
@@ -391,8 +393,8 @@
       presetTitleInput.focus(); // Focus title field
   }
 
-  function openEditPresetDialog(event) {
-      const button = event.currentTarget;
+  // MODIFIED: Accepts button element as argument
+  function openEditPresetDialog(button) {
       const index = parseInt(button.dataset.index, 10);
       if (isNaN(index) || index < 0 || index >= customPrefixes.length) {
           console.error("Invalid index for editing preset:", button.dataset.index);
@@ -508,8 +510,8 @@
       customPrefixes.splice(editingPresetIndex, 1); // Remove the preset
 
       if (saveCustomPrefixes()) {
-          renderCustomPresetButtons();
-          closeAddEditPresetDialog();
+          renderCustomPresetButtons(); // Re-render the list in the background
+          closeAddEditPresetDialog();   // Close the current dialog
            // Check if the deleted prefix was the currently active one
            if (currentTextPrefix === presetToDelete.prefix) { // Compare against the object's prefix
                currentTextPrefix = DEFAULT_TEXT_PREFIX; // Revert to default
@@ -529,13 +531,27 @@
           // Don't close dialog, show error there.
           displayError("Failed to save deletion permanently."); // Show error in main UI as well
           setTimeout(clearMessages, 3000);
-
       }
+      // Ensure editing index is reset after attempting delete, even if it failed but dialog remained open
+      // editingPresetIndex = -1; // Resetting here might be incorrect if save failed and user needs context
   }
 
-  // --- Handle Preset Button Clicks (Default & Custom Load) ---
-  function handlePresetButtonClick(event) {
-      const button = event.currentTarget;
+  // MODIFIED: Accepts button element or event
+  function handlePresetButtonClick(eventOrButton) {
+      let button;
+      // Determine if we got the event or the button directly
+      if (eventOrButton instanceof HTMLElement) {
+          button = eventOrButton;
+      } else if (eventOrButton instanceof Event && eventOrButton.target) {
+          // If using delegation, find the button from the event target
+          button = eventOrButton.target.closest('.preset-load-btn, .preset-btn');
+      }
+
+      if (!button) {
+           console.warn("Could not find button from event or argument:", eventOrButton);
+           return;
+      }
+
       let prefixValueToSet = undefined; // Use undefined to signal no match
 
       if (button.classList.contains('preset-load-btn')) { // Custom preset load button
@@ -553,7 +569,7 @@
 
       if (prefixValueToSet !== undefined) {
           setPrefix(prefixValueToSet);
-          // Maybe close the settings dialog after selecting a preset? Optional.
+          // Optionally close the settings dialog after selecting a preset?
           // closeSettings();
       } else {
           console.warn("Could not determine prefix value for clicked button:", button);
@@ -607,9 +623,26 @@
   settingsButton?.addEventListener('click', openSettings);
   settingsCloseButton?.addEventListener('click', closeSettings);
   settingsDialog?.addEventListener('click', handleSettingsBackdropClick);
-  settingsForm?.addEventListener('submit', saveActivePrefixSettings); // Changed target function
-  // Add listeners for default preset buttons
+  settingsForm?.addEventListener('submit', saveActivePrefixSettings);
+  // Add listeners for default preset buttons (still direct, could delegate if desired)
   presetButtons.forEach(button => button.addEventListener('click', handlePresetButtonClick));
+
+  // *** NEW: Delegated listener for custom presets ***
+  customPresetsList?.addEventListener('click', (event) => {
+    // Find the closest ancestor button matching the class
+    const editButton = event.target.closest('.preset-edit-btn');
+    if (editButton) {
+        openEditPresetDialog(editButton); // Pass the button element
+        return; // Stop processing further checks
+    }
+
+    const loadButton = event.target.closest('.preset-load-btn');
+    if (loadButton) {
+        handlePresetButtonClick(loadButton); // Pass the button element
+        return; // Stop processing further checks
+    }
+  });
+
   // Listener for the prefix textarea to check for Add button visibility
   prefixTextarea?.addEventListener('input', checkPrefixForAddButtonVisibility);
   // Listener for the "Add as Preset" button
@@ -625,48 +658,96 @@
   copyButton.addEventListener('click', copyTextToClipboard);
   if (isShareSupported && shareButton) { shareButton.addEventListener('click', handleShare); }
 
-  // --- Core Logic (Fetch, Extract, etc. - unchanged from previous state) ---
+  // --- Core Logic (Fetch, Extract, etc.) ---
   function delay(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
   async function fetchWithRetries(url, options, retries = MAX_RETRIES) { for (let i = 0; i <= retries; i++) { try { if (i > 0) { displayRetryMessage(`Attempt ${i+1} of ${retries+1}...`); await delay(RETRY_DELAY_MS * i); } const response = await fetch(url, options); if (!response.ok) { if (response.status >= 500 && response.status < 600 && i < retries) { console.warn(`Attempt ${i+1} failed with status ${response.status}. Retrying...`); continue; } throw new Error(`Proxy fetch failed: ${response.status} ${response.statusText}`); } clearRetryMessage(); return response; } catch (error) { console.error(`Attempt ${i+1} caught error:`, error); if (i === retries) { clearRetryMessage(); throw error; } } } throw new Error("Fetch failed after all retries."); }
 
   async function handleExtraction() {
     clearMessages(); updateActionButtonsState('');
-    const inputText = urlInput.value.trim(); if (!inputText) { displayError("Please enter text containing a URL."); return; }
-    const urlRegex = /https?:\/\/[^\s/$.?#].[^\s]*/i; const match = inputText.match(urlRegex); if (!match) { // Check if input IS a URL directly or just text
-        const looksLikeUrl = inputText.startsWith('http://') || inputText.startsWith('https://');
-        if (!looksLikeUrl) {
-            // If it's not a URL and doesn't contain one, treat it as text to be prefixed
-            console.log("Input is plain text, applying prefix directly.");
-             const rawExtractedText = inputText; // Use the input directly as text
-             const formattedPrefix = currentTextPrefix.trimEnd() + (currentTextPrefix ? "\n\n" : "");
-             extractedText.value = formattedPrefix + rawExtractedText;
-             displaySuccess(`Applied prefix to input text.`);
-             updateActionButtonsState(rawExtractedText);
-             mainContainer.classList.remove('state-initial');
-             detailsElement.open = true;
-             // Set reset mode even for direct text input
-             extractButton.innerHTML = ICON_RESET_SVG; extractButton.classList.add('reset-mode'); extractButton.title = 'Reset'; extractButton.setAttribute('aria-label', 'Reset'); isInResetMode = true;
-             extractButton.removeEventListener('click', triggerExtractionDebounced);
-             extractButton.addEventListener('click', triggerReset);
-             setLoadingState(false); // Ensure loading stops
-             return; // Stop further processing
-        } else {
-             // If it looks like a URL but regex didn't match (e.g., edge case), try using it
-             console.warn("Input looks like URL but regex failed, attempting extraction anyway:", inputText);
-             match = [inputText]; // Treat the whole input as the URL
-        }
-        // Original error if it's not plain text and not a URL
-        if (!match) {
-           displayError("Input is not a valid URL and does not contain one.");
-           return;
-        }
+    const inputText = urlInput.value.trim(); if (!inputText) { displayError("Please enter text or a URL."); return; } // Modified message
+    const urlRegex = /https?:\/\/[^\s/$.?#].[^\s]*/i; let match = inputText.match(urlRegex);
+
+    // Check if input is plain text (doesn't look like a URL AND doesn't contain a URL)
+    const looksLikeUrl = inputText.startsWith('http://') || inputText.startsWith('https://');
+    if (!looksLikeUrl && !match) {
+        console.log("Input is plain text, applying prefix directly.");
+         const rawExtractedText = inputText;
+         const formattedPrefix = currentTextPrefix.trimEnd() + (currentTextPrefix ? "\n\n" : "");
+         extractedText.value = formattedPrefix + rawExtractedText;
+         displaySuccess(`Applied prefix to input text.`);
+         updateActionButtonsState(rawExtractedText);
+         mainContainer.classList.remove('state-initial');
+         detailsElement.open = true;
+         extractButton.innerHTML = ICON_RESET_SVG; extractButton.classList.add('reset-mode'); extractButton.title = 'Reset'; extractButton.setAttribute('aria-label', 'Reset'); isInResetMode = true;
+         extractButton.removeEventListener('click', triggerExtractionDebounced);
+         extractButton.addEventListener('click', triggerReset);
+         setLoadingState(false);
+         return; // Stop further processing
     }
+
+    // If it didn't match regex but looks like a URL, treat the whole thing as the URL
+    if (!match && looksLikeUrl) {
+        console.warn("Input looks like URL but regex failed, attempting extraction anyway:", inputText);
+        match = [inputText];
+    }
+
+    // If still no match (e.g., input contained a URL but no http/https start?), show error
+    if (!match) {
+       displayError("Input does not contain a valid URL.");
+       return;
+    }
+
+    // Proceed with URL extraction
     const targetUrl = match[0]; console.log("Extracted URL:", targetUrl);
     const proxiedUrl = PROXY_URL + encodeURIComponent(targetUrl); setLoadingState(true);
     try {
-        const response = await fetchWithRetries(proxiedUrl); const html = await response.text(); let doc; try { const parser = new DOMParser(); doc = parser.parseFromString(html, 'text/html'); } catch (parseError) { console.error("DOM Parsing Error:", parseError); throw new Error("Failed to parse the HTML content."); } let article = null; if (typeof Readability === 'undefined') { console.warn("Readability.js not loaded. Falling back."); } else { try { const documentClone = doc.cloneNode(true); let reader = new Readability(documentClone); article = reader.parse(); } catch (readabilityError) { console.error("Readability Error:", readabilityError); } } let extractionSource = ''; let rawExtractedText = '';
-        if (article && article.textContent && article.textContent.trim().length > 100) { const title = article.title?.trim(); const bodyText = article.textContent.trim(); if (title) { rawExtractedText = `${title}\n\n${bodyText}`; } else { rawExtractedText = bodyText; } extractionSource = 'Readability'; }
-        else { if (extractionSource === '') { if (!article && typeof Readability !== 'undefined') console.log("Readability failed/insufficient, attempting fallback..."); else if (typeof Readability === 'undefined') {} else console.log("Readability content insufficient, attempting fallback..."); } const mainElement = doc.querySelector('main') || doc.querySelector('article') || doc.querySelector('.post-content') || doc.querySelector('.entry-content') || doc.body; if (mainElement) { const scripts = mainElement.querySelectorAll('script, style, nav, header, footer, aside, .sidebar, .ads, [aria-hidden="true"], noscript, form, button, input, figure, figcaption, .share-buttons, .comments-area'); scripts.forEach(el => el.remove()); rawExtractedText = mainElement.textContent.replace(/[\t\r\n]+/g, '\n').replace(/\n\s*\n/g, '\n\n').replace(/ {2,}/g, ' ').trim(); } else { rawExtractedText = doc.body ? doc.body.textContent.trim().replace(/\s\s+/g, ' ') : ''; } if (rawExtractedText.trim().length > 50) { if (!article && typeof Readability !== 'undefined') extractionSource = 'basic fallback (Readability failed)'; else extractionSource = 'basic fallback'; } else { rawExtractedText = ''; } }
+        // Check if Readability is loaded before trying to use it
+        if (typeof Readability === 'undefined') {
+            console.error("Readability.js is not loaded. Cannot extract article content.");
+            throw new Error("Readability library not available.");
+        }
+
+        const response = await fetchWithRetries(proxiedUrl); const html = await response.text(); let doc; try { const parser = new DOMParser(); doc = parser.parseFromString(html, 'text/html'); } catch (parseError) { console.error("DOM Parsing Error:", parseError); throw new Error("Failed to parse the HTML content."); }
+        let article = null;
+        try {
+            const documentClone = doc.cloneNode(true);
+            let reader = new Readability(documentClone);
+            article = reader.parse();
+        } catch (readabilityError) {
+            console.error("Readability Error:", readabilityError);
+            // Don't throw here, allow fallback
+        }
+
+        let extractionSource = ''; let rawExtractedText = '';
+        if (article && article.textContent && article.textContent.trim().length > 100) {
+            const title = article.title?.trim();
+            const bodyText = article.textContent.trim();
+            rawExtractedText = title ? `${title}\n\n${bodyText}` : bodyText;
+            extractionSource = 'Readability';
+        } else {
+            console.log("Readability content insufficient or failed, attempting fallback...");
+            const mainElement = doc.querySelector('main') || doc.querySelector('article') || doc.querySelector('.post-content') || doc.querySelector('.entry-content') || doc.body;
+            if (mainElement) {
+                // More aggressive cleanup for fallback
+                const elementsToRemove = mainElement.querySelectorAll('script, style, nav, header, footer, aside, .sidebar, .ads, [aria-hidden="true"], noscript, form, button, input, figure, figcaption, .share-buttons, .comments-area, .related-posts, .pagination, link[rel="stylesheet"], iframe, noscript');
+                elementsToRemove.forEach(el => el.remove());
+                // Simple text extraction, trying to preserve paragraphs
+                rawExtractedText = Array.from(mainElement.childNodes)
+                    .map(node => node.textContent)
+                    .join('\n') // Join text content of direct children
+                    .replace(/[\t\r\n]+/g, '\n') // Normalize newlines
+                    .replace(/\n\s*\n/g, '\n\n') // Collapse multiple blank lines
+                    .replace(/ {2,}/g, ' ') // Collapse multiple spaces
+                    .trim();
+            } else {
+                rawExtractedText = doc.body ? doc.body.textContent.trim().replace(/\s\s+/g, ' ') : '';
+            }
+            if (rawExtractedText.trim().length > 50) {
+                extractionSource = 'basic fallback';
+            } else {
+                rawExtractedText = ''; // Discard if fallback text is too short
+            }
+        }
 
         if (extractionSource) {
             const formattedPrefix = currentTextPrefix.trimEnd() + (currentTextPrefix ? "\n\n" : ""); // Use currentTextPrefix
@@ -678,14 +759,41 @@
             extractButton.innerHTML = ICON_RESET_SVG; extractButton.classList.add('reset-mode'); extractButton.title = 'Reset'; extractButton.setAttribute('aria-label', 'Reset'); isInResetMode = true;
             extractButton.removeEventListener('click', triggerExtractionDebounced);
             extractButton.addEventListener('click', triggerReset);
-        } else { extractedText.value = ''; let finalError = "Extraction failed: Could not get meaningful content."; if (typeof Readability === 'undefined'){ finalError = "Extraction failed: Readability script missing & fallback failed."; } displayError(finalError); if (!mainContainer.classList.contains('state-initial')) mainContainer.classList.add('state-initial'); setInitialButtonState(); extractButton.removeEventListener('click', triggerReset); extractButton.addEventListener('click', triggerExtractionDebounced); updateActionButtonsState(''); detailsElement.open = false; }
-    } catch (error) { console.error("Error during fetch or extraction:", error); extractedText.value = ''; displayError(`Error: ${error.message}`); if (!mainContainer.classList.contains('state-initial')) mainContainer.classList.add('state-initial'); setInitialButtonState(); extractButton.removeEventListener('click', triggerReset); extractButton.addEventListener('click', triggerExtractionDebounced); updateActionButtonsState(''); detailsElement.open = false; }
-    finally { setLoadingState(false); }
+        } else {
+            extractedText.value = '';
+            let finalError = "Extraction failed: Could not get meaningful content after trying Readability and fallback.";
+            displayError(finalError);
+            if (!mainContainer.classList.contains('state-initial')) mainContainer.classList.add('state-initial');
+            setInitialButtonState();
+            extractButton.removeEventListener('click', triggerReset);
+            extractButton.addEventListener('click', triggerExtractionDebounced);
+            updateActionButtonsState('');
+            detailsElement.open = false;
+        }
+    } catch (error) {
+        console.error("Error during fetch or extraction:", error);
+        extractedText.value = '';
+        // Provide more specific error if Readability was missing
+        const displayErrorMessage = error.message === "Readability library not available."
+            ? "Extraction failed: Required Readability library is missing."
+            : `Error: ${error.message}`;
+        displayError(displayErrorMessage);
+
+        if (!mainContainer.classList.contains('state-initial')) mainContainer.classList.add('state-initial');
+        setInitialButtonState();
+        extractButton.removeEventListener('click', triggerReset);
+        extractButton.addEventListener('click', triggerExtractionDebounced);
+        updateActionButtonsState('');
+        detailsElement.open = false;
+    } finally {
+        setLoadingState(false);
+    }
   }
+
 
    function setLoadingState(isLoading) { if (isLoading) { extractButton.setAttribute('aria-busy', 'true'); } else { extractButton.removeAttribute('aria-busy'); } }
 
-  // --- Clipboard and UI Functions (Unchanged except for active prefix saving in reset) ---
+  // --- Clipboard and UI Functions ---
   function copyTextToClipboard() { if (!extractedText.value) { displayError("Nothing to copy."); return; } if (!detailsElement.open) { detailsElement.open = true; } navigator.clipboard.writeText(extractedText.value) .then(() => { displaySuccess("Content copied to clipboard!"); if (copyButtonIconWrapper) copyButtonIconWrapper.innerHTML = ICON_CHECK_SVG; if (copyButtonTextWrapper) copyButtonTextWrapper.textContent = 'Copied!'; copyButton.classList.add('secondary'); setTimeout(() => { setInitialCopyIcon(); if (copyButtonTextWrapper) copyButtonTextWrapper.textContent = 'Copy'; copyButton.classList.remove('secondary'); }, 2000); }) .catch(err => { console.error('Failed to copy text: ', err); try { detailsElement.open = true; extractedText.select(); document.execCommand('copy'); displaySuccess("Copied (using fallback)!"); } catch (execErr) { displayError("Failed to copy automatically."); } }); }
   function resetUI() {
     clearMessages(); setLoadingState(false); urlInput.value = '';
@@ -697,7 +805,6 @@
     setInitialButtonState();
     extractButton.removeEventListener('click', triggerReset);
     extractButton.addEventListener('click', triggerExtractionDebounced);
-    // No prefix reset needed here, user manages prefix via settings
   }
   function displayError(message) { errorMessage.textContent = message; successMessage.textContent = ''; retryMessage.textContent = ''; }
   function displaySuccess(message) { successMessage.textContent = message; errorMessage.textContent = ''; retryMessage.textContent = ''; }
@@ -712,9 +819,9 @@
       }
   }
 
-
   // --- PWA Service Worker Registration ---
-  if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('/ArticleScraper/sw.js') /* Adjust path if needed */ .then(registration => { console.log('ServiceWorker registration successful with scope: ', registration.scope); }) .catch(err => { console.error('ServiceWorker registration failed: ', err); }); }); }
+  if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('./sw.js') // Assuming sw.js is in the same directory
+      .then(registration => { console.log('ServiceWorker registration successful with scope: ', registration.scope); }) .catch(err => { console.error('ServiceWorker registration failed: ', err); }); }); }
   // --- END PWA Service Worker Registration ---
 
   // --- HANDLE INCOMING SHARE TARGET ---
@@ -728,16 +835,29 @@
           // Check if it's likely a URL before auto-triggering
           if (textToInput.match(/https?:\/\/[^\s/$.?#].[^\s]*/i) || textToInput.startsWith('http')) {
              console.log("Auto-triggering extraction from share...");
-             triggerExtractionDebounced();
+             // Use a small delay to allow UI to update before extraction starts
+             setTimeout(triggerExtractionDebounced, 100);
           } else {
               console.log("Shared data is likely text, not auto-triggering extraction.");
-              // Optionally, trigger prefix application immediately?
-              // handleExtraction(); // This would apply prefix if called now
+              // Optionally, trigger prefix application immediately after a short delay?
+              // setTimeout(handleExtraction, 100);
           }
       }
   }
+  // Check for shared content when the window loads
   window.addEventListener('load', handleIncomingShare);
-  // --- END INCOMING SHARE TARGET ---
+
+  // --- Check for Readability.js ---
+  window.addEventListener('load', () => {
+    if (typeof Readability === 'undefined') {
+        console.error("Readability.js script not found or failed to load. Article extraction will be limited.");
+        // Optionally display a persistent warning to the user
+        // displayError("Warning: Readability library missing, extraction quality may be reduced.");
+    } else {
+        console.log("Readability.js loaded successfully.");
+    }
+  });
+
 
 </script>
 
