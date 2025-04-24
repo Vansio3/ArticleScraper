@@ -146,7 +146,8 @@
   const DEFAULT_TEXT_PREFIX = "Summarise the key points from the following article:\n\n"; const PREFIX_STORAGE_KEY = 'articleExtractorPrefix';
   const PRESET_SUMMARISE = "Summarise the key points from the following article:\n\n";
   // **** START CHANGE ****
-  const PRESET_FACTCHECK = "You are a fact-checking assistant that verifies the factual accuracy of the provided text. Please fact-check the following text using real-time data grounding and provide a brief summary along with an accuracy percentage in your response:\n\n"; // Updated preset text
+  const PRESET_FACTCHECK = "I want you to fact check this article in full. Leave no stone unturned. To do so, first, look at the text of the article and parse out each individual fact — after this, you should have a list of facts. Then, for each fact, do comprehensive research to determine whether it is true, false, or unclear. Aim for at least three independent, high quality and trustworthy sources for each fact.\n Then, once you've done this for *every* fact, return a table with each fact and its corresponding results (including sources for each check).:\n\n"; 
+//OLD Preset (keep for now)   const PRESET_FACTCHECK = "You are a fact-checking assistant that verifies the factual accuracy of the provided text. Please fact-check the following text using real-time data grounding and provide a brief summary along with an accuracy percentage in your response:\n\n"; // Updated preset text
   // **** END CHANGE ****
   const PRESET_FORMATTING = "Fix the punctuation and formatting of the following text:\n\n";
 
