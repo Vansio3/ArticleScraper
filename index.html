@@ -25,7 +25,7 @@
         --pico-color-amber-500: #ffa000;
         --pico-color-red-550: #d32f2f;
         --pico-color-red-600: #c62828;
-        --pico-color-red-contrast: #fff; /* Contrast for red delete button */
+        --pico-color-red-contrast: #fff;
         --pico-border-radius-pill: 50px;
       }
 
@@ -35,28 +35,16 @@
         line-height: 1.6; background-color: var(--pico-color-dark-background);
         color: var(--pico-color); display: flex; flex-direction: column;
         align-items: center; min-height: 100vh; overflow-x: hidden; justify-content: flex-start;
-        user-select: none; /* <<< Disable text selection globally */
-        -webkit-user-select: none; /* Vendor prefixes */
-        -moz-user-select: none;
-        -ms-user-select: none;
+        user-select: none; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none;
       }
 
       /* --- Re-enable selection for specific elements --- */
-      input[type="text"],
-      textarea {
-        user-select: text; /* Allow selection within text inputs and textareas */
-        -webkit-user-select: text;
-        -moz-user-select: text;
-        -ms-user-select: text;
+      input[type="text"], textarea {
+        user-select: text; -webkit-user-select: text; -moz-user-select: text; -ms-user-select: text;
       }
-      dialog#save-preset-dialog #preset-text-display { /* Readonly display div */
-        user-select: text;
-        -webkit-user-select: text;
-        -moz-user-select: text;
-        -ms-user-select: text;
+      dialog#save-preset-dialog #preset-text-display {
+        user-select: text; -webkit-user-select: text; -moz-user-select: text; -ms-user-select: text;
       }
-       /* Extracted text area is already a textarea, so it inherits the rule above */
-
 
       main.container {
         padding: calc(var(--pico-spacing) * 1.5); margin: calc(var(--pico-spacing) * 2) auto var(--pico-spacing) auto;
@@ -77,142 +65,51 @@
       }
 
       /* --- Floating Settings Button --- */
-      #settings-button {
-        position: fixed; top: var(--pico-spacing); right: var(--pico-spacing); z-index: 100;
-        padding: calc(var(--pico-spacing) * 0.3); width: auto; height: auto; border-radius: 50%;
-        line-height: 0;
-      }
+      #settings-button { position: fixed; top: var(--pico-spacing); right: var(--pico-spacing); z-index: 100; padding: calc(var(--pico-spacing) * 0.3); width: auto; height: auto; border-radius: 50%; line-height: 0; }
       #settings-button svg { width: 1.1em; height: 1.1em; vertical-align: middle; }
 
       /* --- Dialog Animations & Backdrop (Applied to all dialogs) --- */
-      dialog#settings-dialog, dialog#save-preset-dialog, dialog#edit-preset-dialog {
-        max-width: 500px; border-radius: var(--pico-border-radius); padding: 0; opacity: 0;
-        transform: scale(0.95) translateY(10px); transition: opacity 0.25s ease-out, transform 0.25s ease-out, display 0.25s allow-discrete;
-        pointer-events: none; overflow: visible; background: transparent; box-shadow: none; border: none;
-      }
-      dialog#settings-dialog::backdrop, dialog#save-preset-dialog::backdrop, dialog#edit-preset-dialog::backdrop {
-        background-color: rgba(26, 26, 26, 0); transition: background-color 0.3s ease-out;
-      }
-      dialog#settings-dialog[open], dialog#save-preset-dialog[open], dialog#edit-preset-dialog[open] {
-        opacity: 1; transform: scale(1) translateY(0); pointer-events: auto;
-      }
-      dialog#settings-dialog[open]::backdrop, dialog#save-preset-dialog[open]::backdrop, dialog#edit-preset-dialog[open]::backdrop {
-         background-color: rgba(26, 26, 26, 0.6);
-      }
-      dialog#settings-dialog > article, dialog#save-preset-dialog > article, dialog#edit-preset-dialog > article {
-         background-color: var(--pico-card-background-color); border: 1px solid var(--pico-card-border-color);
-         box-shadow: var(--pico-card-box-shadow); border-radius: var(--pico-border-radius);
-         margin: 0; padding: var(--pico-block-spacing-vertical) var(--pico-block-spacing-horizontal);
-      }
-      /* --- END Dialog Animation & Backdrop --- */
+      dialog#settings-dialog, dialog#save-preset-dialog, dialog#edit-preset-dialog { max-width: 500px; border-radius: var(--pico-border-radius); padding: 0; opacity: 0; transform: scale(0.95) translateY(10px); transition: opacity 0.25s ease-out, transform 0.25s ease-out, display 0.25s allow-discrete; pointer-events: none; overflow: visible; background: transparent; box-shadow: none; border: none; }
+      dialog#settings-dialog::backdrop, dialog#save-preset-dialog::backdrop, dialog#edit-preset-dialog::backdrop { background-color: rgba(26, 26, 26, 0); transition: background-color 0.3s ease-out; }
+      dialog#settings-dialog[open], dialog#save-preset-dialog[open], dialog#edit-preset-dialog[open] { opacity: 1; transform: scale(1) translateY(0); pointer-events: auto; }
+      dialog#settings-dialog[open]::backdrop, dialog#save-preset-dialog[open]::backdrop, dialog#edit-preset-dialog[open]::backdrop { background-color: rgba(26, 26, 26, 0.6); }
+      dialog#settings-dialog > article, dialog#save-preset-dialog > article, dialog#edit-preset-dialog > article { background-color: var(--pico-card-background-color); border: 1px solid var(--pico-card-border-color); box-shadow: var(--pico-card-box-shadow); border-radius: var(--pico-border-radius); margin: 0; padding: var(--pico-block-spacing-vertical) var(--pico-block-spacing-horizontal); }
 
       /* --- Specific Dialog Content Styles --- */
-      dialog#settings-dialog textarea, dialog#edit-preset-dialog textarea {
-        margin-bottom: var(--pico-spacing); min-height: 80px;
-      }
-      dialog#save-preset-dialog #preset-text-display {
-          background-color: var(--pico-form-element-background-color); border: 1px solid var(--pico-form-element-border-color);
-          border-radius: var(--pico-border-radius); padding: var(--pico-form-element-spacing-vertical) var(--pico-form-element-spacing-horizontal);
-          font-family: var(--pico-font-monospace); font-size: 0.9em; max-height: 150px; overflow-y: auto;
-          margin-top: calc(var(--pico-spacing) * 0.5); margin-bottom: var(--pico-spacing); white-space: pre-wrap; word-wrap: break-word;
-      }
-      dialog#save-preset-dialog label, dialog#edit-preset-dialog label {
-        font-weight: var(--pico-font-weight-semibold); display: block; margin-bottom: calc(var(--pico-form-element-spacing-vertical) / 2);
-      }
-      dialog#save-preset-dialog input[type="text"], dialog#edit-preset-dialog input[type="text"] {
-        margin-bottom: var(--pico-spacing);
-      }
-      dialog#save-preset-dialog small.char-count, dialog#edit-preset-dialog small.char-count {
-        font-size: 0.8em; color: var(--pico-secondary); display: block; text-align: right;
-        margin-top: calc(var(--pico-spacing) * -0.75); margin-bottom: var(--pico-spacing);
-      }
+      dialog#settings-dialog textarea, dialog#edit-preset-dialog textarea { margin-bottom: var(--pico-spacing); min-height: 80px; }
+      dialog#save-preset-dialog #preset-text-display { background-color: var(--pico-form-element-background-color); border: 1px solid var(--pico-form-element-border-color); border-radius: var(--pico-border-radius); padding: var(--pico-form-element-spacing-vertical) var(--pico-form-element-spacing-horizontal); font-family: var(--pico-font-monospace); font-size: 0.9em; max-height: 150px; overflow-y: auto; margin-top: calc(var(--pico-spacing) * 0.5); margin-bottom: var(--pico-spacing); white-space: pre-wrap; word-wrap: break-word; }
+      dialog#save-preset-dialog label, dialog#edit-preset-dialog label { font-weight: var(--pico-font-weight-semibold); display: block; margin-bottom: calc(var(--pico-form-element-spacing-vertical) / 2); }
+      dialog#save-preset-dialog input[type="text"], dialog#edit-preset-dialog input[type="text"] { margin-bottom: var(--pico-spacing); }
+      dialog#save-preset-dialog small.char-count, dialog#edit-preset-dialog small.char-count { font-size: 0.8em; color: var(--pico-secondary); display: block; text-align: right; margin-top: calc(var(--pico-spacing) * -0.75); margin-bottom: var(--pico-spacing); }
 
        /* --- Preset Button Containers & Items --- */
-      .prefix-buttons-container {
-        margin-bottom: calc(var(--pico-spacing) * 1.5); display: flex; flex-wrap: wrap;
-        gap: calc(var(--pico-spacing) * 0.5); align-items: center;
-      }
-      .prefix-buttons-container small, small.custom-presets-label {
-        width: 100%; margin-bottom: calc(var(--pico-spacing) * 0.25); color: var(--pico-secondary); font-size: 0.85em;
-      }
-      .prefix-buttons-container button {
-          padding: calc(var(--pico-spacing) * 0.4) calc(var(--pico-spacing) * 0.8); font-size: 0.9em; margin: 0;
-      }
-      .custom-preset-buttons-container {
-          margin-top: calc(var(--pico-spacing) * 0.5); display: flex; flex-direction: column;
-          gap: calc(var(--pico-spacing) * 0.5); align-items: stretch;
-          border-top: 1px solid var(--pico-card-border-color); padding-top: calc(var(--pico-spacing) * 0.75);
-          margin-bottom: var(--pico-spacing);
-      }
-      .custom-preset-buttons-container:empty {
-          display: none; border-top: none; padding-top: 0; margin-top: 0; margin-bottom: 0;
-      }
-      .custom-preset-item {
-        display: flex; align-items: center; /* Vertical alignment */
-        gap: calc(var(--pico-spacing) * 0.4); width: 100%; flex-wrap: nowrap;
-      }
-      .custom-preset-item button.custom-preset-btn {
-        flex-grow: 1; padding: calc(var(--pico-spacing) * 0.4) calc(var(--pico-spacing) * 0.8);
-        font-size: 0.9em; margin: 0; text-align: left; overflow: hidden;
-        text-overflow: ellipsis; white-space: nowrap; min-width: 0;
-        line-height: 1.5; /* Adjust if necessary based on font */
-      }
-      .custom-preset-item button.edit-preset-btn {
-        flex-shrink: 0; padding: calc(var(--pico-spacing) * 0.4); /* Match vertical padding */
-        line-height: 0; width: auto; height: auto;
-        border-radius: var(--pico-border-radius); display: inline-flex; align-items: center; justify-content: center;
-        margin-bottom: 0; /* Explicitly remove bottom margin */
-      }
-       .custom-preset-item button.edit-preset-btn svg {
-         width: 1em; /* Slightly larger icon */
-         height: 1em;
-         vertical-align: middle; stroke-width: 2.5;
-       }
+      .prefix-buttons-container { margin-bottom: calc(var(--pico-spacing) * 1.5); display: flex; flex-wrap: wrap; gap: calc(var(--pico-spacing) * 0.5); align-items: center; }
+      .prefix-buttons-container small, small.custom-presets-label { width: 100%; margin-bottom: calc(var(--pico-spacing) * 0.25); color: var(--pico-secondary); font-size: 0.85em; }
+      .prefix-buttons-container button { padding: calc(var(--pico-spacing) * 0.4) calc(var(--pico-spacing) * 0.8); font-size: 0.9em; margin: 0; }
+      .custom-preset-buttons-container { margin-top: calc(var(--pico-spacing) * 0.5); display: flex; flex-direction: column; gap: calc(var(--pico-spacing) * 0.5); align-items: stretch; border-top: 1px solid var(--pico-card-border-color); padding-top: calc(var(--pico-spacing) * 0.75); margin-bottom: var(--pico-spacing); }
+      .custom-preset-buttons-container:empty { display: none; border-top: none; padding-top: 0; margin-top: 0; margin-bottom: 0; }
+      .custom-preset-item { display: flex; align-items: center; gap: calc(var(--pico-spacing) * 0.4); width: 100%; flex-wrap: nowrap; }
+      .custom-preset-item button.custom-preset-btn { flex-grow: 1; padding: calc(var(--pico-spacing) * 0.4) calc(var(--pico-spacing) * 0.8); font-size: 0.9em; margin: 0; text-align: left; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; line-height: 1.5; }
+      .custom-preset-item button.edit-preset-btn { flex-shrink: 0; padding: calc(var(--pico-spacing) * 0.4); line-height: 0; width: auto; height: auto; border-radius: var(--pico-border-radius); display: inline-flex; align-items: center; justify-content: center; margin-bottom: 0; }
+      .custom-preset-item button.edit-preset-btn svg { width: 1em; height: 1em; vertical-align: middle; stroke-width: 2.5; }
 
       /* Conditionally Visible "Add as Preset" Button */
-      #add-preset-button {
-          display: none; margin-top: calc(var(--pico-spacing) * -0.5); margin-bottom: var(--pico-spacing);
-          width: 100%; font-size: 0.9em; padding: calc(var(--pico-spacing) * 0.5) var(--pico-spacing);
-      }
+      #add-preset-button { display: none; margin-top: calc(var(--pico-spacing) * -0.5); margin-bottom: var(--pico-spacing); width: 100%; font-size: 0.9em; padding: calc(var(--pico-spacing) * 0.5) var(--pico-spacing); }
       #add-preset-button.visible { display: block; }
 
       /* --- Dialog Footer & Header --- */
-      dialog footer {
-        display: flex; justify-content: flex-end; gap: calc(var(--pico-spacing) * 0.5);
-        margin-top: var(--pico-block-spacing-vertical);
-      }
+      dialog footer { display: flex; justify-content: flex-end; gap: calc(var(--pico-spacing) * 0.5); margin-top: var(--pico-block-spacing-vertical); }
       dialog header > button[aria-label="Close"] { margin-left: auto; margin-bottom: 0; }
-      dialog footer button#delete-preset-button {
-        background-color: var(--pico-color-red-550); border-color: var(--pico-color-red-550);
-        color: var(--pico-color-red-contrast); margin-right: auto; /* Push delete button to the left */
-      }
-       dialog footer button#delete-preset-button:hover {
-         background-color: var(--pico-color-red-600); border-color: var(--pico-color-red-600);
-       }
+      dialog footer button#delete-preset-button { background-color: var(--pico-color-red-550); border-color: var(--pico-color-red-550); color: var(--pico-color-red-contrast); margin-right: auto; }
+      dialog footer button#delete-preset-button:hover { background-color: var(--pico-color-red-600); border-color: var(--pico-color-red-600); }
 
       /* --- Main Page Elements --- */
       h1 { font-size: 1.75em; margin-bottom: var(--pico-block-spacing-vertical); text-align: center; }
-      #input-group {
-        display: flex; align-items: center; background-color: var(--pico-form-element-background-color);
-        border-radius: var(--pico-border-radius-pill); border: var(--pico-border-width) solid var(--pico-form-element-border-color);
-        padding: 0; overflow: hidden; margin-bottom: var(--pico-block-spacing-vertical);
-      }
+      #input-group { display: flex; align-items: center; background-color: var(--pico-form-element-background-color); border-radius: var(--pico-border-radius-pill); border: var(--pico-border-width) solid var(--pico-form-element-border-color); padding: 0; overflow: hidden; margin-bottom: var(--pico-block-spacing-vertical); }
       #input-group:focus-within { border-color: var(--pico-primary); box-shadow: 0 0 0 var(--pico-outline-width) var(--pico-primary-focus); }
-      #url-input {
-        flex-grow: 1; border: none; background-color: transparent;
-        padding: var(--pico-form-element-spacing-vertical) var(--pico-form-element-spacing-horizontal);
-        padding-right: calc(var(--pico-form-element-spacing-horizontal) / 2); font-size: 1em;
-        color: var(--pico-form-element-color); outline: none !important; box-shadow: none !important;
-        margin: 0; min-width: 0;
-      }
+      #url-input { flex-grow: 1; border: none; background-color: transparent; padding: var(--pico-form-element-spacing-vertical) var(--pico-form-element-spacing-horizontal); padding-right: calc(var(--pico-form-element-spacing-horizontal) / 2); font-size: 1em; color: var(--pico-form-element-color); outline: none !important; box-shadow: none !important; margin: 0; min-width: 0; }
       #url-input::placeholder { color: var(--pico-secondary); }
-      #extract-button {
-        flex-shrink: 0; border: none; background-color: var(--pico-primary); color: var(--pico-primary-inverse);
-        margin: 4px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center;
-        font-size: 1.4em; font-weight: bold; line-height: 1; width: 2.4em; height: 2.4em; padding: 0;
-        transition: background-color var(--pico-transition), transform 0.2s ease-in-out, color 0.1s ease;
-        position: relative; overflow: hidden; transform: rotate(0deg);
-      }
+      #extract-button { flex-shrink: 0; border: none; background-color: var(--pico-primary); color: var(--pico-primary-inverse); margin: 4px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.4em; font-weight: bold; line-height: 1; width: 2.4em; height: 2.4em; padding: 0; transition: background-color var(--pico-transition), transform 0.2s ease-in-out, color 0.1s ease; position: relative; overflow: hidden; transform: rotate(0deg); }
       #extract-button:hover:not([aria-busy=true]):not(.reset-mode) { background-color: var(--pico-primary-hover); }
       #extract-button:active:not([aria-busy=true]):not(.reset-mode) { transform: scale(0.95); }
       #extract-button[aria-busy=true] { background-color: var(--pico-secondary); cursor: default; color: transparent; }
@@ -221,13 +118,7 @@
       #extract-button.reset-mode:hover:not([aria-busy=true]) { background-color: var(--pico-color-red-600); }
       #extract-button.reset-mode:active:not([aria-busy=true]) { transform: rotate(180deg) scale(0.95); }
       #copy-button-wrapper { margin-bottom: calc(var(--pico-spacing) / 2); display: flex; justify-content: center; gap: var(--pico-spacing); flex-wrap: wrap; }
-      #copy-button, #share-button {
-        background-color: var(--pico-card-background-color); color: var(--pico-contrast-foreground);
-        border: 1px solid var(--pico-contrast-border); padding: calc(var(--pico-spacing) * 0.6) calc(var(--pico-spacing) * 1.0);
-        border-radius: var(--pico-border-radius); display: inline-flex; align-items: center; justify-content: center;
-        gap: calc(var(--pico-spacing) * 0.5); transition: background-color var(--pico-transition), border-color var(--pico-transition), transform 0.1s ease, box-shadow var(--pico-transition), opacity 0.2s ease;
-        cursor: pointer; font-weight: var(--pico-font-weight-medium); width: auto; display: none;
-      }
+      #copy-button, #share-button { background-color: var(--pico-card-background-color); color: var(--pico-contrast-foreground); border: 1px solid var(--pico-contrast-border); padding: calc(var(--pico-spacing) * 0.6) calc(var(--pico-spacing) * 1.0); border-radius: var(--pico-border-radius); display: inline-flex; align-items: center; justify-content: center; gap: calc(var(--pico-spacing) * 0.5); transition: background-color var(--pico-transition), border-color var(--pico-transition), transform 0.1s ease, box-shadow var(--pico-transition), opacity 0.2s ease; cursor: pointer; font-weight: var(--pico-font-weight-medium); width: auto; display: none; }
       #copy-button.enabled, #share-button.enabled { display: inline-flex; }
       #copy-button .icon-wrapper, #share-button .icon-wrapper { display: inline-flex; align-items: center; line-height: 0; }
       #copy-button svg, #share-button svg { width: 1.1em; height: 1.1em; fill: currentColor; }
@@ -242,10 +133,7 @@
       #error-message { color: var(--pico-color-red-500); }
       #success-message { color: var(--pico-color-green-500); }
       #retry-message { color: var(--pico-color-amber-500); }
-      .dialog-error-message {
-          color: var(--pico-color-red-500); font-size: 0.9em; margin-top: calc(var(--pico-spacing) * -0.75);
-          margin-bottom: var(--pico-spacing); min-height: 1.2em; display: block; text-align: left;
-      }
+      .dialog-error-message { color: var(--pico-color-red-500); font-size: 0.9em; margin-top: calc(var(--pico-spacing) * -0.75); margin-bottom: var(--pico-spacing); min-height: 1.2em; display: block; text-align: left; }
       /* --- Responsive Adjustments --- */
       @media (min-width: 768px) { h1 { font-size: 2em; } #extracted-text { height: 300px; } }
       @media (min-width: 992px) { #extracted-text { height: 350px; } }
@@ -397,6 +285,7 @@
     const PREFIX_STORAGE_KEY = 'articleExtractorPrefix';
     const CUSTOM_PRESETS_STORAGE_KEY = 'articleExtractorCustomPresets';
     const MAX_PRESET_TITLE_LENGTH = 30; // Updated max length
+    const PERSISTENT_URL_KEY = 'persistentUrl'; // <<< New Key for URL persistence
     const PRESET_SUMMARISE = "Summarise the key points from the following article:\n\n";
     const PRESET_FACTCHECK = "I want you to fact check this article in full. Leave no stone unturned. To do so, first, look at the text of the article and parse out each individual fact — after this, you should have a list of facts. Then, for each fact, do comprehensive research to determine whether it is true, false, or unclear. Aim for at least three independent, high quality and trustworthy sources for each fact.\n Then, once you've done this for *every* fact, return a table with each fact and its corresponding results (including sources for each check).:\n\n";
     const PRESET_FORMATTING = "Fix the punctuation and formatting of the following text:\n\n";
@@ -416,6 +305,7 @@
     let prefixCheckDebounceTimer;
     let extractionDebounceTimer;
     let editPresetIndex = -1;
+    let processedShareTarget = false; // Flag to prevent localStorage load after share
 
     // --- Element References ---
     const mainContainer = document.querySelector('main.container');
@@ -555,9 +445,26 @@
         copyButton.addEventListener('click', copyTextToClipboard);
         if (isShareSupported && shareButton) shareButton.addEventListener('click', handleShare);
 
-        // PWA & Share Target
+        // PWA & Share Target & Persistence
         if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('/ArticleScraper/sw.js').then(reg => console.log('SW registered!', reg)).catch(err => console.error('SW registration failed:', err)); }); }
-        window.addEventListener('load', handleIncomingShare);
+
+        // ---> ADDED: Save URL before unloading
+        window.addEventListener('beforeunload', () => {
+            if (urlInput) {
+                try {
+                    localStorage.setItem(PERSISTENT_URL_KEY, urlInput.value);
+                    console.log('Saved URL to localStorage on unload:', urlInput.value);
+                } catch (e) {
+                    console.error('Failed to save URL on unload:', e);
+                }
+            }
+        });
+
+        // ---> MODIFIED: Handle Share Target AND Persistent URL on Load
+        window.addEventListener('load', () => {
+            handleIncomingShare(); // Process share target first
+            handlePersistentUrlLoad(); // Then process persistent URL if share didn't happen
+        });
     }
     setupEventListeners(); // Call the setup function
 
@@ -579,7 +486,81 @@
     function updateActionButtonsState(rawText) { const hasContent = !!rawText && rawText.trim().length > 0; copyButton.disabled = !hasContent; if (isShareSupported && shareButton) { shareButton.disabled = !hasContent; } }
 
     // --- HANDLE INCOMING SHARE TARGET ---
-    function handleIncomingShare() { const urlParams = new URLSearchParams(window.location.search); const sharedUrl = urlParams.get('url'); const sharedText = urlParams.get('text'); let textToInput = ''; if (sharedUrl) { console.log("Received shared URL:", sharedUrl); textToInput = sharedUrl; } else if (sharedText) { console.log("Received shared text:", sharedText); const urlRegex = /https?:\/\/[^\s/$.?#].[^\s]*/i; const match = sharedText.match(urlRegex); if (match) { textToInput = match[0]; console.log("Extracted URL from shared text:", textToInput); } else { console.log("Shared text received, but no URL found within it."); } } if (textToInput && urlInput) { urlInput.value = textToInput; console.log("Populated input field with shared data."); if (!isInResetMode && extractButton.getAttribute('aria-busy') !== 'true') { console.log("Auto-triggering extraction from share..."); triggerExtractionDebounced(); } else { console.log("Skipping auto-trigger due to current state (reset mode or busy)."); } if (window.history.replaceState) { const cleanUrl = window.location.pathname; window.history.replaceState({}, document.title, cleanUrl); } } }
+    function handleIncomingShare() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const sharedUrl = urlParams.get('url');
+      const sharedText = urlParams.get('text');
+      let textToInput = '';
+      processedShareTarget = false; // Reset flag
+
+      if (sharedUrl) {
+          console.log("Received shared URL:", sharedUrl);
+          textToInput = sharedUrl;
+      } else if (sharedText) {
+          console.log("Received shared text:", sharedText);
+          const urlRegex = /https?:\/\/[^\s/$.?#].[^\s]*/i;
+          const match = sharedText.match(urlRegex);
+          if (match) {
+              textToInput = match[0];
+              console.log("Extracted URL from shared text:", textToInput);
+          } else {
+              console.log("Shared text received, but no URL found within it.");
+          }
+      }
+
+      if (textToInput && urlInput) {
+          urlInput.value = textToInput;
+          console.log("Populated input field with shared data.");
+          processedShareTarget = true; // Mark share target as processed
+
+          if (!isInResetMode && extractButton.getAttribute('aria-busy') !== 'true') {
+              console.log("Auto-triggering extraction from share...");
+              triggerExtractionDebounced();
+          } else {
+              console.log("Skipping auto-trigger from share due to current state (reset mode or busy).");
+          }
+          // Clean the URL params from the address bar after processing
+          if (window.history.replaceState) {
+              const cleanUrl = window.location.pathname;
+              window.history.replaceState({}, document.title, cleanUrl);
+          }
+      }
+    }
+
+    // --- HANDLE PERSISTENT URL ON LOAD ---
+    function handlePersistentUrlLoad() {
+        // Only run if a share target wasn't processed
+        if (processedShareTarget) {
+            console.log("Skipping persistent URL check as share target was processed.");
+            return;
+        }
+
+        try {
+            const storedUrl = localStorage.getItem(PERSISTENT_URL_KEY);
+            if (storedUrl && urlInput) {
+                console.log("Found persistent URL:", storedUrl);
+                urlInput.value = storedUrl;
+
+                // Only auto-extract if the stored URL looks like a URL
+                // and the app is in initial state (no reset mode, not busy)
+                 const urlRegex = /https?:\/\/[^\s/$.?#].[^\s]*/i;
+                 if (urlRegex.test(storedUrl) && !isInResetMode && extractButton.getAttribute('aria-busy') !== 'true') {
+                    console.log("Auto-triggering extraction from persistent URL...");
+                    triggerExtractionDebounced();
+                 } else if (!urlRegex.test(storedUrl)) {
+                     console.log("Persistent data found, but doesn't look like a URL, not auto-extracting.");
+                     // Optionally clear the invalid stored data
+                     // localStorage.removeItem(PERSISTENT_URL_KEY);
+                 } else {
+                     console.log("Skipping auto-trigger from persistent URL due to current state (reset mode or busy).");
+                 }
+            } else {
+                 console.log("No persistent URL found or input field not ready.");
+            }
+        } catch(e) {
+             console.error("Error loading persistent URL:", e);
+        }
+    }
 
 </script>
 
