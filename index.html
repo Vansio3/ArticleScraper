@@ -51,18 +51,59 @@
   .preset-buttons-container small { width: 100%; margin-bottom: calc(var(--pico-spacing) * 0.25); color: var(--pico-secondary); font-size: 0.85em; }
   .preset-buttons-container button { padding: calc(var(--pico-spacing) * 0.4) calc(var(--pico-spacing) * 0.8); font-size: 0.9em; margin: 0; }
 
-  #custom-presets-container { margin-top: var(--pico-spacing); margin-bottom: calc(var(--pico-spacing) * 1.5); /* Added spacing below */ }
+  #custom-presets-container { margin-top: var(--pico-spacing); margin-bottom: calc(var(--pico-spacing) * 1.5); }
   #custom-presets-container h6 { margin-bottom: calc(var(--pico-spacing) * 0.5); color: var(--pico-secondary); }
-  #custom-presets-list { display: flex; flex-wrap: wrap; gap: calc(var(--pico-spacing) * 0.5); }
-  #custom-presets-list .custom-preset-item { display: flex; align-items: center; gap: calc(var(--pico-spacing) * 0.3); }
-  #custom-presets-list button.preset-load-btn { padding: calc(var(--pico-spacing) * 0.4) calc(var(--pico-spacing) * 0.8); font-size: 0.9em; margin: 0; flex-grow: 1; text-align: left; }
-  #custom-presets-list button.preset-edit-btn { padding: calc(var(--pico-spacing) * 0.3); width: auto; height: auto; border-radius: 50%; line-height: 0; flex-shrink: 0; }
+
+  /* --- START Custom Preset List Layout Changes --- */
+  #custom-presets-list {
+    display: grid; /* Use grid layout */
+    grid-template-columns: 1fr; /* Each item takes one full column */
+    gap: calc(var(--pico-spacing) * 0.5); /* Space between rows */
+  }
+  #custom-presets-list .custom-preset-item {
+    display: flex; /* Keep load/edit buttons side-by-side */
+    align-items: center; /* Vertically align buttons */
+    gap: calc(var(--pico-spacing) * 0.3);
+    width: 100%; /* Ensure the item takes full width */
+  }
+  #custom-presets-list button.preset-load-btn {
+    padding: calc(var(--pico-spacing) * 0.4) calc(var(--pico-spacing) * 0.8);
+    font-size: 0.9em;
+    margin: 0;
+    flex-grow: 1; /* Make load button take available space */
+    text-align: left;
+    overflow: hidden;      /* Prevent text overflow issues */
+    text-overflow: ellipsis; /* Add ellipsis if text is too long */
+    white-space: nowrap;   /* Keep text on one line */
+  }
+  #custom-presets-list button.preset-edit-btn {
+    padding: calc(var(--pico-spacing) * 0.3);
+    width: auto;
+    height: auto;
+    border-radius: 50%;
+    line-height: 0;
+    flex-shrink: 0; /* Prevent edit button from shrinking */
+    margin: 0; /* Remove all margins, including bottom */
+  }
   #custom-presets-list button.preset-edit-btn svg { width: 0.9em; height: 0.9em; vertical-align: middle; }
+  /* --- END Custom Preset List Layout Changes --- */
+
   #no-custom-presets-msg { font-style: italic; color: var(--pico-secondary); font-size: 0.9em; }
   #add-preset-button { margin-top: var(--pico-spacing); display: none; /* Initially hidden */ }
 
   dialog footer { text-align: right; margin-top: var(--pico-spacing); }
-  dialog#add-edit-preset-dialog footer { display: flex; justify-content: space-between; align-items: center; }
+  /* --- START Add/Edit Dialog Footer Layout Changes --- */
+  dialog#add-edit-preset-dialog footer {
+    display: flex; /* Use flexbox */
+    justify-content: flex-end; /* Align buttons to the right by default */
+    align-items: center;
+    gap: calc(var(--pico-spacing) * 0.5); /* Space between adjacent buttons */
+  }
+  dialog#add-edit-preset-dialog footer button#delete-custom-preset-button {
+      margin-right: auto; /* Pushes delete button to the far left */
+  }
+  /* --- END Add/Edit Dialog Footer Layout Changes --- */
+
   dialog header > button[aria-label="Close"] { margin-left: auto; margin-bottom: 0; }
   h1 { font-size: 1.75em; margin-bottom: var(--pico-block-spacing-vertical); text-align: center; }
   #input-group { display: flex; align-items: center; background-color: var(--pico-form-element-background-color); border-radius: var(--pico-border-radius-pill); border: var(--pico-border-width) solid var(--pico-form-element-border-color); padding: 0; overflow: hidden; margin-bottom: var(--pico-block-spacing-vertical); }
@@ -162,7 +203,7 @@
             </div>
 
             <footer>
-                <button type="submit" id="settings-save-button">Save Active Prefix</button> <!-- Renamed for clarity -->
+                <button type="submit" id="settings-save-button">Save Active Prefix</button>
             </footer>
         </form>
     </article>
@@ -185,11 +226,10 @@
              <small id="preset-dialog-error" style="color: var(--pico-color-red-500); display: none; margin-bottom: var(--pico-spacing);"></small>
 
              <footer>
-                <button type="button" id="delete-custom-preset-button" class="secondary outline" style="display: none;">Delete</button> <!-- Text: Delete -->
-                <div> <!-- Wrapper for right-aligned buttons -->
-                    <button type="button" class="secondary outline close-add-edit-preset-dialog">Cancel</button>
-                    <button type="submit" id="save-update-custom-preset-button">Save Preset</button>
-                </div>
+                <button type="button" id="delete-custom-preset-button" class="secondary outline" style="display: none; margin-right: auto;">Delete</button> <!-- Delete button pushed left -->
+                <!-- Cancel and Save/Update remain grouped right due to flex-end on footer -->
+                <button type="button" class="secondary outline close-add-edit-preset-dialog">Cancel</button>
+                <button type="submit" id="save-update-custom-preset-button">Save Preset</button>
             </footer>
         </form>
     </article>
@@ -310,14 +350,22 @@
   function saveActivePrefixSettings(event) {
       event.preventDefault(); if (!prefixTextarea) return;
       const newPrefix = prefixTextarea.value;
+      const oldPrefix = currentTextPrefix; // Keep old prefix for comparison
       currentTextPrefix = newPrefix;
       if (saveActivePrefix(newPrefix)) {
           displaySuccess("Active prefix saved!");
           setTimeout(clearMessages, 2000);
-          // No dynamic update needed here unless the user expects it?
-          // Let's keep it simple: save just saves the active one.
+          // Dynamically update output ONLY if it was using the old prefix
+          const currentOutput = extractedText.value;
+          if (currentOutput && currentOutput.startsWith(oldPrefix) && currentOutput.substring(oldPrefix.length).trim().length > 0) {
+               const rawTextPart = currentOutput.substring(oldPrefix.length);
+               const formattedNewPrefix = currentTextPrefix.trimEnd() + (currentTextPrefix ? "\n\n" : "");
+               extractedText.value = formattedNewPrefix + rawTextPart;
+               console.log("Dynamically updated displayed text with new active prefix.");
+           }
       } else {
           displayError("Could not save active prefix.");
+          currentTextPrefix = oldPrefix; // Revert if save failed
       }
       closeSettings();
   }
@@ -327,8 +375,10 @@
       editingPresetIndex = -1; // Ensure we are in "add" mode
       const currentPrefixValue = prefixTextarea.value;
       if (!currentPrefixValue.trim()) {
-          displayError("Cannot save an empty prefix."); // Or show in dialog?
-          return;
+           // Show error within settings dialog temporarily
+           displayError("Cannot save an empty prefix.");
+           setTimeout(clearMessages, 2500);
+           return;
       }
       presetTitleInput.value = '';
       presetTextDisplay.value = currentPrefixValue;
@@ -346,7 +396,9 @@
       const index = parseInt(button.dataset.index, 10);
       if (isNaN(index) || index < 0 || index >= customPrefixes.length) {
           console.error("Invalid index for editing preset:", button.dataset.index);
+          // Show error within settings dialog temporarily
           displayError("Error trying to edit preset.");
+          setTimeout(clearMessages, 2500);
           return;
       }
       editingPresetIndex = index;
@@ -356,7 +408,7 @@
       presetTextDisplay.value = preset.prefix;
       addEditDialogTitle.textContent = 'Edit Preset';
       saveUpdateCustomPresetButton.textContent = 'Update Preset';
-      deleteCustomPresetButton.style.display = 'inline-block'; // Show delete button
+      deleteCustomPresetButton.style.display = 'inline-flex'; // Show delete button using flex for alignment consistency
       presetDialogError.style.display = 'none';
       presetTitleInput.removeAttribute('aria-invalid');
       addEditPresetDialog.showModal();
@@ -411,24 +463,29 @@
       presetTitleInput.removeAttribute('aria-invalid');
 
       const newPreset = { title: title, prefix: prefix };
+      let successMessageText = "";
 
       if (editingPresetIndex === -1) { // Adding new preset
           customPrefixes.push(newPreset);
+          successMessageText = "Custom preset saved!";
       } else { // Updating existing preset
           customPrefixes[editingPresetIndex] = newPreset;
+          successMessageText = "Custom preset updated!";
       }
 
       if (saveCustomPrefixes()) {
-          renderCustomPresetButtons();
+          renderCustomPresetButtons(); // Update list in settings dialog
           closeAddEditPresetDialog();
-          // Optionally, set the newly added/edited prefix as active?
-          // setPrefix(newPreset.prefix); // Uncomment if desired
-          displaySuccess(editingPresetIndex === -1 ? "Custom preset saved!" : "Custom preset updated!");
+          // Set the newly added/edited prefix as active
+          setPrefix(newPreset.prefix);
+          saveActivePrefix(newPreset.prefix); // Also save it as the active one
+          // Display success message in main UI area
+          displaySuccess(successMessageText);
           setTimeout(clearMessages, 2500);
       } else {
           presetDialogError.textContent = "Failed to save presets.";
           presetDialogError.style.display = 'block';
-          // Revert changes if save failed? For simplicity, we don't here.
+          // Revert changes in memory if save failed? For simplicity, we don't here.
       }
   }
 
@@ -437,10 +494,12 @@
           console.error("Invalid index for deleting preset:", editingPresetIndex);
           closeAddEditPresetDialog();
           displayError("Error trying to delete preset.");
+          setTimeout(clearMessages, 2500);
           return;
       }
 
-      const presetTitle = customPrefixes[editingPresetIndex].title;
+      const presetToDelete = customPrefixes[editingPresetIndex];
+      const presetTitle = presetToDelete.title;
       // Confirmation dialog
       if (!confirm(`Are you sure you want to delete the preset "${presetTitle}"?`)) {
           return; // User cancelled
@@ -452,45 +511,52 @@
           renderCustomPresetButtons();
           closeAddEditPresetDialog();
            // Check if the deleted prefix was the currently active one
-           if (currentTextPrefix === presetTextDisplay.value) { // Compare against the value shown in dialog
+           if (currentTextPrefix === presetToDelete.prefix) { // Compare against the object's prefix
                currentTextPrefix = DEFAULT_TEXT_PREFIX; // Revert to default
                prefixTextarea.value = currentTextPrefix;
                saveActivePrefix(currentTextPrefix); // Save the default as active
                console.log("Deleted active prefix, reverted to default.");
            }
+           // Display success message in main UI area
            displaySuccess(`Preset "${presetTitle}" deleted.`);
            setTimeout(clearMessages, 2500);
       } else {
           // If save fails, the preset might still be deleted from memory, but not storage.
-          // Re-render might be needed, or display persistent error.
           presetDialogError.textContent = "Failed to save deletion.";
           presetDialogError.style.display = 'block';
-          // For simplicity, we close dialog anyway, user might need to retry delete
-          closeAddEditPresetDialog();
-          displayError("Failed to save deletion permanently.");
+          // Re-add the preset to memory to keep state consistent with failed save
+          customPrefixes.splice(editingPresetIndex, 0, presetToDelete);
+          // Don't close dialog, show error there.
+          displayError("Failed to save deletion permanently."); // Show error in main UI as well
+          setTimeout(clearMessages, 3000);
+
       }
   }
 
   // --- Handle Preset Button Clicks (Default & Custom Load) ---
   function handlePresetButtonClick(event) {
       const button = event.currentTarget;
-      let prefixValue = '';
+      let prefixValueToSet = undefined; // Use undefined to signal no match
 
       if (button.classList.contains('preset-load-btn')) { // Custom preset load button
           const index = parseInt(button.dataset.index, 10);
            if (!isNaN(index) && index >= 0 && index < customPrefixes.length) {
-                prefixValue = customPrefixes[index].prefix;
+                prefixValueToSet = customPrefixes[index].prefix;
            } else {
                console.error("Invalid index for custom preset button:", button.dataset.index);
-               return;
+               return; // Do nothing if index is bad
            }
       } else if (button.dataset.prefixValue) { // Default preset button
           const presetKey = button.dataset.prefixValue;
-          prefixValue = DEFAULT_PRESETS[presetKey] || '';
+          prefixValueToSet = DEFAULT_PRESETS[presetKey]; // Will be undefined if key doesn't exist
       }
 
-      if (prefixValue !== undefined) {
-          setPrefix(prefixValue);
+      if (prefixValueToSet !== undefined) {
+          setPrefix(prefixValueToSet);
+          // Maybe close the settings dialog after selecting a preset? Optional.
+          // closeSettings();
+      } else {
+          console.warn("Could not determine prefix value for clicked button:", button);
       }
   }
 
@@ -566,7 +632,35 @@
   async function handleExtraction() {
     clearMessages(); updateActionButtonsState('');
     const inputText = urlInput.value.trim(); if (!inputText) { displayError("Please enter text containing a URL."); return; }
-    const urlRegex = /https?:\/\/[^\s/$.?#].[^\s]*/i; const match = inputText.match(urlRegex); if (!match) { displayError("No valid URL found in the input."); return; }
+    const urlRegex = /https?:\/\/[^\s/$.?#].[^\s]*/i; const match = inputText.match(urlRegex); if (!match) { // Check if input IS a URL directly or just text
+        const looksLikeUrl = inputText.startsWith('http://') || inputText.startsWith('https://');
+        if (!looksLikeUrl) {
+            // If it's not a URL and doesn't contain one, treat it as text to be prefixed
+            console.log("Input is plain text, applying prefix directly.");
+             const rawExtractedText = inputText; // Use the input directly as text
+             const formattedPrefix = currentTextPrefix.trimEnd() + (currentTextPrefix ? "\n\n" : "");
+             extractedText.value = formattedPrefix + rawExtractedText;
+             displaySuccess(`Applied prefix to input text.`);
+             updateActionButtonsState(rawExtractedText);
+             mainContainer.classList.remove('state-initial');
+             detailsElement.open = true;
+             // Set reset mode even for direct text input
+             extractButton.innerHTML = ICON_RESET_SVG; extractButton.classList.add('reset-mode'); extractButton.title = 'Reset'; extractButton.setAttribute('aria-label', 'Reset'); isInResetMode = true;
+             extractButton.removeEventListener('click', triggerExtractionDebounced);
+             extractButton.addEventListener('click', triggerReset);
+             setLoadingState(false); // Ensure loading stops
+             return; // Stop further processing
+        } else {
+             // If it looks like a URL but regex didn't match (e.g., edge case), try using it
+             console.warn("Input looks like URL but regex failed, attempting extraction anyway:", inputText);
+             match = [inputText]; // Treat the whole input as the URL
+        }
+        // Original error if it's not plain text and not a URL
+        if (!match) {
+           displayError("Input is not a valid URL and does not contain one.");
+           return;
+        }
+    }
     const targetUrl = match[0]; console.log("Extracted URL:", targetUrl);
     const proxiedUrl = PROXY_URL + encodeURIComponent(targetUrl); setLoadingState(true);
     try {
@@ -627,8 +721,20 @@
   function handleIncomingShare() {
       const urlParams = new URLSearchParams(window.location.search); const sharedUrl = urlParams.get('url'); const sharedText = urlParams.get('text'); let textToInput = '';
       if (sharedUrl) { console.log("Received shared URL:", sharedUrl); textToInput = sharedUrl; }
-      else if (sharedText) { console.log("Received shared text:", sharedText); const urlRegex = /https?:\/\/[^\s/$.?#].[^\s]*/i; const match = sharedText.match(urlRegex); if (match) { textToInput = match[0]; console.log("Extracted URL from shared text:", textToInput); } else { textToInput = sharedText; } }
-      if (textToInput && urlInput) { urlInput.value = textToInput; console.log("Populated input field with shared data."); console.log("Auto-triggering extraction from share..."); triggerExtractionDebounced(); }
+      else if (sharedText) { console.log("Received shared text:", sharedText); const urlRegex = /https?:\/\/[^\s/$.?#].[^\s]*/i; const match = sharedText.match(urlRegex); if (match) { textToInput = match[0]; console.log("Extracted URL from shared text:", textToInput); } else { textToInput = sharedText; } } // Use text directly if no URL found
+      if (textToInput && urlInput) {
+          urlInput.value = textToInput;
+          console.log("Populated input field with shared data.");
+          // Check if it's likely a URL before auto-triggering
+          if (textToInput.match(/https?:\/\/[^\s/$.?#].[^\s]*/i) || textToInput.startsWith('http')) {
+             console.log("Auto-triggering extraction from share...");
+             triggerExtractionDebounced();
+          } else {
+              console.log("Shared data is likely text, not auto-triggering extraction.");
+              // Optionally, trigger prefix application immediately?
+              // handleExtraction(); // This would apply prefix if called now
+          }
+      }
   }
   window.addEventListener('load', handleIncomingShare);
   // --- END INCOMING SHARE TARGET ---
