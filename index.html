@@ -351,23 +351,48 @@
       event.preventDefault(); if (!prefixTextarea) return;
       const newPrefix = prefixTextarea.value;
       const oldPrefix = currentTextPrefix; // Keep old prefix for comparison
-      currentTextPrefix = newPrefix;
-      if (saveActivePrefix(newPrefix)) {
+      currentTextPrefix = newPrefix; // Update the global state variable FIRST
+
+      if (saveActivePrefix(newPrefix)) { // Attempt to save to localStorage
           displaySuccess("Active prefix saved!");
           setTimeout(clearMessages, 2000);
+
+          // --- START FIX ---
           // Dynamically update output ONLY if it was using the old prefix
           const currentOutput = extractedText.value;
+          const separator = "\n\n"; // Define the separator
+
+          // Check if the current output exists, the old prefix existed,
+          // the output starts with the old prefix, and there's actual content after it.
           if (currentOutput && oldPrefix && currentOutput.startsWith(oldPrefix) && currentOutput.substring(oldPrefix.length).trim().length > 0) {
-               const rawTextPart = currentOutput.substring(oldPrefix.length);
-               const formattedNewPrefix = currentTextPrefix.trimEnd() + (currentTextPrefix ? "\n\n" : "");
+               let rawTextPart;
+               const potentialSeparator = currentOutput.substring(oldPrefix.length, oldPrefix.length + separator.length);
+
+               // Check if the old prefix was actually followed by the separator
+               if (potentialSeparator === separator) {
+                   // If yes, start the raw text AFTER the separator
+                   rawTextPart = currentOutput.substring(oldPrefix.length + separator.length);
+               } else {
+                   // If no (e.g., oldPrefix was empty, or user manually deleted separator),
+                   // start raw text immediately after oldPrefix
+                   rawTextPart = currentOutput.substring(oldPrefix.length);
+               }
+
+               // Format the NEW prefix (using the updated currentTextPrefix)
+               // This line remains the same, ensuring the new prefix is formatted correctly.
+               const formattedNewPrefix = currentTextPrefix.trimEnd() + (currentTextPrefix ? separator : "");
+
+               // Reconstruct the text using the correctly isolated raw part
                extractedText.value = formattedNewPrefix + rawTextPart;
                console.log("Dynamically updated displayed text with new active prefix.");
            }
+           // --- END FIX ---
+
       } else {
           displayError("Could not save active prefix.");
-          currentTextPrefix = oldPrefix; // Revert if save failed
+          currentTextPrefix = oldPrefix; // Revert global state if save failed
       }
-      closeSettings();
+      closeSettings(); // Close dialog regardless of dynamic update
   }
 
   // --- Add/Edit Preset Dialog Logic ---
