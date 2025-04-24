@@ -83,6 +83,7 @@
           display: flex; flex-wrap: wrap; gap: calc(var(--pico-spacing) * 0.5); align-items: center;
           border-top: 1px solid var(--pico-card-border-color); /* Separator line */
           padding-top: calc(var(--pico-spacing) * 0.75);
+          margin-bottom: var(--pico-spacing); /* Add space before footer */
       }
       .custom-preset-buttons-container:empty { /* Hide if empty */
           display: none;
@@ -261,6 +262,7 @@
     let isInResetMode = false;
     const isShareSupported = typeof navigator.share === 'function';
     let prefixCheckDebounceTimer; // Debounce timer for prefix input check
+    let debounceTimer; // Extraction debounce timer
 
     // --- Element References ---
     const mainContainer = document.querySelector('main.container'); const urlInput = document.getElementById('url-input'); const extractButton = document.getElementById('extract-button'); const extractedText = document.getElementById('extracted-text'); const copyButton = document.getElementById('copy-button'); const copyButtonIconWrapper = copyButton.querySelector('.icon-wrapper'); const copyButtonTextWrapper = copyButton.querySelector('.text-wrapper'); const shareButton = document.getElementById('share-button'); const shareButtonIconWrapper = shareButton?.querySelector('.icon-wrapper'); const shareButtonTextWrapper = shareButton?.querySelector('.text-wrapper'); const errorMessage = document.getElementById('error-message'); const successMessage = document.getElementById('success-message'); const retryMessage = document.getElementById('retry-message'); const detailsElement = document.getElementById('extracted-content-details'); const copyButtonWrapper = document.getElementById('copy-button-wrapper');
@@ -325,17 +327,21 @@
     // --- Render Custom Preset Buttons ---
     function renderCustomPresetButtons() {
         if (!customPresetButtonsContainer) return;
+        const existingLabel = customPresetButtonsContainer.previousElementSibling;
         customPresetButtonsContainer.innerHTML = ''; // Clear existing custom buttons
-        if (customPresets.length > 0 && !customPresetButtonsContainer.previousElementSibling.matches('small')) {
-             // Add a "Custom Presets:" label if we have custom ones and label doesn't exist
-             const small = document.createElement('small');
-             small.textContent = 'Your Presets:';
-             customPresetButtonsContainer.insertAdjacentElement('beforebegin', small);
-        } else if (customPresets.length === 0 && customPresetButtonsContainer.previousElementSibling?.matches('small')) {
-            // Remove the "Custom Presets:" label if no custom presets exist
-            customPresetButtonsContainer.previousElementSibling.remove();
-        }
 
+        // Manage the "Your Presets:" label visibility
+        if (customPresets.length > 0) {
+             if (!existingLabel || !existingLabel.matches('small')) {
+                 const small = document.createElement('small');
+                 small.textContent = 'Your Presets:';
+                 customPresetButtonsContainer.insertAdjacentElement('beforebegin', small);
+             }
+        } else {
+            if (existingLabel && existingLabel.matches('small')) {
+                existingLabel.remove();
+            }
+        }
 
         customPresets.forEach(preset => {
             const button = document.createElement('button');
