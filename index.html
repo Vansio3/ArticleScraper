@@ -655,7 +655,7 @@
     if (!match && !looksLikeUrl) {
         console.log("Input is plain text, applying prefix directly.");
         const rawExtractedText = inputText; // Use the input directly as text
-        const formattedPrefix = currentTextPrefix.trimEnd() + (currentTextPrefix && !currentTextPrefix.trimEnd().endsWith('\n\n') ? "\n\n" : "");
+        const formattedPrefix = currentTextPrefix.trimEnd() + (currentTextPrefix ? "\n\n" : "");
         extractedText.value = formattedPrefix + rawExtractedText;
         displaySuccess(`Applied prefix to input text.`);
         updateActionButtonsState(rawExtractedText);
