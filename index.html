@@ -25,7 +25,7 @@
         --pico-color-amber-500: #ffa000;
         --pico-color-red-550: #d32f2f;
         --pico-color-red-600: #c62828;
-        --pico-color-red-contrast: #fff;
+        --pico-color-red-contrast: #fff; /* Contrast for red delete button */
         --pico-border-radius-pill: 50px;
       }
 
@@ -35,19 +35,28 @@
         line-height: 1.6; background-color: var(--pico-color-dark-background);
         color: var(--pico-color); display: flex; flex-direction: column;
         align-items: center; min-height: 100vh; overflow-x: hidden; justify-content: flex-start;
-        /* **** PREVENT TEXT SELECTION **** */
-        user-select: none; /* Standard */
-        -webkit-user-select: none; /* Safari/Chrome */
-        -moz-user-select: none; /* Firefox */
-        -ms-user-select: none; /* IE/Edge */
+        user-select: none; /* <<< Disable text selection globally */
+        -webkit-user-select: none; /* Vendor prefixes */
+        -moz-user-select: none;
+        -ms-user-select: none;
       }
-      /* **** ALLOW TEXT SELECTION on inputs/textareas **** */
-      input, textarea {
-        user-select: text; /* Standard */
+
+      /* --- Re-enable selection for specific elements --- */
+      input[type="text"],
+      textarea {
+        user-select: text; /* Allow selection within text inputs and textareas */
         -webkit-user-select: text;
         -moz-user-select: text;
         -ms-user-select: text;
       }
+      dialog#save-preset-dialog #preset-text-display { /* Readonly display div */
+        user-select: text;
+        -webkit-user-select: text;
+        -moz-user-select: text;
+        -ms-user-select: text;
+      }
+       /* Extracted text area is already a textarea, so it inherits the rule above */
+
 
       main.container {
         padding: calc(var(--pico-spacing) * 1.5); margin: calc(var(--pico-spacing) * 2) auto var(--pico-spacing) auto;
@@ -146,16 +155,18 @@
         flex-grow: 1; padding: calc(var(--pico-spacing) * 0.4) calc(var(--pico-spacing) * 0.8);
         font-size: 0.9em; margin: 0; text-align: left; overflow: hidden;
         text-overflow: ellipsis; white-space: nowrap; min-width: 0;
-        line-height: 1.5;
+        line-height: 1.5; /* Adjust if necessary based on font */
       }
       .custom-preset-item button.edit-preset-btn {
-        flex-shrink: 0; padding: calc(var(--pico-spacing) * 0.4);
+        flex-shrink: 0; padding: calc(var(--pico-spacing) * 0.4); /* Match vertical padding */
         line-height: 0; width: auto; height: auto;
         border-radius: var(--pico-border-radius); display: inline-flex; align-items: center; justify-content: center;
-        margin-bottom: 0;
+        margin-bottom: 0; /* Explicitly remove bottom margin */
       }
        .custom-preset-item button.edit-preset-btn svg {
-         width: 1em; height: 1em; vertical-align: middle; stroke-width: 2.5;
+         width: 1em; /* Slightly larger icon */
+         height: 1em;
+         vertical-align: middle; stroke-width: 2.5;
        }
 
       /* Conditionally Visible "Add as Preset" Button */
@@ -173,7 +184,7 @@
       dialog header > button[aria-label="Close"] { margin-left: auto; margin-bottom: 0; }
       dialog footer button#delete-preset-button {
         background-color: var(--pico-color-red-550); border-color: var(--pico-color-red-550);
-        color: var(--pico-color-red-contrast); margin-right: auto;
+        color: var(--pico-color-red-contrast); margin-right: auto; /* Push delete button to the left */
       }
        dialog footer button#delete-preset-button:hover {
          background-color: var(--pico-color-red-600); border-color: var(--pico-color-red-600);
@@ -385,7 +396,7 @@
     const DEFAULT_TEXT_PREFIX = "Summarise the key points from the following article:\n\n";
     const PREFIX_STORAGE_KEY = 'articleExtractorPrefix';
     const CUSTOM_PRESETS_STORAGE_KEY = 'articleExtractorCustomPresets';
-    const MAX_PRESET_TITLE_LENGTH = 30;
+    const MAX_PRESET_TITLE_LENGTH = 30; // Updated max length
     const PRESET_SUMMARISE = "Summarise the key points from the following article:\n\n";
     const PRESET_FACTCHECK = "I want you to fact check this article in full. Leave no stone unturned. To do so, first, look at the text of the article and parse out each individual fact — after this, you should have a list of facts. Then, for each fact, do comprehensive research to determine whether it is true, false, or unclear. Aim for at least three independent, high quality and trustworthy sources for each fact.\n Then, once you've done this for *every* fact, return a table with each fact and its corresponding results (including sources for each check).:\n\n";
     const PRESET_FORMATTING = "Fix the punctuation and formatting of the following text:\n\n";
@@ -455,6 +466,7 @@
     const cancelEditPresetButton = document.getElementById('cancel-edit-preset-button');
     const cancelEditPresetButtonFooter = document.getElementById('cancel-edit-preset-button-footer');
     const editPresetErrorMessage = document.getElementById('edit-preset-error-message');
+
 
     // --- Load Prefixes (Current and Custom) ---
     function loadPrefix() { try { const storedPrefix = localStorage.getItem(PREFIX_STORAGE_KEY); currentTextPrefix = storedPrefix !== null ? storedPrefix : DEFAULT_TEXT_PREFIX; console.log("Loaded prefix from localStorage"); } catch (e) { console.error("Could not access localStorage for prefix. Using default.", e); currentTextPrefix = DEFAULT_TEXT_PREFIX; } if (prefixTextarea) prefixTextarea.value = currentTextPrefix; }
@@ -546,19 +558,6 @@
         // PWA & Share Target
         if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('/ArticleScraper/sw.js').then(reg => console.log('SW registered!', reg)).catch(err => console.error('SW registration failed:', err)); }); }
         window.addEventListener('load', handleIncomingShare);
-
-        // **** CONFIRM REFRESH/NAVIGATE AWAY ****
-        window.addEventListener('beforeunload', (event) => {
-            // Only prompt if an extraction has been completed (indicated by reset mode)
-            if (isInResetMode) {
-                const confirmationMessage = 'You have an unsaved extraction. Are you sure you want to leave? The URL and extracted text will be lost.';
-                // Standard way to trigger the confirmation dialog
-                event.preventDefault(); // Recommended practice
-                event.returnValue = confirmationMessage; // For older browsers / standard mechanism
-                return confirmationMessage; // For some older browsers
-            }
-            // If not in reset mode, do nothing, allow refresh/navigation without prompt
-        });
     }
     setupEventListeners(); // Call the setup function
 
