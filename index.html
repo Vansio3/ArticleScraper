@@ -772,73 +772,26 @@
   if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('/ArticleScraper/sw.js') /* Adjust path if needed */ .then(registration => { console.log('ServiceWorker registration successful with scope: ', registration.scope); }) .catch(err => { console.error('ServiceWorker registration failed: ', err); }); }); }
   // --- END PWA Service Worker Registration ---
 
-//   // --- HANDLE INCOMING SHARE TARGET ---
-//   function handleIncomingShare() {
-//       const urlParams = new URLSearchParams(window.location.search); const sharedUrl = urlParams.get('url'); const sharedText = urlParams.get('text'); let textToInput = '';
-//       if (sharedUrl) { console.log("Received shared URL:", sharedUrl); textToInput = sharedUrl; }
-//       else if (sharedText) { console.log("Received shared text:", sharedText); const urlRegex = /https?:\/\/[^\s/$.?#].[^\s]*/i; const match = sharedText.match(urlRegex); if (match) { textToInput = match[0]; console.log("Extracted URL from shared text:", textToInput); } else { textToInput = sharedText; } } // Use text directly if no URL found
-//       if (textToInput && urlInput) {
-//           urlInput.value = textToInput;
-//           console.log("Populated input field with shared data.");
-//           // Check if it's likely a URL before auto-triggering
-//           if (textToInput.match(/https?:\/\/[^\s/$.?#].[^\s]*/i) || textToInput.startsWith('http')) {
-//              console.log("Auto-triggering extraction from share...");
-//              triggerExtractionDebounced();
-//           } else {
-//               console.log("Shared data is likely text, not auto-triggering extraction. User can press Extract.");
-//               // User can manually press Extract if they want to apply prefix to shared text
-//           }
-//       }
-//   }
-//   window.addEventListener('load', handleIncomingShare);
-//   // --- END INCOMING SHARE TARGET ---
-
-    // --- HANDLE INCOMING SHARE AND AUTO-EXTRACT ON LOAD ---
-    function handleIncomingShare() {
-      const urlParams = new URLSearchParams(window.location.search);
-      const sharedUrl = urlParams.get('url');
-      const sharedText = urlParams.get('text');
-      let textToInput = '';
-
-      // 1. Handle potential incoming share data
-      if (sharedUrl) {
-          console.log("Received shared URL:", sharedUrl);
-          textToInput = sharedUrl;
-      } else if (sharedText) {
-          console.log("Received shared text:", sharedText);
-          // Use the shared text directly; extraction logic will check if it's a URL
-          textToInput = sharedText;
-      }
-
+  // --- HANDLE INCOMING SHARE TARGET ---
+  function handleIncomingShare() {
+      const urlParams = new URLSearchParams(window.location.search); const sharedUrl = urlParams.get('url'); const sharedText = urlParams.get('text'); let textToInput = '';
+      if (sharedUrl) { console.log("Received shared URL:", sharedUrl); textToInput = sharedUrl; }
+      else if (sharedText) { console.log("Received shared text:", sharedText); const urlRegex = /https?:\/\/[^\s/$.?#].[^\s]*/i; const match = sharedText.match(urlRegex); if (match) { textToInput = match[0]; console.log("Extracted URL from shared text:", textToInput); } else { textToInput = sharedText; } } // Use text directly if no URL found
       if (textToInput && urlInput) {
           urlInput.value = textToInput;
           console.log("Populated input field with shared data.");
-      }
-
-      // 2. Check if the input field has content AFTER potential share population
-      // This covers both shared content and content present from refresh/autofill
-      if (urlInput && urlInput.value.trim() !== '') {
-           console.log("Input field has content on load. Auto-triggering extraction...");
-           // Use a small delay to let the initial UI render settle, then trigger.
-           // This helps avoid potential race conditions or visual glitches.
-           setTimeout(() => {
-               // Ensure the main container isn't in initial state visually if we auto-extract
-               if (mainContainer.classList.contains('state-initial')) {
-                   mainContainer.classList.remove('state-initial');
-               }
-               triggerExtractionDebounced(); // Use the existing debounced trigger
-           }, 150); // Adjust delay slightly if needed (e.g., 100-200ms)
-      } else {
-           // If input is empty on load, ensure initial state animation runs
-           if (!mainContainer.classList.contains('state-initial')) {
-               // This might not be strictly needed depending on CSS, but safe to include
-               mainContainer.classList.add('state-initial');
-           }
+          // Check if it's likely a URL before auto-triggering
+          if (textToInput.match(/https?:\/\/[^\s/$.?#].[^\s]*/i) || textToInput.startsWith('http')) {
+             console.log("Auto-triggering extraction from share...");
+             triggerExtractionDebounced();
+          } else {
+              console.log("Shared data is likely text, not auto-triggering extraction. User can press Extract.");
+              // User can manually press Extract if they want to apply prefix to shared text
+          }
       }
   }
-  // Keep the listener as is
   window.addEventListener('load', handleIncomingShare);
-  // --- END INCOMING SHARE AND AUTO-EXTRACT ON LOAD ---
+  // --- END INCOMING SHARE TARGET ---
 
 </script>
 
