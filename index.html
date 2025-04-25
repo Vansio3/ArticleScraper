@@ -22,10 +22,13 @@
 <style>
   :root { --pico-color-amber-500: #ffa000; --pico-color-red-550: #d32f2f; --pico-color-red-600: #c62828; --pico-border-radius-pill: 50px; }
   body { font-family: var(--font-family); margin: 0; padding: var(--pico-spacing); line-height: 1.6; background-color: var(--pico-color-dark-background); color: var(--pico-color); display: flex; flex-direction: column; align-items: center; min-height: 100vh; overflow-x: hidden; justify-content: flex-start; }
+  
   /* Disable text selection for all elements */
   body { user-select: none; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; }
   /* Allow selection ONLY for specific input/textarea elements */
   #url-input, #extracted-text, #prefix-textarea, #preset-title-input, #preset-text-display { user-select: text; -webkit-user-select: text; -moz-user-select: text; -ms-user-select: text; }
+  dialog#settings-dialog > article, dialog#add-edit-preset-dialog > article { user-select: none; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; }
+  
   main.container { padding: calc(var(--pico-spacing) * 1.5); margin: calc(var(--pico-spacing) * 2) auto var(--pico-spacing) auto; max-width: 700px; width: 90%; transition: transform 0.6s cubic-bezier(0.25, 0.8, 0.25, 1); transform: translateY(0); }
   main.container.state-initial { transform: translateY(25vh); }
   #copy-button-wrapper, #extracted-content-details, #status-messages { display: block; opacity: 0; max-height: 0; overflow: hidden; transform: translateY(15px); transition: opacity 0.5s ease-out 0.25s, max-height 0.5s ease-out 0.25s, transform 0.5s ease-out 0.25s; }
