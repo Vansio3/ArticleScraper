@@ -1,6 +1,6 @@
 # Article Extractor 📰➡️🤖
 
-[License: MIT]
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 **Live Demo:** [https://vansio3.github.io/ArticleScraper/](https://vansio3.github.io/ArticleScraper/)
 
